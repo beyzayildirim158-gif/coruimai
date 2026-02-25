@@ -165,15 +165,7 @@ export default function AnalysisDetailPage() {
           </div>
         )}
 
-        {/* Data Quality Badge — eksik/toplanamayan veriler */}
-        {dataQualityReport && (
-          <div className="mt-4">
-            <DataQualityBadge
-              report={dataQualityReport as any}
-              locale={locale === 'tr' ? 'tr' : 'en'}
-            />
-          </div>
-        )}
+        {/* Data Quality Badge — hidden (eksik veriler kullanıcıya gösterilmiyor) */}
 
         {/* Stats Grid */}
         <div className="mt-6 grid gap-4 grid-cols-2 md:grid-cols-5">
