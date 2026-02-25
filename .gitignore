@@ -23,7 +23,8 @@ venv/
 .env
 .env.local
 .env.*.local
-.env.production
+# .env.production is allowed (only contains public API URLs, no secrets)
+# .env.production
 .env.development
 agent-orchestrator/.env
 backend-api/.env
