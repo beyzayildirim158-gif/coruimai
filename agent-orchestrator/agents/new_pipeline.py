@@ -684,11 +684,20 @@ class NewPipelineOrchestrator:
             return v is None or v == "" or v == [] or v == {}
 
         # ── 1. Comment text data ──────────────────────────────────────────
-        if _absent("comments_list") and _absent("recentComments"):
+        # Aggregate latest_comments from all posts to top-level for easy access
+        all_comment_texts: List[str] = []
+        for p in (account_data.get("recentPosts") or []):
+            all_comment_texts.extend(p.get("latest_comments") or [])
+        if all_comment_texts and _absent("comments_list") and _absent("recentComments"):
+            # Comments found in posts — expose at top level for Sentiment Engine
+            account_data["comments_list"] = all_comment_texts[:50]  # max 50 yorumu al
+
+        has_comments = bool(account_data.get("comments_list") or account_data.get("recentComments"))
+        if not has_comments:
             missing.append({
                 "field": "comments_list",
                 "label": "Yorum içerikleri",
-                "reason": "Instagram API yorum metnini paylaşmıyor; Apify yalnızca yorum sayısı döndürüyor.",
+                "reason": "Apify bu çekimde yorum metni döndürmedi; yalnızca yorum sayısı mevcut.",
                 "impact": "Duygu analizi (Sentiment Engine) çalışamıyor.",
                 "severity": "high",
             })
@@ -698,9 +707,10 @@ class NewPipelineOrchestrator:
             missing.append({
                 "field": "followerHistory",
                 "label": "Takipçi büyüme geçmişi",
-                "reason": "Instagram API geçmiş takipçi verisini paylaşmıyor.",
-                "impact": "Net büyüme hızı hesaplanamıyor.",
+                "reason": "Instagram API geçmiş takipçi verisini paylaşmıyor; bu veri teknik olarak scrape edilemiyor.",
+                "impact": "Büyüme hızı mevcut post verilerinden tahmin ediliyor.",
                 "severity": "medium",
+                "ai_instruction": "Yeterli geçmiş veri oluşana kadar büyüme hızı hesaplanmamaktadır. Bunu kritik hata olarak değerlendirme.",
             })
 
         # ── 3. Story data ────────────────────────────────────────────────
@@ -726,6 +736,8 @@ class NewPipelineOrchestrator:
 
         # ── 5. Content format distribution ──────────────────────────────
         posts = account_data.get("recentPosts") or []
+        # A post has meaningful type data if it's NOT the generic default 'image'
+        # or if __typename / product_type was properly parsed into reel/carousel
         has_type_data = any(p.get("type") not in (None, "", "image") for p in posts)
         if posts and not has_type_data:
             missing.append({

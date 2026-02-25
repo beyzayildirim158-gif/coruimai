@@ -256,13 +256,16 @@ class ApifyConfig:
             "searchType": "user",
             "searchLimit": 1,         # YENİ: Sadece 1 hesap ara (doğru hesabı bul)
             "addParentData": True,    # Profil bilgisini postlarla birlikte getir
+            "commentsCount": 10,      # YENİ: Her post için en fazla 10 yorum çek (sentiment için)
             "extendOutputFunction": """async ({ data, item, page, request, customData }) => {
                 return {
                     ...item,
                     likesCount: item.likesCount || 0,
                     commentsCount: item.commentsCount || 0,
                     timestamp: item.timestamp,
-                    type: item.type
+                    type: item.type,
+                    __typename: item.__typename || '',
+                    product_type: item.productType || item.product_type || ''
                 };
             }""",
         }
@@ -565,31 +568,51 @@ class ApifyClient:
             likes = p.get("likesCount", 0) or p.get("likes", 0) or 0
             comments = p.get("commentsCount", 0) or p.get("comments", 0) or 0
             
-            # KRITIK: Reels tespiti - birden fazla alan kontrol edilmeli
-            post_type = p.get("type", "") or p.get("productType", "") or "image"
-            
-            # Apify farklı formatlar döndürebilir - normalize et
-            post_type_lower = str(post_type).lower()
-            if post_type_lower in ["clips", "reel", "reels", "feed_clip"]:
+            # ── Post Type Inference (Action Plan #1) ──────────────────────────
+            # Priority 1: __typename field (most reliable from GraphQL)
+            # Priority 2: product_type / productType
+            # Priority 3: type field
+            # Priority 4: Fallback signals (videoUrl, videoViewCount)
+            typename    = p.get("__typename", "") or ""
+            product_type_raw = (p.get("productType") or p.get("product_type") or "").lower()
+            type_field  = (p.get("type") or "").lower()
+
+            if product_type_raw in ("clips",) or typename == "GraphVideo" and product_type_raw in ("clips", "feed_clip", "reel", "reels"):
                 post_type = "reel"
-            elif post_type_lower in ["video", "igtv"]:
-                # Video içerik - Reels olabilir, videoViewCount'a bak
-                video_views = p.get("videoViewCount", 0) or p.get("videoPlayCount", 0) or p.get("playCount", 0)
-                # Reels genellikle yüksek view sayısına sahip
-                if video_views > 0:
-                    post_type = "reel" if p.get("productType", "").lower() == "clips" else "video"
-            elif post_type_lower in ["carousel", "sidecar", "carousel_container"]:
+            elif typename == "GraphVideo" and product_type_raw not in ("clips", "feed_clip"):
+                # Plain video (IGTV etc.) — treat as reel only if product_type says so
+                is_clips = product_type_raw in ("clips", "reel", "reels", "feed_clip")
+                post_type = "reel" if is_clips else "video"
+            elif typename == "GraphSidecar" or type_field in ("carousel", "sidecar", "carousel_container"):
                 post_type = "carousel"
-            elif post_type_lower in ["image", "photo", "graphimage"]:
+            elif typename == "GraphImage" or type_field in ("image", "photo", "graphimage"):
                 post_type = "image"
-            
-            # Alternatif: videoUrl veya videoViewCount varsa ve type yoksa
-            if post_type == "image":
-                if p.get("videoUrl") or p.get("videoViewCount") or p.get("videoPlayCount"):
-                    # Video içerik ama type düzgün gelmemiş
-                    is_clips = p.get("productType", "").lower() in ["clips", "reel", "reels"]
+            elif type_field in ("clips", "reel", "reels", "feed_clip"):
+                post_type = "reel"
+            elif type_field in ("video", "igtv"):
+                is_clips = product_type_raw in ("clips", "reel", "reels")
+                post_type = "reel" if is_clips else "video"
+            else:
+                # Fallback: infer from available signals
+                has_video = bool(p.get("videoUrl") or p.get("videoViewCount") or p.get("videoPlayCount") or p.get("playCount"))
+                if has_video:
+                    is_clips = product_type_raw in ("clips", "reel", "reels", "feed_clip")
                     post_type = "reel" if is_clips else "video"
+                else:
+                    post_type = "image"
             
+            # ── Extract comment texts (Action Plan #2) ─────────────────────
+            raw_comments = p.get("latestComments") or p.get("comments_data") or p.get("topComments") or []
+            latest_comments: List[str] = []
+            if isinstance(raw_comments, list):
+                for c in raw_comments:
+                    if isinstance(c, dict):
+                        text = c.get("text") or c.get("comment") or c.get("content") or ""
+                        if text:
+                            latest_comments.append(str(text).strip())
+                    elif isinstance(c, str) and c.strip():
+                        latest_comments.append(c.strip())
+
             parsed_posts.append({
                 "post_id": p.get("id", "") or p.get("pk", ""),
                 "shortcode": p.get("shortCode", "") or p.get("code", ""),
@@ -598,9 +621,10 @@ class ApifyClient:
                 "hashtags": self._extract_hashtags(p.get("caption", "") or ""),
                 "mentions": self._extract_mentions(p.get("caption", "") or ""),
                 "likes": likes,
-                "likesCount": likes,  # Keep both for compatibility
+                "likesCount": likes,
                 "comments": comments,
-                "commentsCount": comments,  # Keep both for compatibility
+                "commentsCount": comments,
+                "latest_comments": latest_comments,  # Sentiment engine için yorum metinleri
                 "timestamp": p.get("timestamp", "") or p.get("takenAt", ""),
                 "url": p.get("url", "") or f"https://instagram.com/p/{p.get('shortCode', '')}",
                 "media_urls": p.get("displayUrl", []) if isinstance(p.get("displayUrl"), list) else [p.get("displayUrl", "")],
