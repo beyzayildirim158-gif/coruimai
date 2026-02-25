@@ -45,7 +45,7 @@
     "docker:build": "docker-compose build",
     "docker:rebuild": "docker-compose up -d --build",
     "clean": "rm -rf node_modules && rm -rf */node_modules",
-    "prepare": "is-ci || husky install"
+    "prepare": "node -e \"if (!process.env.CI) { require('child_process').execSync('husky install', {stdio: 'inherit'}) }\""
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
