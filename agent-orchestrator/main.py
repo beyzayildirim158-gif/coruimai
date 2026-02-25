@@ -84,7 +84,6 @@ _extra_origins = [o.strip() for o in _allowed_origins_env.split(",") if o.strip(
 
 ALLOWED_ORIGINS: list[str] = [
     # Cloudflare Tunnel public domain
-    "https://www.coriumai-local.com",
     "https://coriumai-local.com",
     # Vercel production (all preview & custom domains)
     "https://*.vercel.app",
