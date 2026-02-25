@@ -137,9 +137,9 @@ export default function LoginPage() {
         </form>
 
         <p className="text-center text-sm text-slate-500">
-          {t('auth.noAccount')}{' '}
+          Hesabınız yok mu?{' '}
           <Link href="/register" className="text-primary font-medium">
-            {t('auth.register')}
+            Erişim talep edin
           </Link>
         </p>
       </div>
