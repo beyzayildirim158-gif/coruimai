@@ -225,16 +225,12 @@ services:
       - instagram_ai_network
     restart: unless-stopped
 
-  # Cloudflare Tunnel — exposes backend-api to Vercel/public internet
+  # Cloudflare Quick Tunnel — no domain needed, auto-assigns *.trycloudflare.com URL
   tunnel:
     image: cloudflare/cloudflared:latest
     container_name: instagram_ai_tunnel
     restart: unless-stopped
-    command: tunnel --no-autoupdate --config /etc/cloudflared/config.yml run --token ${TUNNEL_TOKEN}
-    environment:
-      TUNNEL_TOKEN: ${TUNNEL_TOKEN}
-    volumes:
-      - ./docker/cloudflared/config.yml:/etc/cloudflared/config.yml:ro
+    command: tunnel --no-autoupdate --url http://backend-api:3001
     depends_on:
       - backend-api
     networks:
