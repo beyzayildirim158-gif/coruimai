@@ -4,7 +4,9 @@ import jwt from 'jsonwebtoken';
 import { config } from '../config/index.js';
 import { prisma } from '../config/database.js';
 import { UnauthorizedError, ForbiddenError } from '../utils/errors.js';
-import { SubscriptionTier } from '@prisma/client';
+
+// Local type definition (mirrors Prisma enum — avoids generate-time errors)
+type SubscriptionTier = 'FREE' | 'STARTER' | 'PROFESSIONAL' | 'PREMIUM' | 'ENTERPRISE';
 
 // Extend Express Request type
 declare global {

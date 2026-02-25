@@ -67,7 +67,8 @@ export const errorHandler = (
   }
   // Handle Prisma errors
   else if (err instanceof Prisma.PrismaClientKnownRequestError) {
-    switch (err.code) {
+    const prismaErr = err as Prisma.PrismaClientKnownRequestError;
+    switch (prismaErr.code) {
       case 'P2002':
         statusCode = 409;
         response.error.code = 'DUPLICATE_ENTRY';

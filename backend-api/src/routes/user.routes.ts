@@ -160,7 +160,7 @@ router.get(
     });
 
     // Map to prefer base64 data over CDN URL
-    const accountsWithPics = accounts.map((acc) => ({
+    const accountsWithPics = accounts.map((acc: typeof accounts[number]) => ({
       ...acc,
       profilePicUrl: acc.profilePicData || acc.profilePicUrl,
       profilePicData: undefined, // Don't send both
@@ -242,7 +242,7 @@ router.get(
     ]);
 
     // Map to prefer base64 data over CDN URL
-    const analysesWithPics = analyses.map((a) => ({
+    const analysesWithPics = analyses.map((a: typeof analyses[number]) => ({
       ...a,
       account: {
         ...a.account,
