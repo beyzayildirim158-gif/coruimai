@@ -1,0 +1,288 @@
+// Instagram AI Management System - Prisma Schema
+// Database: PostgreSQL
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// USER & AUTHENTICATION
+// ============================================
+
+model User {
+  id                    String    @id @default(uuid())
+  email                 String    @unique
+  passwordHash          String    @map("password_hash")
+  name                  String
+  avatarUrl             String?   @map("avatar_url")
+  emailVerified         Boolean   @default(false) @map("email_verified")
+  emailVerificationToken String?  @map("email_verification_token")
+  passwordResetToken    String?   @map("password_reset_token")
+  passwordResetExpires  DateTime? @map("password_reset_expires")
+  
+  // Subscription
+  subscriptionTier      SubscriptionTier @default(STARTER) @map("subscription_tier")
+  subscriptionStatus    SubscriptionStatus @default(ACTIVE) @map("subscription_status")
+  stripeCustomerId      String?   @unique @map("stripe_customer_id")
+  stripeSubscriptionId  String?   @unique @map("stripe_subscription_id")
+  trialEndsAt           DateTime? @map("trial_ends_at")
+  
+  // Timestamps
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+  lastLoginAt           DateTime? @map("last_login_at")
+  
+  // Relations
+  refreshTokens         RefreshToken[]
+  instagramAccounts     InstagramAccount[]
+  analyses              Analysis[]
+  reports               Report[]
+  payments              Payment[]
+  apiUsage              ApiUsage[]
+
+  @@map("users")
+  @@index([email])
+  @@index([stripeCustomerId])
+}
+
+model RefreshToken {
+  id          String   @id @default(uuid())
+  token       String   @unique
+  userId      String   @map("user_id")
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt   DateTime @map("expires_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+  revokedAt   DateTime? @map("revoked_at")
+  ipAddress   String?  @map("ip_address")
+  userAgent   String?  @map("user_agent")
+
+  @@map("refresh_tokens")
+  @@index([userId])
+  @@index([token])
+}
+
+// ============================================
+// INSTAGRAM ACCOUNTS
+// ============================================
+
+model InstagramAccount {
+  id              String    @id @default(uuid())
+  userId          String    @map("user_id")
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  username        String
+  
+  // Account Data (cached from Apify)
+  followers       Int       @default(0)
+  following       Int       @default(0)
+  posts           Int       @default(0)
+  bio             String?
+  profilePicUrl   String?   @map("profile_pic_url")
+  isVerified      Boolean   @default(false) @map("is_verified")
+  isPrivate       Boolean   @default(false) @map("is_private")
+  isBusiness      Boolean   @default(false) @map("is_business")
+  
+  // Metrics
+  engagementRate  Float?    @map("engagement_rate")
+  avgLikes        Float?    @map("avg_likes")
+  avgComments     Float?    @map("avg_comments")
+  botScore        Float?    @map("bot_score")
+  
+  // Extended Data (JSONB)
+  accountData     Json?     @map("account_data")
+  
+  // Tracking
+  analysisCount   Int       @default(0) @map("analysis_count")
+  lastAnalyzedAt  DateTime? @map("last_analyzed_at")
+  
+  // Timestamps
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  
+  // Relations
+  analyses        Analysis[]
+
+  @@map("instagram_accounts")
+  @@unique([userId, username])
+  @@index([username])
+  @@index([userId])
+}
+
+// ============================================
+// ANALYSES
+// ============================================
+
+model Analysis {
+  id              String         @id @default(uuid())
+  userId          String         @map("user_id")
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accountId       String         @map("account_id")
+  account         InstagramAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  
+  // Status
+  status          AnalysisStatus @default(PENDING)
+  progress        Int            @default(0)
+  currentAgent    String?        @map("current_agent")
+  errorMessage    String?        @map("error_message")
+  
+  // Results (JSONB - stores all 7 agent outputs)
+  agentResults    Json?          @map("agent_results")
+  
+  // Summary
+  overallScore    Float?         @map("overall_score")
+  scoreGrade      String?        @map("score_grade")
+  recommendations Json?          
+  
+  // Timestamps
+  startedAt       DateTime?      @map("started_at")
+  completedAt     DateTime?      @map("completed_at")
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updatedAt       DateTime       @updatedAt @map("updated_at")
+  
+  // Relations
+  reports         Report[]
+
+  @@map("analyses")
+  @@index([userId])
+  @@index([accountId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// ============================================
+// REPORTS
+// ============================================
+
+model Report {
+  id          String      @id @default(uuid())
+  userId      String      @map("user_id")
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  analysisId  String      @map("analysis_id")
+  analysis    Analysis    @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+  
+  // PDF Details
+  pdfUrl      String?     @map("pdf_url")
+  s3Key       String?     @map("s3_key")
+  fileSize    Int?        @map("file_size")
+  reportType  ReportType  @default(FULL) @map("report_type")
+  
+  // Metadata
+  pageCount   Int?        @map("page_count")
+  isWatermarked Boolean   @default(false) @map("is_watermarked")
+  
+  // Timestamps
+  generatedAt DateTime?   @map("generated_at")
+  expiresAt   DateTime?   @map("expires_at")
+  createdAt   DateTime    @default(now()) @map("created_at")
+  
+  @@map("reports")
+  @@index([userId])
+  @@index([analysisId])
+}
+
+// ============================================
+// PAYMENTS
+// ============================================
+
+model Payment {
+  id                String        @id @default(uuid())
+  userId            String        @map("user_id")
+  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Stripe Data
+  stripePaymentId   String?       @unique @map("stripe_payment_id")
+  stripeInvoiceId   String?       @map("stripe_invoice_id")
+  
+  // Payment Details
+  amount            Int           
+  currency          String        @default("usd")
+  status            PaymentStatus @default(PENDING)
+  planType          SubscriptionTier @map("plan_type")
+  
+  // Metadata
+  description       String?
+  receiptUrl        String?       @map("receipt_url")
+  
+  // Timestamps
+  paidAt            DateTime?     @map("paid_at")
+  createdAt         DateTime      @default(now()) @map("created_at")
+
+  @@map("payments")
+  @@index([userId])
+  @@index([stripePaymentId])
+  @@index([createdAt])
+}
+
+// ============================================
+// API USAGE TRACKING
+// ============================================
+
+model ApiUsage {
+  id              String   @id @default(uuid())
+  userId          String   @map("user_id")
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Usage Data
+  endpoint        String
+  method          String
+  requestsCount   Int      @default(1) @map("requests_count")
+  date            DateTime @db.Date
+  
+  // Rate Limiting
+  analysesUsed    Int      @default(0) @map("analyses_used")
+  monthYear       String   @map("month_year")
+  
+  // Timestamps
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("api_usage")
+  @@unique([userId, monthYear])
+  @@index([userId])
+  @@index([date])
+  @@index([monthYear])
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum SubscriptionTier {
+  STARTER
+  PROFESSIONAL
+  PREMIUM
+  ENTERPRISE
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  PAST_DUE
+  TRIALING
+  PAUSED
+}
+
+enum AnalysisStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum ReportType {
+  FULL
+  SUMMARY
+  EXECUTIVE
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  REFUNDED
+}

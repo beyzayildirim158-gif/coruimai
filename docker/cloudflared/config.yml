@@ -1,0 +1,7 @@
+tunnel: fd82b6cc-2f88-4993-9131-f6db45bde784
+credentials-file: /etc/cloudflared/creds.json
+
+ingress:
+  # Backend API — tüm trafiği backend'e yönlendir
+  - service: http://backend-api:3001
+

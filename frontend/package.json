@@ -1,0 +1,48 @@
+{
+  "name": "@instagram-ai/frontend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@heroicons/react": "2.1.1",
+    "@hookform/resolvers": "3.3.4",
+    "@iconify-json/ph": "^1.2.2",
+    "@iconify-json/solar": "^1.2.5",
+    "@iconify-json/tabler": "^1.2.26",
+    "@iconify/react": "^6.0.2",
+    "@instagram-ai/shared": "file:../shared",
+    "@tanstack/react-query": "5.17.9",
+    "autoprefixer": "10.4.17",
+    "axios": "1.6.5",
+    "class-variance-authority": "0.7.0",
+    "clsx": "2.1.0",
+    "date-fns": "3.2.0",
+    "framer-motion": "10.18.0",
+    "lucide-react": "0.312.0",
+    "next": "14.1.0",
+    "next-intl": "^4.7.0",
+    "postcss": "8.4.33",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-hook-form": "7.49.3",
+    "react-hot-toast": "2.4.1",
+    "recharts": "2.10.4",
+    "tailwindcss": "3.4.1",
+    "zod": "3.22.4",
+    "zustand": "4.4.7"
+  },
+  "devDependencies": {
+    "@types/node": "20.11.5",
+    "@types/react": "18.2.48",
+    "@types/react-dom": "18.2.18",
+    "eslint": "8.56.0",
+    "eslint-config-next": "14.1.0",
+    "typescript": "5.3.3"
+  }
+}

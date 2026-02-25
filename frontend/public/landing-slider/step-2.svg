@@ -1,0 +1,26 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg2" x1="0" y1="0" x2="1200" y2="800" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#E8FFF5"/>
+      <stop offset="1" stop-color="#F8FFFC"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" rx="28" fill="url(#bg2)"/>
+  <rect x="88" y="88" width="1024" height="624" rx="20" fill="white" stroke="#CDEEDD" stroke-width="2"/>
+  <text x="130" y="120" fill="#1C8E64" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="700">STEP 2 • MULTI-AGENT INTELLIGENCE</text>
+  <circle cx="600" cy="400" r="78" fill="#A8F0CE"/>
+  <text x="560" y="409" fill="#1C8E64" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="700">CORE</text>
+  <circle cx="330" cy="240" r="56" fill="#D9F9EA" stroke="#94DEBE" stroke-width="2"/>
+  <circle cx="600" cy="210" r="56" fill="#D9F9EA" stroke="#94DEBE" stroke-width="2"/>
+  <circle cx="870" cy="240" r="56" fill="#D9F9EA" stroke="#94DEBE" stroke-width="2"/>
+  <circle cx="290" cy="510" r="56" fill="#D9F9EA" stroke="#94DEBE" stroke-width="2"/>
+  <circle cx="600" cy="585" r="56" fill="#D9F9EA" stroke="#94DEBE" stroke-width="2"/>
+  <circle cx="910" cy="510" r="56" fill="#D9F9EA" stroke="#94DEBE" stroke-width="2"/>
+  <path d="M386 260L535 355" stroke="#66C69C" stroke-width="8" stroke-linecap="round"/>
+  <path d="M600 266L600 322" stroke="#66C69C" stroke-width="8" stroke-linecap="round"/>
+  <path d="M814 260L665 355" stroke="#66C69C" stroke-width="8" stroke-linecap="round"/>
+  <path d="M342 484L525 421" stroke="#66C69C" stroke-width="8" stroke-linecap="round"/>
+  <path d="M600 529L600 478" stroke="#66C69C" stroke-width="8" stroke-linecap="round"/>
+  <path d="M858 484L675 421" stroke="#66C69C" stroke-width="8" stroke-linecap="round"/>
+  <text x="130" y="695" fill="#4E8C73" font-family="Inter, Arial, sans-serif" font-size="22">Replace this image at: /public/landing-slider/step-2.svg</text>
+</svg>

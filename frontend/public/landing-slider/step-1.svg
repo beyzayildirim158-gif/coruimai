@@ -1,0 +1,20 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg1" x1="0" y1="0" x2="1200" y2="800" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#E0EAFF"/>
+      <stop offset="1" stop-color="#F8FAFF"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" rx="28" fill="url(#bg1)"/>
+  <rect x="88" y="88" width="1024" height="624" rx="20" fill="white" stroke="#D6E3FF" stroke-width="2"/>
+  <rect x="130" y="146" width="330" height="20" rx="10" fill="#C9DAFF"/>
+  <rect x="130" y="182" width="520" height="14" rx="7" fill="#DFE9FF"/>
+  <rect x="130" y="234" width="350" height="420" rx="14" fill="#F3F7FF"/>
+  <rect x="502" y="234" width="568" height="200" rx="14" fill="#F3F7FF"/>
+  <rect x="502" y="454" width="270" height="200" rx="14" fill="#F3F7FF"/>
+  <rect x="800" y="454" width="270" height="200" rx="14" fill="#F3F7FF"/>
+  <circle cx="300" cy="445" r="86" fill="#8CB3FF"/>
+  <path d="M250 442l35 35 70-70" stroke="white" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="130" y="120" fill="#3A63B8" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="700">STEP 1 • DATA INGESTION &amp; CLEANUP</text>
+  <text x="130" y="695" fill="#6B7FAF" font-family="Inter, Arial, sans-serif" font-size="22">Replace this image at: /public/landing-slider/step-1.svg</text>
+</svg>

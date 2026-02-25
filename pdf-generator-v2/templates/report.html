@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram AI Analiz Raporu - @{{ account.username }}</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+{# ============================================================
+   PAGE 1: COVER PAGE
+   ============================================================ #}
+<div class="page cover">
+    <div class="cover-pattern"></div>
+    <div class="cover-content">
+        <header class="cover-header">
+            <div class="cover-logo">INSTAGRAM AI</div>
+            <div class="cover-date">
+                Rapor Tarihi<br>
+                <strong>{{ generated_at | format_date }}</strong>
+            </div>
+        </header>
+        
+        <main class="cover-main">
+            {# Profile Ring #}
+            <div class="profile-ring">
+                <div class="profile-inner">
+                    {% if profile_image %}
+                    <img class="profile-img" src="{{ profile_image }}" alt="@{{ account.username }}">
+                    {% else %}
+                    <div class="profile-placeholder">{{ account.username[0] | upper }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <h1 class="cover-username">@{{ account.username }}</h1>
+            
+            {% if account.fullName %}
+            <p class="cover-fullname">{{ account.fullName }}</p>
+            {% endif %}
+            
+            {# Stats Row #}
+            <div class="cover-stats">
+                <div class="cover-stat">
+                    <div class="cover-stat-value">{{ account.followers | format_number }}</div>
+                    <div class="cover-stat-label">Takipçi</div>
+                </div>
+                <div class="cover-stat">
+                    <div class="cover-stat-value">{{ account.following | format_number }}</div>
+                    <div class="cover-stat-label">Takip</div>
+                </div>
+                <div class="cover-stat">
+                    <div class="cover-stat-value">{{ account.posts | format_number }}</div>
+                    <div class="cover-stat-label">Gönderi</div>
+                </div>
+                <div class="cover-stat">
+                    <div class="cover-stat-value">{{ account.engagementRate | format_percent }}</div>
+                    <div class="cover-stat-label">Etkileşim</div>
+                </div>
+            </div>
+            
+            {# Score Box #}
+            {% if score_grade %}
+            <div class="cover-score-box">
+                <div class="cover-score-label">Genel Performans Puanı</div>
+                <div class="cover-score-grade grade-{{ score_grade }}">{{ score_grade }}</div>
+                {% if overall_score %}
+                <div class="cover-score-value">{{ overall_score | round(1) }}/100 Puan</div>
+                {% endif %}
+            </div>
+            {% endif %}
+            
+            {# Score Gauge Chart #}
+            {% if charts.score_gauge %}
+            <div class="cover-gauge">
+                <img src="{{ charts.score_gauge }}" alt="Score Gauge" class="gauge-img">
+            </div>
+            {% endif %}
+        </main>
+        
+        <footer class="cover-footer">
+            <div class="cover-footer-text">Yapay Zekâ Destekli Kapsamlı Hesap Analizi</div>
+            <div class="cover-tier-badge tier-{{ tier }}">{{ tier | upper }} Rapor</div>
+        </footer>
+    </div>
+</div>
+
+{# ============================================================
+   PAGE 2: EXECUTIVE SUMMARY
+   ============================================================ #}
+<div class="page">
+    <div class="page-header">
+        <span class="page-number">Sayfa 2</span>
+        <span class="page-title">Yönetici Özeti</span>
+    </div>
+    
+    <section class="section">
+        <div class="section-header">
+            <div class="section-icon purple">📊</div>
+            <div>
+                <h2 class="section-title">Yönetici Özeti</h2>
+                <p class="section-subtitle">McKinsey-Seviye Hesap Değerlendirmesi</p>
+            </div>
+            {% if sanitization and sanitization.metrics_summary %}
+            {% set conf = get_confidence_info(sanitization.metrics_summary.trust_score) %}
+            <span class="badge badge-{{ conf.level }}">{{ conf.icon }} {{ conf.text }}</span>
+            {% endif %}
+        </div>
+        
+        {# Health Score Card #}
+        <div class="health-card">
+            <div class="health-left">
+                <div class="health-label">Hesap Sağlığı</div>
+                <div class="health-score" style="color: {{ overall_score | get_score_color }}">
+                    {{ overall_score | round(0) if overall_score else '--' }}<span class="health-max">/100</span>
+                </div>
+                {% if sanitization and sanitization.metrics_summary %}
+                <div class="health-confidence">
+                    {{ get_confidence_info(sanitization.metrics_summary.trust_score).text }}
+                </div>
+                {% endif %}
+            </div>
+            <div class="health-right">
+                {% if overall_score and overall_score >= 70 %}
+                <span class="health-badge good">🟢 İyi Performans</span>
+                {% elif overall_score and overall_score >= 40 %}
+                <span class="health-badge medium">🟡 Geliştirilmeli</span>
+                {% else %}
+                <span class="health-badge poor">🔴 Kritik - Aksiyon Gerekli</span>
+                {% endif %}
+            </div>
+        </div>
+        
+        {# Strategic Phase #}
+        {% if sanitization and sanitization.phase_info %}
+        {% set phase = get_phase_info(sanitization.phase_info.determined_phase) %}
+        <div class="phase-card" style="border-left-color: {{ phase.color }}">
+            <div class="phase-header">
+                <span class="phase-icon">{{ phase.icon }}</span>
+                <span class="phase-name">{{ phase.name }}</span>
+                <span class="phase-duration">⏱ {{ sanitization.phase_info.duration }}</span>
+            </div>
+            {% if sanitization.phase_info.reasoning %}
+            <p class="phase-reasoning">"{{ sanitization.phase_info.reasoning }}"</p>
+            {% endif %}
+        </div>
+        {% endif %}
+        
+        {# Stats Grid #}
+        <div class="stats-grid">
+            <div class="stat-card highlight">
+                <div class="stat-label">Takipçi</div>
+                <div class="stat-value">{{ account.followers | format_number }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Takip</div>
+                <div class="stat-value">{{ account.following | format_number }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Gönderi</div>
+                <div class="stat-value">{{ account.posts | format_number }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Etkileşim</div>
+                <div class="stat-value">{{ account.engagementRate | format_percent }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Bot Riski</div>
+                <div class="stat-value" style="color: {{ '#ef4444' if account.botScore and account.botScore > 50 else '#10b981' }}">
+                    {{ account.botScore | round(0) if account.botScore else '--' }}
+                </div>
+            </div>
+        </div>
+        
+        {# Badges #}
+        <div class="badges-row">
+            {% if account.isBusiness %}
+            <span class="badge badge-purple">İşletme Hesabı</span>
+            {% endif %}
+            {% if account.verified %}
+            <span class="badge badge-blue">✓ Doğrulanmış</span>
+            {% endif %}
+            {% if account.avgLikes %}
+            <span class="badge badge-pink">Ort. {{ account.avgLikes | format_number }} beğeni</span>
+            {% endif %}
+            {% if account.avgComments %}
+            <span class="badge badge-amber">Ort. {{ account.avgComments | format_number }} yorum</span>
+            {% endif %}
+        </div>
+    </section>
+    
+    {# Business Identity #}
+    {% if eli5 and eli5.businessIdentity %}
+    <section class="section">
+        <div class="business-card {{ 'service' if 'hizmet' in (eli5.businessIdentity.account_type or '')|lower or 'business' in (eli5.businessIdentity.account_type or '')|lower else 'creator' if 'creator' in (eli5.businessIdentity.account_type or '')|lower else 'personal' }}">
+            <div class="business-label">Hesap Türü</div>
+            <h3 class="business-type">{{ eli5.businessIdentity.account_type or 'Belirsiz' }}</h3>
+            {% if eli5.businessIdentity.account_type_explanation %}
+            <p class="business-note">{{ eli5.businessIdentity.account_type_explanation }}</p>
+            {% endif %}
+            
+            {% if eli5.businessIdentity.correct_success_metrics %}
+            <div class="metrics-section">
+                <div class="metrics-label">✓ Takip Edilmesi Gereken Metrikler</div>
+                <div class="metrics-tags">
+                    {% for metric in eli5.businessIdentity.correct_success_metrics %}
+                    <span class="metric-tag good">{{ metric }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if eli5.businessIdentity.wrong_metrics_to_avoid %}
+            <div class="metrics-section">
+                <div class="metrics-label">✗ Yanıltıcı Metrikler</div>
+                <div class="metrics-tags">
+                    {% for metric in eli5.businessIdentity.wrong_metrics_to_avoid %}
+                    <span class="metric-tag bad">{{ metric }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+    {% endif %}
+    
+    {# Strengths & Issues #}
+    {% if eli5 and eli5.executiveSummary %}
+    <div class="two-column">
+        {% if eli5.executiveSummary.topStrengths %}
+        <div class="card card-success">
+            <h4 class="card-title success">✓ Güçlü Yönler</h4>
+            {% for item in eli5.executiveSummary.topStrengths %}
+            <div class="list-item success">
+                <span class="list-icon">✓</span>
+                <span>{{ item }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        {% if eli5.executiveSummary.criticalIssues %}
+        <div class="card card-danger">
+            <h4 class="card-title danger">⚠ Kritik Sorunlar</h4>
+            {% for item in eli5.executiveSummary.criticalIssues %}
+            <div class="list-item danger">
+                <span class="list-icon">⚠</span>
+                <span>{{ item }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    <footer class="page-footer">
+        Instagram AI Raporu - Sayfa 2 - {{ report_id }}
+    </footer>
+</div>
+
+{# ============================================================
+   PAGE 3: SWOT ANALYSIS (Premium Feature)
+   ============================================================ #}
+{% if eli5 and eli5.swotAnalysis and is_tier_allowed(tier, 'standard') %}
+<div class="page">
+    <div class="page-header">
+        <span class="page-number">Sayfa 3</span>
+        <span class="page-title">SWOT Analizi</span>
+    </div>
+    
+    <section class="section">
+        <div class="section-header">
+            <div class="section-icon indigo">📋</div>
+            <div>
+                <h2 class="section-title">SWOT Analizi</h2>
+                <p class="section-subtitle">Stratejik güçlü/zayıf yönler ve fırsatlar</p>
+            </div>
+        </div>
+        
+        <div class="swot-grid">
+            {# Strengths #}
+            <div class="swot-card swot-strength">
+                <h4 class="swot-title">💪 Güçlü Yönler</h4>
+                {% for item in eli5.swotAnalysis.strengths or [] %}
+                <div class="swot-item">✓ {{ item }}</div>
+                {% endfor %}
+            </div>
+            
+            {# Weaknesses #}
+            <div class="swot-card swot-weakness">
+                <h4 class="swot-title">⚠️ Zayıf Yönler</h4>
+                {% for item in eli5.swotAnalysis.weaknesses or [] %}
+                <div class="swot-item">• {{ item }}</div>
+                {% endfor %}
+            </div>
+            
+            {# Opportunities #}
+            <div class="swot-card swot-opportunity">
+                <h4 class="swot-title">🚀 Fırsatlar</h4>
+                {% for item in eli5.swotAnalysis.opportunities or [] %}
+                <div class="swot-item">→ {{ item }}</div>
+                {% endfor %}
+            </div>
+            
+            {# Threats #}
+            <div class="swot-card swot-threat">
+                <h4 class="swot-title">🛡️ Tehditler</h4>
+                {% for item in eli5.swotAnalysis.threats or [] %}
+                <div class="swot-item">! {{ item }}</div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    
+    <footer class="page-footer">
+        Instagram AI Raporu - SWOT Analizi - {{ report_id }}
+    </footer>
+</div>
+{% endif %}
+
+{# ============================================================
+   PAGE 4: RISK ASSESSMENT & METRICS
+   ============================================================ #}
+{% if advanced and advanced.riskAssessments %}
+<div class="page">
+    <div class="page-header">
+        <span class="page-number">Sayfa 4</span>
+        <span class="page-title">Risk Değerlendirmesi</span>
+    </div>
+    
+    <section class="section">
+        <div class="section-header">
+            <div class="section-icon red">🛡️</div>
+            <div>
+                <h2 class="section-title">Risk Değerlendirmesi</h2>
+                <p class="section-subtitle">Hesap güvenliği ve risk analizi</p>
+            </div>
+        </div>
+        
+        {# Risk Chart #}
+        {% if charts.risk_bars %}
+        <div class="chart-container">
+            <img src="{{ charts.risk_bars }}" alt="Risk Assessment" class="chart-img">
+        </div>
+        {% endif %}
+        
+        {# Risk Cards #}
+        <div class="risk-grid">
+            <div class="risk-card" style="background: {{ advanced.riskAssessments.overall | get_risk_color }}15; border-left-color: {{ advanced.riskAssessments.overall | get_risk_color }}">
+                <div class="risk-label">Genel Risk</div>
+                <div class="risk-value" style="color: {{ advanced.riskAssessments.overall | get_risk_color }}">
+                    {{ advanced.riskAssessments.overall | format_risk_level }}
+                </div>
+            </div>
+            <div class="risk-card" style="background: {{ advanced.riskAssessments.bot_risk | get_risk_color }}15; border-left-color: {{ advanced.riskAssessments.bot_risk | get_risk_color }}">
+                <div class="risk-label">Bot Riski</div>
+                <div class="risk-value" style="color: {{ advanced.riskAssessments.bot_risk | get_risk_color }}">
+                    {{ advanced.riskAssessments.bot_risk | format_risk_level }}
+                </div>
+            </div>
+            <div class="risk-card" style="background: {{ advanced.riskAssessments.shadowban_risk | get_risk_color }}15; border-left-color: {{ advanced.riskAssessments.shadowban_risk | get_risk_color }}">
+                <div class="risk-label">Shadowban Riski</div>
+                <div class="risk-value" style="color: {{ advanced.riskAssessments.shadowban_risk | get_risk_color }}">
+                    {{ advanced.riskAssessments.shadowban_risk | format_risk_level }}
+                </div>
+            </div>
+            <div class="risk-card" style="background: {{ advanced.riskAssessments.algorithm_penalty | get_risk_color }}15; border-left-color: {{ advanced.riskAssessments.algorithm_penalty | get_risk_color }}">
+                <div class="risk-label">Algoritma Cezası</div>
+                <div class="risk-value" style="color: {{ advanced.riskAssessments.algorithm_penalty | get_risk_color }}">
+                    {{ advanced.riskAssessments.algorithm_penalty | format_risk_level }}
+                </div>
+            </div>
+        </div>
+        
+        {# Risk Factors #}
+        {% if advanced.riskAssessments.risk_factors %}
+        <div class="card card-danger">
+            <h4 class="card-title danger">⚠ Risk Faktörleri</h4>
+            {% for factor in advanced.riskAssessments.risk_factors %}
+            <div class="list-item danger">
+                <span class="list-icon">⚠</span>
+                <span>{{ factor }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </section>
+    
+    {# Metrics Radar (Premium) #}
+    {% if charts.metrics_radar and is_tier_allowed(tier, 'premium') %}
+    <section class="section">
+        <div class="section-header">
+            <div class="section-icon blue">📊</div>
+            <div>
+                <h2 class="section-title">Metrik Karşılaştırması</h2>
+                <p class="section-subtitle">Tüm ajan skorları bir bakışta</p>
+            </div>
+        </div>
+        
+        <div class="chart-container centered">
+            <img src="{{ charts.metrics_radar }}" alt="Metrics Radar" class="chart-img radar">
+        </div>
+    </section>
+    {% endif %}
+    
+    <footer class="page-footer">
+        Instagram AI Raporu - Risk Değerlendirmesi - {{ report_id }}
+    </footer>
+</div>
+{% endif %}
+
+{# ============================================================
+   PAGE 5: MONETIZATION ASSESSMENT
+   ============================================================ #}
+{% if agents.salesConversion and is_tier_allowed(tier, 'standard') %}
+<div class="page">
+    <div class="page-header">
+        <span class="page-number">Sayfa 5</span>
+        <span class="page-title">Monetizasyon</span>
+    </div>
+    
+    <section class="section">
+        <div class="section-header">
+            <div class="section-icon amber">💰</div>
+            <div>
+                <h2 class="section-title">Monetizasyon Değerlendirmesi</h2>
+                <p class="section-subtitle">Gelir potansiyeli ve hazırlık analizi</p>
+            </div>
+        </div>
+        
+        {% set sales = agents.salesConversion %}
+        {% if sales.metrics %}
+        <div class="monetization-header">
+            <div class="monetization-score">
+                <div class="monetization-label">Monetizasyon Hazırlık Skoru</div>
+                <div class="monetization-value" style="color: {{ sales.metrics.overallScore | get_score_color if sales.metrics.overallScore else '#64748b' }}">
+                    {{ sales.metrics.overallScore | round(0) if sales.metrics.overallScore else '--' }}<span class="monetization-max">/100</span>
+                </div>
+            </div>
+            {% if sales.metrics.brandDealReadiness %}
+            <div class="badge badge-amber">Marka İşbirliği: {{ sales.metrics.brandDealReadiness | round(0) }}%</div>
+            {% endif %}
+        </div>
+        
+        <div class="stats-grid stats-4">
+            {% if sales.metrics.conversionPotential %}
+            <div class="stat-card">
+                <div class="stat-label">Dönüşüm Potansiyeli</div>
+                <div class="stat-value" style="color: {{ sales.metrics.conversionPotential | get_score_color }}">
+                    {{ sales.metrics.conversionPotential | round(0) }}
+                </div>
+            </div>
+            {% endif %}
+            {% if sales.metrics.trustIndicators %}
+            <div class="stat-card">
+                <div class="stat-label">Güven Göstergeleri</div>
+                <div class="stat-value" style="color: {{ sales.metrics.trustIndicators | get_score_color }}">
+                    {{ sales.metrics.trustIndicators | round(0) }}
+                </div>
+            </div>
+            {% endif %}
+            {% if sales.metrics.audienceQuality %}
+            <div class="stat-card">
+                <div class="stat-label">Kitle Kalitesi</div>
+                <div class="stat-value" style="color: {{ sales.metrics.audienceQuality | get_score_color }}">
+                    {{ sales.metrics.audienceQuality | round(0) }}
+                </div>
+            </div>
+            {% endif %}
+            {% if sales.metrics.contentSellability %}
+            <div class="stat-card">
+                <div class="stat-label">İçerik Satılabilirliği</div>
+                <div class="stat-value" style="color: {{ sales.metrics.contentSellability | get_score_color }}">
+                    {{ sales.metrics.contentSellability | round(0) }}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+        
+        {# Findings & Recommendations #}
+        <div class="two-column">
+            {% if sales.findings %}
+            <div class="card">
+                <h4 class="card-title">🔍 Bulgular</h4>
+                {% for finding in sales.findings[:5] %}
+                <div class="list-item info">
+                    <span class="list-icon">•</span>
+                    <span>{{ finding.finding if finding.finding else finding }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            {% if sales.recommendations %}
+            <div class="card">
+                <h4 class="card-title success">💡 Öneriler</h4>
+                {% for rec in sales.recommendations[:5] %}
+                <div class="list-item success">
+                    <span class="list-icon">→</span>
+                    <span>{{ rec.action if rec.action else rec }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </section>
+    
+    <footer class="page-footer">
+        Instagram AI Raporu - Monetizasyon - {{ report_id }}
+    </footer>
+</div>
+{% endif %}
+
+{# ============================================================
+   PAGE 6: CONTENT STRATEGY
+   ============================================================ #}
+{% if advanced and advanced.strategies %}
+<div class="page">
+    <div class="page-header">
+        <span class="page-number">Sayfa 6</span>
+        <span class="page-title">İçerik Stratejisi</span>
+    </div>
+    
+    <section class="section">
+        <div class="section-header">
+            <div class="section-icon purple">📊</div>
+            <div>
+                <h2 class="section-title">İçerik Stratejisi</h2>
+                <p class="section-subtitle">Format analizi ve optimizasyon önerileri</p>
+            </div>
+        </div>
+        
+        {# Content Mix Chart #}
+        {% if charts.content_mix %}
+        <div class="two-column">
+            <div class="chart-container">
+                <img src="{{ charts.content_mix }}" alt="Content Mix" class="chart-img">
+            </div>
+            
+            {% if advanced.strategies.contentFormats and advanced.strategies.contentFormats.recommendations %}
+            <div class="card">
+                <h4 class="card-title">📅 Haftalık Hedefler</h4>
+                {% for key, value in (advanced.strategies.contentFormats.recommendations.weekly_targets or {}).items() %}
+                <div class="target-item">
+                    <span class="target-label">{{ key | replace('_', ' ') | title }}</span>
+                    <span class="target-value">{{ value }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+        
+        {# Hashtag Strategy #}
+        {% if advanced.strategies.hashtagStrategy %}
+        <div class="card">
+            <div class="card-header">
+                <span class="card-icon">#</span>
+                <h4 class="card-title">Hashtag Stratejisi</h4>
+                <span class="badge badge-{{ 'green' if advanced.strategies.hashtagStrategy.effectiveness_score and advanced.strategies.hashtagStrategy.effectiveness_score >= 70 else 'amber' if advanced.strategies.hashtagStrategy.effectiveness_score and advanced.strategies.hashtagStrategy.effectiveness_score >= 50 else 'red' }}">
+                    {{ advanced.strategies.hashtagStrategy.effectiveness_score | round(0) if advanced.strategies.hashtagStrategy.effectiveness_score else '--' }}/100
+                </span>
+            </div>
+            
+            {% if advanced.strategies.hashtagStrategy.issues %}
+            {% for issue in advanced.strategies.hashtagStrategy.issues[:3] %}
+            <div class="list-item warning">
+                <span class="list-icon">⚠</span>
+                <span>{{ issue.recommendation if issue.recommendation else issue }}</span>
+            </div>
+            {% endfor %}
+            {% endif %}
+        </div>
+        {% endif %}
+        
+        {# Viral Potential #}
+        {% if advanced.strategies.viralPotential %}
+        <div class="card">
+            <div class="card-header">
+                <span class="card-icon">⚡</span>
+                <h4 class="card-title">Viral Potansiyel</h4>
+                <span class="badge badge-{{ 'green' if advanced.strategies.viralPotential.readiness_score and advanced.strategies.viralPotential.readiness_score >= 70 else 'amber' if advanced.strategies.viralPotential.readiness_score and advanced.strategies.viralPotential.readiness_score >= 50 else 'red' }}">
+                    {{ advanced.strategies.viralPotential.readiness_score | round(0) if advanced.strategies.viralPotential.readiness_score else '--' }}/100
+                </span>
+            </div>
+            
+            <div class="two-column">
+                {% if advanced.strategies.viralPotential.strengths %}
+                <div class="mini-card success">
+                    <h5>✓ Güçlü</h5>
+                    {% for item in advanced.strategies.viralPotential.strengths[:3] %}
+                    <div class="mini-item">{{ item }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                {% if advanced.strategies.viralPotential.weaknesses %}
+                <div class="mini-card danger">
+                    <h5>✗ Zayıf</h5>
+                    {% for item in advanced.strategies.viralPotential.weaknesses[:3] %}
+                    <div class="mini-item">{{ item }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </section>
+    
+    <footer class="page-footer">
+        Instagram AI Raporu - İçerik Stratejisi - {{ report_id }}
+    </footer>
+</div>
+{% endif %}
+
+{# ============================================================
+   PAGE 7: ACTION PLAN
+   ============================================================ #}
+{% if advanced and advanced.prioritizedRecommendations %}
+<div class="page">
+    <div class="page-header">
+        <span class="page-number">Sayfa 7</span>
+        <span class="page-title">Aksiyon Planı</span>
+    </div>
+    
+    <section class="section">
+        <div class="section-header">
+            <div class="section-icon green">🎯</div>
+            <div>
+                <h2 class="section-title">Aksiyon Planı Zaman Çizelgesi</h2>
+                <p class="section-subtitle">Önceliklendirilmiş büyüme stratejisi</p>
+            </div>
+        </div>
+        
+        {# Immediate Actions #}
+        {% if advanced.prioritizedRecommendations.immediate %}
+        <div class="action-section">
+            <h3 class="action-title danger">⚡ Acil (Bu Hafta)</h3>
+            {% for action in advanced.prioritizedRecommendations.immediate %}
+            <div class="action-item">
+                <div class="action-number">{{ loop.index }}</div>
+                <div class="action-content">
+                    <div class="action-name">{{ action.title if action.title else action }}</div>
+                    {% if action.description %}
+                    <div class="action-desc">{{ action.description }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        {# Short Term #}
+        {% if advanced.prioritizedRecommendations.short_term %}
+        <div class="action-section">
+            <h3 class="action-title warning">📅 Kısa Vadeli (2-4 Hafta)</h3>
+            {% for action in advanced.prioritizedRecommendations.short_term %}
+            <div class="action-item">
+                <div class="action-number orange">{{ loop.index }}</div>
+                <div class="action-content">
+                    <div class="action-name">{{ action.title if action.title else action }}</div>
+                    {% if action.description %}
+                    <div class="action-desc">{{ action.description }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        {# Medium Term #}
+        {% if advanced.prioritizedRecommendations.medium_term %}
+        <div class="action-section">
+            <h3 class="action-title info">📆 Orta Vadeli (1-3 Ay)</h3>
+            {% for action in advanced.prioritizedRecommendations.medium_term %}
+            <div class="action-item">
+                <div class="action-number blue">{{ loop.index }}</div>
+                <div class="action-content">
+                    <div class="action-name">{{ action.title if action.title else action }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </section>
+    
+    <footer class="page-footer">
+        Instagram AI Raporu - Aksiyon Planı - {{ report_id }}
+    </footer>
+</div>
+{% endif %}
+
+{# ============================================================
+   PAGE 8: ELI5 SIMPLIFIED REPORT
+   ============================================================ #}
+{% if eli5 %}
+<div class="page">
+    <div class="page-header">
+        <span class="page-number">Sayfa 8</span>
+        <span class="page-title">Detaylı Açıklamalar</span>
+    </div>
+    
+    <section class="section">
+        <div class="section-header">
+            <div class="section-icon pink">💬</div>
+            <div>
+                <h2 class="section-title">Detaylı Açıklamalar</h2>
+                <p class="section-subtitle">Anlaşılır metrik yorumları</p>
+            </div>
+        </div>
+        
+        {# Headline #}
+        {% if eli5.executiveSummary and eli5.executiveSummary.headline %}
+        <div class="eli5-card">
+            <div class="eli5-headline">{{ eli5.executiveSummary.headline }}</div>
+            {% if eli5.executiveSummary.gradeExplanation %}
+            <p class="eli5-explanation">{{ eli5.executiveSummary.gradeExplanation }}</p>
+            {% endif %}
+        </div>
+        {% endif %}
+        
+        {# Findings #}
+        {% if eli5.findings %}
+        <div class="card">
+            <h4 class="card-title">🔍 Temel Bulgular</h4>
+            {% for finding in eli5.findings[:5] %}
+            <div class="finding-item">
+                <div class="finding-category">{{ finding.category if finding.category else 'Bulgu' }}</div>
+                {% if finding.kusur %}
+                <div class="finding-issue">{{ finding.kusur }}</div>
+                {% endif %}
+                {% if finding.realite %}
+                <div class="finding-reality">{{ finding.realite }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        {# What Happens If Nothing #}
+        {% if eli5.whatHappensIfNothing %}
+        <div class="warning-card">
+            <h4>⚠ Hiçbir Şey Yapmazsan Ne Olur?</h4>
+            <p>{{ eli5.whatHappensIfNothing }}</p>
+        </div>
+        {% endif %}
+        
+        {# Motivational #}
+        {% if eli5.motivationalKick %}
+        <div class="motivation-card">
+            <h4>⭐ Motivasyon</h4>
+            <p>{{ eli5.motivationalKick }}</p>
+        </div>
+        {% endif %}
+    </section>
+    
+    <footer class="page-footer">
+        Instagram AI Raporu - ELI5 Rapor - {{ report_id }}
+    </footer>
+</div>
+{% endif %}
+
+{# ============================================================
+   PAGE 9: HOOK REWRITES
+   ============================================================ #}
+{% if eli5 and eli5.rewrittenHooks and is_tier_allowed(tier, 'standard') %}
+<div class="page">
+    <div class="page-header">
+        <span class="page-number">Sayfa 9</span>
+        <span class="page-title">Hook İyileştirmeleri</span>
+    </div>
+    
+    <section class="section">
+        <div class="section-header">
+            <div class="section-icon amber">💡</div>
+            <div>
+                <h2 class="section-title">İyileştirilmiş Hook'lar</h2>
+                <p class="section-subtitle">İçeriklerinizi daha dikkat çekici hale getirin</p>
+            </div>
+        </div>
+        
+        {% for hook in eli5.rewrittenHooks[:4] %}
+        <div class="hook-card">
+            <div class="hook-before">
+                <div class="hook-label">Orijinal</div>
+                <div class="hook-text">"{{ hook.original or hook.badHook or '' }}"</div>
+            </div>
+            <div class="hook-after">
+                <div class="hook-label">İyileştirilmiş</div>
+                <div class="hook-text">"{{ hook.rewritten or hook.newHook or '' }}"</div>
+            </div>
+            {% if hook.reason or hook.whyItWorks %}
+            <div class="hook-reason">💡 {{ hook.reason or hook.whyItWorks }}</div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </section>
+    
+    <footer class="page-footer">
+        Instagram AI Raporu - Hook İyileştirmeleri - {{ report_id }}
+    </footer>
+</div>
+{% endif %}
+
+{# ============================================================
+   PAGE 10: CONTENT CALENDAR
+   ============================================================ #}
+{% if content_plan and content_plan.weeklyPlan and is_tier_allowed(tier, 'premium') %}
+<div class="page">
+    <div class="page-header">
+        <span class="page-number">Sayfa 10</span>
+        <span class="page-title">İçerik Planı</span>
+    </div>
+    
+    <section class="section">
+        <div class="section-header">
+            <div class="section-icon amber">📅</div>
+            <div>
+                <h2 class="section-title">7 Günlük İçerik Planı</h2>
+                <p class="section-subtitle">Her gün ne paylaşacağınızı planlayın</p>
+            </div>
+        </div>
+        
+        {% if content_plan.monthlyTheme %}
+        <div class="theme-card">
+            <strong>📌 Bu Ayın Teması:</strong> {{ content_plan.monthlyTheme }}
+        </div>
+        {% endif %}
+        
+        {% for day in content_plan.weeklyPlan %}
+        <div class="calendar-day">
+            <div class="calendar-header">
+                <span class="calendar-name">{{ day.dayName }}</span>
+                <span class="calendar-type">{{ day.contentType }}</span>
+            </div>
+            <div class="calendar-topic"><strong>Konu:</strong> {{ day.topic }}</div>
+            {% if day.hook %}
+            <div class="calendar-hook">"{{ day.hook }}"</div>
+            {% endif %}
+            {% if day.bestTime %}
+            <div class="calendar-time">⏰ En İyi Saat: <strong>{{ day.bestTime }}</strong></div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </section>
+    
+    <footer class="page-footer">
+        Instagram AI Raporu - İçerik Planı - {{ report_id }}
+    </footer>
+</div>
+{% endif %}
+
+{# ============================================================
+   PAGE 11: FINAL VERDICT
+   ============================================================ #}
+{% if eli5 and eli5.finalVerdict %}
+<div class="page">
+    <div class="page-header">
+        <span class="page-number">Sayfa 11</span>
+        <span class="page-title">Final Analiz</span>
+    </div>
+    
+    <section class="section">
+        <div class="section-header">
+            <div class="section-icon indigo">🎯</div>
+            <div>
+                <h2 class="section-title">Final Analiz</h2>
+                <p class="section-subtitle">Kapsamlı Son Değerlendirme</p>
+            </div>
+        </div>
+        
+        <div class="verdict-card">
+            {% if eli5.finalVerdict.situation %}
+            <div class="verdict-section">
+                <h4>📋 Mevcut Durum</h4>
+                <p>{{ eli5.finalVerdict.situation }}</p>
+            </div>
+            {% endif %}
+            
+            {% if eli5.finalVerdict.critical_issues %}
+            <div class="verdict-section danger">
+                <h4>⚠ Kritik Sorunlar</h4>
+                {% for issue in eli5.finalVerdict.critical_issues %}
+                <div class="verdict-item danger">{{ issue }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            {% if eli5.finalVerdict.this_week_actions %}
+            <div class="verdict-section success">
+                <h4>📅 Bu Hafta Yapılması Gerekenler</h4>
+                {% for action in eli5.finalVerdict.this_week_actions %}
+                <div class="verdict-item success">
+                    <span class="verdict-num">{{ loop.index }}</span>
+                    {{ action }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            {% if eli5.finalVerdict.warning %}
+            <div class="verdict-warning">
+                <strong>⚡ Uyarı:</strong> {{ eli5.finalVerdict.warning }}
+            </div>
+            {% endif %}
+        </div>
+    </section>
+    
+    <footer class="page-footer">
+        Instagram AI Raporu - Final Analiz - {{ report_id }}
+    </footer>
+</div>
+{% endif %}
+
+{# ============================================================
+   PAGE 12: METADATA & INFO
+   ============================================================ #}
+<div class="page">
+    <div class="page-header">
+        <span class="page-number">Son Sayfa</span>
+        <span class="page-title">Analiz Bilgileri</span>
+    </div>
+    
+    <section class="section">
+        <div class="section-header">
+            <div class="section-icon slate">ℹ️</div>
+            <div>
+                <h2 class="section-title">Analiz Bilgileri & Veri Kalitesi</h2>
+                <p class="section-subtitle">Rapor güvenilirliği ve metodoloji</p>
+            </div>
+        </div>
+        
+        {# Data Quality #}
+        <div class="stats-grid stats-4">
+            <div class="stat-card">
+                <div class="stat-label">Veri Kalitesi</div>
+                <div class="stat-value" style="color: {{ (sanitization.metrics_summary.trust_score if sanitization and sanitization.metrics_summary else 70) | get_score_color }}">
+                    {{ sanitization.metrics_summary.trust_score | round(0) if sanitization and sanitization.metrics_summary else '--' }}%
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Güven Seviyesi</div>
+                <div class="stat-value">
+                    {{ get_confidence_info(sanitization.metrics_summary.trust_score if sanitization and sanitization.metrics_summary else None).text }}
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Analiz Tarihi</div>
+                <div class="stat-value small">{{ generated_at | format_date }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Rapor Tier</div>
+                <div class="stat-value">{{ tier | upper }}</div>
+            </div>
+        </div>
+        
+        {# Pipeline Flow #}
+        <div class="pipeline-card">
+            <h4>🔄 Analiz Pipeline Akışı</h4>
+            <div class="pipeline-flow">
+                <div class="pipeline-step">
+                    <div class="pipeline-icon blue">📥</div>
+                    <div class="pipeline-label">Veri Toplama</div>
+                    <div class="pipeline-tech">Apify</div>
+                </div>
+                <div class="pipeline-arrow">→</div>
+                <div class="pipeline-step">
+                    <div class="pipeline-icon purple">🔧</div>
+                    <div class="pipeline-label">Normalizasyon</div>
+                    <div class="pipeline-tech">V2 Engine</div>
+                </div>
+                <div class="pipeline-arrow">→</div>
+                <div class="pipeline-step">
+                    <div class="pipeline-icon green">🛡️</div>
+                    <div class="pipeline-label">Güvenilirlik</div>
+                    <div class="pipeline-tech">Integrity</div>
+                </div>
+                <div class="pipeline-arrow">→</div>
+                <div class="pipeline-step">
+                    <div class="pipeline-icon amber">🤖</div>
+                    <div class="pipeline-label">AI Analiz</div>
+                    <div class="pipeline-tech">7 Ajan</div>
+                </div>
+                <div class="pipeline-arrow">→</div>
+                <div class="pipeline-step">
+                    <div class="pipeline-icon pink">📄</div>
+                    <div class="pipeline-label">PDF Rapor</div>
+                    <div class="pipeline-tech">WeasyPrint</div>
+                </div>
+            </div>
+        </div>
+        
+        {# Agent Modules #}
+        <div class="card">
+            <h4 class="card-title">🔧 Kullanılan Analiz Modülleri</h4>
+            <div class="badges-row">
+                <span class="badge badge-purple">🏢 Domain Master</span>
+                <span class="badge badge-green">📈 Growth & Virality</span>
+                <span class="badge badge-amber">💰 Sales Conversion</span>
+                <span class="badge badge-pink">🎨 Visual Brand</span>
+                <span class="badge badge-red">❤️ Community Loyalty</span>
+                <span class="badge badge-blue">🎯 Attention Architect</span>
+                <span class="badge badge-slate">🔒 System Governor</span>
+            </div>
+        </div>
+        
+        {# Disclaimer #}
+        <div class="disclaimer-card">
+            <h4>📋 Önemli Notlar</h4>
+            <ul>
+                <li>Bu rapor, Instagram hesabınızın belirli bir andaki anlık görüntüsünü yansıtır.</li>
+                <li>Metrikler ve öneriler, mevcut veriler ve sektör standartlarına dayanmaktadır.</li>
+                <li>Sonuçlar, hesap değişiklikleri ve platform güncellemeleri ile değişebilir.</li>
+                <li>Bot/fake takipçi tespiti tahmine dayalıdır ve %100 doğruluk garantisi vermez.</li>
+                <li>Raporun dil tonu, veri güvenilirlik skoruna göre otomatik ayarlanmaktadır.</li>
+                <li>En iyi sonuçlar için önerileri düzenli olarak uygulayın ve yeniden analiz edin.</li>
+            </ul>
+        </div>
+        
+        {# Report Info #}
+        <div class="report-info">
+            <div>Rapor ID: {{ report_id }} | Versiyon: 2.0 (WeasyPrint)</div>
+            <div>Oluşturulma: {{ generated_at | format_date }} | @{{ account.username }}</div>
+        </div>
+    </section>
+    
+    <footer class="page-footer">
+        Instagram AI Raporu - Analiz Bilgileri - {{ report_id }}
+    </footer>
+</div>
+
+</body>
+</html>

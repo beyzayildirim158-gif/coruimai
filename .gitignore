@@ -1,0 +1,50 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+.next/
+dist/
+dist-temp/
+build/
+out/
+*.js.map
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# Environment & secrets — NEVER COMMIT
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+agent-orchestrator/.env
+backend-api/.env
+payment-service/.env
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Misc
+.DS_Store
+Thumbs.db
+*.pem
+hash.txt
+temp_account.txt
+token.txt
+debug_analysis.json
+content_plan.json

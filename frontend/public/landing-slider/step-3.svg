@@ -1,0 +1,26 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg3" x1="0" y1="0" x2="1200" y2="800" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF4E8"/>
+      <stop offset="1" stop-color="#FFFCF8"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" rx="28" fill="url(#bg3)"/>
+  <rect x="88" y="88" width="1024" height="624" rx="20" fill="white" stroke="#F0DCC7" stroke-width="2"/>
+  <text x="130" y="120" fill="#B56A1D" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="700">STEP 3 • DECISION-GRADE REPORT</text>
+  <rect x="130" y="166" width="420" height="520" rx="16" fill="#FFF7EE" stroke="#F4DFC9"/>
+  <rect x="584" y="166" width="486" height="160" rx="16" fill="#FFF7EE" stroke="#F4DFC9"/>
+  <rect x="584" y="344" width="486" height="160" rx="16" fill="#FFF7EE" stroke="#F4DFC9"/>
+  <rect x="584" y="522" width="486" height="164" rx="16" fill="#FFF7EE" stroke="#F4DFC9"/>
+  <rect x="162" y="205" width="356" height="20" rx="10" fill="#F9D7B0"/>
+  <rect x="162" y="239" width="300" height="12" rx="6" fill="#FBE7D2"/>
+  <rect x="162" y="277" width="156" height="156" rx="12" fill="#FFECD8"/>
+  <rect x="336" y="277" width="182" height="12" rx="6" fill="#FBE7D2"/>
+  <rect x="336" y="301" width="160" height="12" rx="6" fill="#FBE7D2"/>
+  <rect x="336" y="325" width="170" height="12" rx="6" fill="#FBE7D2"/>
+  <rect x="336" y="349" width="145" height="12" rx="6" fill="#FBE7D2"/>
+  <rect x="162" y="456" width="356" height="180" rx="12" fill="#FFECD8"/>
+  <path d="M650 430l60-70 70 50 90-110 110 80" stroke="#E38B35" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="980" cy="300" r="14" fill="#E38B35"/>
+  <text x="130" y="695" fill="#A17545" font-family="Inter, Arial, sans-serif" font-size="22">Replace this image at: /public/landing-slider/step-3.svg</text>
+</svg>

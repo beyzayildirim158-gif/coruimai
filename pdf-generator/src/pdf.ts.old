@@ -1,0 +1,1015 @@
+import PDFDocument from 'pdfkit';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import fs from 'fs';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// ============================================================================
+// TYPE DEFINITIONS
+// ============================================================================
+
+export interface AgentReport {
+  agentName?: string;
+  agentRole?: string;
+  findings?: any[];
+  recommendations?: any[];
+  metrics?: Record<string, unknown>;
+  [key: string]: any;
+}
+
+export interface AccountData {
+  username: string;
+  followers?: number;
+  following?: number;
+  engagementRate?: number;
+  posts?: number;
+  bio?: string;
+  profilePicUrl?: string;
+  avgLikes?: number;
+  avgComments?: number;
+  verified?: boolean;
+}
+
+export interface ELI5Report {
+  executiveSummary?: {
+    headline?: string;
+    grade?: string;
+    gradeExplanation?: string;
+    topStrengths?: string[];
+    criticalIssues?: string[];
+    quickWins?: string[];
+  };
+  simplifiedMetrics?: {
+    engagement?: { value?: string; verdict?: string; explanation?: string; benchmark?: string };
+    growth?: { value?: string; verdict?: string; explanation?: string; benchmark?: string };
+    contentQuality?: { value?: string; verdict?: string; explanation?: string; benchmark?: string };
+    audienceQuality?: { value?: string; verdict?: string; explanation?: string; benchmark?: string };
+  };
+  rewrittenHooks?: Array<{
+    originalPost?: string;
+    originalHook?: string;
+    newHook?: string;
+    technique?: string;
+    whyBetter?: string;
+  }>;
+  actionPlan?: {
+    thisWeek?: string[];
+    thisMonth?: string[];
+    avoid?: string[];
+  };
+  motivationalNote?: string;
+}
+
+export interface ContentPlan {
+  weeklyPlan?: Array<{
+    day?: number;
+    dayName?: string;
+    contentType?: string;
+    topic?: string;
+    hook?: string;
+    caption?: string;
+    hashtags?: string[];
+    bestTime?: string;
+    objective?: string;
+  }>;
+  monthlyTheme?: string;
+  contentPillars?: string[];
+}
+
+export interface GeneratePayload {
+  reportId: string;
+  analysisId: string;
+  accountData: AccountData;
+  agentResults?: Record<string, AgentReport>;
+  eli5Report?: ELI5Report;
+  contentPlan?: ContentPlan;
+  overallScore?: number | null;
+  scoreGrade?: string | null;
+  recommendations?: string[];
+  tier?: string;
+}
+
+// ============================================================================
+// FONTS & COLORS
+// ============================================================================
+
+const FONTS_DIR = path.join(__dirname, '..', 'fonts');
+const NOTO_SANS_REGULAR = path.join(FONTS_DIR, 'NotoSans-Regular.ttf');
+const NOTO_SANS_BOLD = path.join(FONTS_DIR, 'NotoSans-Bold.ttf');
+const hasCustomFonts = fs.existsSync(NOTO_SANS_REGULAR) && fs.existsSync(NOTO_SANS_BOLD);
+
+const COLORS = {
+  primary: '#1E3A5F',
+  secondary: '#0F172A',
+  accent: '#3B82F6',
+  success: '#10B981',
+  warning: '#F59E0B',
+  danger: '#EF4444',
+  muted: '#6B7280',
+  light: '#F3F4F6',
+  white: '#FFFFFF',
+  text: '#111827',
+  textLight: '#6B7280',
+  cardBg: '#F8FAFC',
+};
+
+const PAGE = {
+  width: 595.28,
+  height: 841.89,
+  margin: 40,
+  get contentWidth() { return this.width - (this.margin * 2); }
+};
+
+// ============================================================================
+// HELPER FUNCTIONS
+// ============================================================================
+
+function formatNumber(num: number | undefined | null): string {
+  if (num === undefined || num === null || isNaN(num)) return '-';
+  if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
+  if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
+  return num.toLocaleString('tr-TR');
+}
+
+function getGradeColor(grade: string | null | undefined): string {
+  switch (grade?.toUpperCase()) {
+    case 'A': case 'A+': return COLORS.success;
+    case 'B': case 'B+': return '#22C55E';
+    case 'C': case 'C+': return COLORS.warning;
+    case 'D': case 'D+': return '#F97316';
+    case 'F': return COLORS.danger;
+    default: return COLORS.muted;
+  }
+}
+
+function hasContent(arr: any[] | undefined | null): boolean {
+  return Array.isArray(arr) && arr.length > 0;
+}
+
+function hasMetrics(obj: Record<string, any> | undefined | null): boolean {
+  return obj !== null && obj !== undefined && typeof obj === 'object' && Object.keys(obj).length > 0;
+}
+
+function extractFindingText(finding: any): string {
+  if (typeof finding === 'string') return finding;
+  return finding?.finding || finding?.description || finding?.text || '';
+}
+
+function extractRecText(rec: any): string {
+  if (typeof rec === 'string') return rec;
+  return rec?.action || rec?.recommendation || rec?.description || rec?.text || '';
+}
+
+function cleanActionText(action: string): string {
+  return action.replace(/^[^:]+:\s*/, '').trim();
+}
+
+// ============================================================================
+// PDF GENERATOR CLASS
+// ============================================================================
+
+class ProfessionalPDFGenerator {
+  private doc: PDFKit.PDFDocument;
+  private payload: GeneratePayload;
+  private pageCount: number = 0;
+  private y: number = PAGE.margin;
+
+  constructor(payload: GeneratePayload) {
+    this.payload = payload;
+    this.doc = new PDFDocument({
+      size: 'A4',
+      margin: PAGE.margin,
+      bufferPages: true,
+      autoFirstPage: false,
+    });
+
+    if (hasCustomFonts) {
+      this.doc.registerFont('Regular', NOTO_SANS_REGULAR);
+      this.doc.registerFont('Bold', NOTO_SANS_BOLD);
+    }
+  }
+
+  // --------------------------------------------------------------------------
+  // UTILITY METHODS
+  // --------------------------------------------------------------------------
+
+  private font(weight: 'Regular' | 'Bold' = 'Regular', size: number = 11): this {
+    if (hasCustomFonts) {
+      this.doc.font(weight).fontSize(size);
+    } else {
+      this.doc.font(weight === 'Bold' ? 'Helvetica-Bold' : 'Helvetica').fontSize(size);
+    }
+    return this;
+  }
+
+  private color(c: string): this {
+    this.doc.fillColor(c);
+    return this;
+  }
+
+  private newPage(): void {
+    this.doc.addPage();
+    this.pageCount++;
+    this.y = PAGE.margin;
+    this.addFooter();
+  }
+
+  private addFooter(): void {
+    this.doc.fontSize(8).fillColor(COLORS.muted)
+      .text(`Instagram AI Raporu - Sayfa ${this.pageCount}`, PAGE.margin, PAGE.height - 25, 
+        { align: 'center', width: PAGE.contentWidth });
+  }
+
+  private checkSpace(needed: number): boolean {
+    if (this.y + needed > PAGE.height - 50) {
+      this.newPage();
+      return true;
+    }
+    return false;
+  }
+
+  private box(x: number, y: number, w: number, h: number, fill: string, radius: number = 8): void {
+    this.doc.roundedRect(x, y, w, h, radius).fill(fill);
+  }
+
+  private line(fromX: number, fromY: number, toX: number, toY: number, color: string = COLORS.light): void {
+    this.doc.moveTo(fromX, fromY).lineTo(toX, toY).strokeColor(color).lineWidth(1).stroke();
+  }
+
+  private sectionTitle(title: string, icon: string = ''): void {
+    this.checkSpace(60);
+    this.font('Bold', 18).color(COLORS.primary);
+    this.doc.text(`${icon} ${title}`.trim(), PAGE.margin, this.y);
+    this.y += 30;
+    this.line(PAGE.margin, this.y, PAGE.margin + PAGE.contentWidth, this.y, COLORS.accent);
+    this.y += 15;
+  }
+
+  private subsectionTitle(title: string): void {
+    this.checkSpace(40);
+    this.font('Bold', 13).color(COLORS.text);
+    this.doc.text(title, PAGE.margin, this.y);
+    this.y += 22;
+  }
+
+  // --------------------------------------------------------------------------
+  // PAGE 1: COVER
+  // --------------------------------------------------------------------------
+
+  private renderCover(): void {
+    this.newPage();
+    const { accountData, overallScore, scoreGrade, analysisId } = this.payload;
+
+    // Full page background
+    this.doc.rect(0, 0, PAGE.width, PAGE.height).fill(COLORS.primary);
+    
+    // Decorative circles
+    this.doc.circle(PAGE.width + 30, 150, 200).fillOpacity(0.1).fill(COLORS.accent);
+    this.doc.circle(-50, PAGE.height - 50, 150).fillOpacity(0.1).fill(COLORS.accent);
+    this.doc.fillOpacity(1);
+
+    // Top brand
+    this.font('Bold', 14).color(COLORS.accent);
+    this.doc.text('INSTAGRAM AI', PAGE.margin, 60, { align: 'center', width: PAGE.contentWidth });
+
+    // Main title
+    this.font('Bold', 44).color(COLORS.white);
+    this.doc.text('HESAP', PAGE.margin, 150, { align: 'center', width: PAGE.contentWidth });
+    this.doc.text('ANALIZ', PAGE.margin, 205, { align: 'center', width: PAGE.contentWidth });
+    this.doc.text('RAPORU', PAGE.margin, 260, { align: 'center', width: PAGE.contentWidth });
+
+    // Username
+    this.font('Bold', 24).color(COLORS.accent);
+    this.doc.text(`@${accountData.username}`, PAGE.margin, 340, { align: 'center', width: PAGE.contentWidth });
+
+    // Verified badge
+    if (accountData.verified) {
+      this.font('Regular', 12).color(COLORS.white);
+      this.doc.text('✓ Doğrulanmış Hesap', PAGE.margin, 375, { align: 'center', width: PAGE.contentWidth });
+    }
+
+    // Score card
+    if (overallScore !== null && overallScore !== undefined) {
+      const cardW = 200;
+      const cardH = 120;
+      const cardX = (PAGE.width - cardW) / 2;
+      const cardY = 420;
+
+      this.box(cardX, cardY, cardW, cardH, COLORS.white, 15);
+
+      // Score number
+      this.font('Bold', 52).color(getGradeColor(scoreGrade));
+      this.doc.text(overallScore.toFixed(1), cardX, cardY + 20, { align: 'center', width: cardW });
+
+      // Label
+      this.font('Regular', 11).color(COLORS.muted);
+      this.doc.text('Hesap Saglık Skoru', cardX, cardY + 85, { align: 'center', width: cardW });
+
+      // Grade badge
+      if (scoreGrade) {
+        const badgeX = cardX + cardW - 45;
+        const badgeY = cardY - 15;
+        this.doc.circle(badgeX, badgeY + 20, 25).fill(getGradeColor(scoreGrade));
+        this.font('Bold', 20).color(COLORS.white);
+        this.doc.text(scoreGrade, badgeX - 15, badgeY + 10, { width: 30, align: 'center' });
+      }
+    }
+
+    // Account stats summary
+    const statsY = 580;
+    const statW = 100;
+    const stats = [
+      { label: 'Takipçi', value: formatNumber(accountData.followers) },
+      { label: 'Gönderi', value: formatNumber(accountData.posts) },
+      { label: 'Etkileşim', value: `%${(accountData.engagementRate ?? 0).toFixed(2)}` },
+    ];
+
+    const totalW = stats.length * statW + (stats.length - 1) * 20;
+    let statX = (PAGE.width - totalW) / 2;
+
+    stats.forEach((stat) => {
+      this.font('Bold', 22).color(COLORS.white);
+      this.doc.text(stat.value, statX, statsY, { width: statW, align: 'center' });
+      this.font('Regular', 10).color(COLORS.light);
+      this.doc.text(stat.label, statX, statsY + 28, { width: statW, align: 'center' });
+      statX += statW + 20;
+    });
+
+    // Footer info
+    const now = new Date();
+    this.font('Regular', 10).color(COLORS.light);
+    this.doc.text(`Rapor Tarihi: ${now.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })}`, 
+      PAGE.margin, PAGE.height - 80, { align: 'center', width: PAGE.contentWidth });
+    this.doc.text(`Analiz ID: ${analysisId}`, PAGE.margin, PAGE.height - 60, { align: 'center', width: PAGE.contentWidth });
+  }
+
+  // --------------------------------------------------------------------------
+  // PAGE 2: EXECUTIVE SUMMARY
+  // --------------------------------------------------------------------------
+
+  private renderExecutiveSummary(): void {
+    const eli5 = this.payload.eli5Report;
+    const { overallScore, scoreGrade } = this.payload;
+
+    // Check if we have any content
+    const hasHeadline = eli5?.executiveSummary?.headline;
+    const hasStrengths = hasContent(eli5?.executiveSummary?.topStrengths);
+    const hasIssues = hasContent(eli5?.executiveSummary?.criticalIssues);
+    const hasQuickWins = hasContent(eli5?.executiveSummary?.quickWins);
+
+    if (!hasHeadline && !hasStrengths && !hasIssues && !hasQuickWins) return;
+
+    this.newPage();
+    this.sectionTitle('Yönetici Özeti', '');
+
+    // Score summary row
+    const cardH = 80;
+    const cardW = (PAGE.contentWidth - 30) / 3;
+    const cardsY = this.y;
+
+    // Score card
+    this.box(PAGE.margin, cardsY, cardW, cardH, COLORS.cardBg, 10);
+    this.font('Bold', 32).color(getGradeColor(scoreGrade));
+    this.doc.text(`${overallScore?.toFixed(1) ?? '-'}`, PAGE.margin + 10, cardsY + 15, { width: cardW - 20, align: 'center' });
+    this.font('Regular', 9).color(COLORS.muted);
+    this.doc.text('GENEL SKOR', PAGE.margin + 10, cardsY + 55, { width: cardW - 20, align: 'center' });
+
+    // Grade card
+    this.box(PAGE.margin + cardW + 15, cardsY, cardW, cardH, COLORS.cardBg, 10);
+    this.font('Bold', 32).color(getGradeColor(scoreGrade));
+    this.doc.text(scoreGrade || '-', PAGE.margin + cardW + 25, cardsY + 15, { width: cardW - 20, align: 'center' });
+    this.font('Regular', 9).color(COLORS.muted);
+    this.doc.text('NOT', PAGE.margin + cardW + 25, cardsY + 55, { width: cardW - 20, align: 'center' });
+
+    // Status card
+    this.box(PAGE.margin + (cardW + 15) * 2, cardsY, cardW, cardH, COLORS.cardBg, 10);
+    this.font('Bold', 14).color(COLORS.success);
+    this.doc.text('TAMAMLANDI', PAGE.margin + (cardW + 15) * 2 + 10, cardsY + 25, { width: cardW - 20, align: 'center' });
+    this.font('Regular', 9).color(COLORS.muted);
+    this.doc.text('DURUM', PAGE.margin + (cardW + 15) * 2 + 10, cardsY + 55, { width: cardW - 20, align: 'center' });
+
+    this.y = cardsY + cardH + 25;
+
+    // Headline
+    if (hasHeadline) {
+      this.box(PAGE.margin, this.y, PAGE.contentWidth, 50, COLORS.cardBg, 10);
+      this.font('Bold', 12).color(COLORS.text);
+      this.doc.text(eli5!.executiveSummary!.headline!, PAGE.margin + 15, this.y + 15, { width: PAGE.contentWidth - 30 });
+      this.y += 65;
+    }
+
+    // Grade explanation
+    if (eli5?.executiveSummary?.gradeExplanation) {
+      this.font('Regular', 10).color(COLORS.textLight);
+      this.doc.text(eli5.executiveSummary.gradeExplanation, PAGE.margin, this.y, { width: PAGE.contentWidth });
+      this.y += 35;
+    }
+
+    // Strengths
+    if (hasStrengths) {
+      this.y += 10;
+      this.box(PAGE.margin, this.y, 6, 18, COLORS.success, 2);
+      this.font('Bold', 12).color(COLORS.success);
+      this.doc.text('GUCLU YONLER', PAGE.margin + 15, this.y + 2);
+      this.y += 28;
+
+      eli5!.executiveSummary!.topStrengths!.slice(0, 4).forEach(str => {
+        this.checkSpace(22);
+        this.font('Regular', 10).color(COLORS.text);
+        this.doc.text(`+ ${str}`, PAGE.margin + 15, this.y, { width: PAGE.contentWidth - 30 });
+        this.y += 20;
+      });
+    }
+
+    // Critical Issues
+    if (hasIssues) {
+      this.y += 15;
+      this.box(PAGE.margin, this.y, 6, 18, COLORS.danger, 2);
+      this.font('Bold', 12).color(COLORS.danger);
+      this.doc.text('KRITIK SORUNLAR', PAGE.margin + 15, this.y + 2);
+      this.y += 28;
+
+      eli5!.executiveSummary!.criticalIssues!.slice(0, 4).forEach(issue => {
+        this.checkSpace(22);
+        this.font('Regular', 10).color(COLORS.text);
+        this.doc.text(`! ${issue}`, PAGE.margin + 15, this.y, { width: PAGE.contentWidth - 30 });
+        this.y += 20;
+      });
+    }
+
+    // Quick Wins
+    if (hasQuickWins) {
+      this.y += 15;
+      this.box(PAGE.margin, this.y, 6, 18, COLORS.warning, 2);
+      this.font('Bold', 12).color(COLORS.warning);
+      this.doc.text('HIZLI KAZANIMLAR', PAGE.margin + 15, this.y + 2);
+      this.y += 28;
+
+      eli5!.executiveSummary!.quickWins!.slice(0, 4).forEach(win => {
+        this.checkSpace(22);
+        this.font('Regular', 10).color(COLORS.text);
+        this.doc.text(`* ${win}`, PAGE.margin + 15, this.y, { width: PAGE.contentWidth - 30 });
+        this.y += 20;
+      });
+    }
+  }
+
+  // --------------------------------------------------------------------------
+  // PAGE 3: ACCOUNT STATISTICS
+  // --------------------------------------------------------------------------
+
+  private renderAccountStats(): void {
+    this.newPage();
+    const { accountData } = this.payload;
+
+    this.sectionTitle('Hesap İstatistikleri', '');
+    
+    this.font('Bold', 16).color(COLORS.accent);
+    this.doc.text(`@${accountData.username}`, PAGE.margin, this.y);
+    this.y += 30;
+
+    // 2x4 stats grid
+    const cardW = (PAGE.contentWidth - 20) / 2;
+    const cardH = 75;
+    const stats = [
+      { label: 'Takipçi Sayısı', value: formatNumber(accountData.followers), color: COLORS.primary },
+      { label: 'Takip Edilen', value: formatNumber(accountData.following), color: COLORS.muted },
+      { label: 'Toplam Gönderi', value: formatNumber(accountData.posts), color: COLORS.accent },
+      { label: 'Etkileşim Oranı', value: `%${(accountData.engagementRate ?? 0).toFixed(2)}`, color: COLORS.success },
+      { label: 'Ortalama Beğeni', value: formatNumber(accountData.avgLikes), color: COLORS.danger },
+      { label: 'Ortalama Yorum', value: formatNumber(accountData.avgComments), color: COLORS.warning },
+      { label: 'Takipçi/Takip Oranı', value: accountData.followers && accountData.following ? (accountData.followers / accountData.following).toFixed(2) : '-', color: COLORS.accent },
+      { label: 'Doğrulama', value: accountData.verified ? 'Evet' : 'Hayır', color: accountData.verified ? COLORS.success : COLORS.muted },
+    ];
+
+    stats.forEach((stat, i) => {
+      const row = Math.floor(i / 2);
+      const col = i % 2;
+      const x = PAGE.margin + col * (cardW + 20);
+      const y = this.y + row * (cardH + 12);
+
+      this.box(x, y, cardW, cardH, COLORS.cardBg, 10);
+      this.font('Bold', 26).color(stat.color);
+      this.doc.text(stat.value, x + 15, y + 15, { width: cardW - 30 });
+      this.font('Regular', 10).color(COLORS.muted);
+      this.doc.text(stat.label, x + 15, y + 50);
+    });
+
+    this.y += 4 * (cardH + 12) + 20;
+  }
+
+  // --------------------------------------------------------------------------
+  // ACTION PLAN
+  // --------------------------------------------------------------------------
+
+  private renderActionPlan(): void {
+    const eli5 = this.payload.eli5Report;
+    const hasThisWeek = hasContent(eli5?.actionPlan?.thisWeek);
+    const hasThisMonth = hasContent(eli5?.actionPlan?.thisMonth);
+    const hasAvoid = hasContent(eli5?.actionPlan?.avoid);
+
+    if (!hasThisWeek && !hasThisMonth && !hasAvoid) return;
+
+    this.newPage();
+    this.sectionTitle('Eylem Planı', '');
+
+    // This Week
+    if (hasThisWeek) {
+      this.subsectionTitle('Bu Hafta Yapılacaklar');
+      
+      eli5!.actionPlan!.thisWeek!.slice(0, 5).forEach((action, i) => {
+        this.checkSpace(60);
+        const boxY = this.y;
+        this.box(PAGE.margin, boxY, PAGE.contentWidth, 50, COLORS.cardBg, 8);
+        
+        // Number badge
+        this.doc.circle(PAGE.margin + 22, boxY + 25, 15).fill(COLORS.success);
+        this.font('Bold', 12).color(COLORS.white);
+        this.doc.text(`${i + 1}`, PAGE.margin + 15, boxY + 19);
+
+        // Action text
+        this.font('Regular', 10).color(COLORS.text);
+        this.doc.text(cleanActionText(action), PAGE.margin + 50, boxY + 15, { width: PAGE.contentWidth - 70 });
+        
+        this.y = boxY + 58;
+      });
+    }
+
+    // This Month
+    if (hasThisMonth) {
+      this.y += 20;
+      this.subsectionTitle('Bu Ay Yapılacaklar');
+      
+      eli5!.actionPlan!.thisMonth!.slice(0, 4).forEach((action, i) => {
+        this.checkSpace(55);
+        const boxY = this.y;
+        this.box(PAGE.margin, boxY, PAGE.contentWidth, 45, COLORS.cardBg, 8);
+        
+        this.doc.circle(PAGE.margin + 22, boxY + 22, 15).fill(COLORS.accent);
+        this.font('Bold', 12).color(COLORS.white);
+        this.doc.text(`${i + 1}`, PAGE.margin + 15, boxY + 16);
+
+        this.font('Regular', 10).color(COLORS.text);
+        this.doc.text(cleanActionText(action), PAGE.margin + 50, boxY + 14, { width: PAGE.contentWidth - 70 });
+        
+        this.y = boxY + 52;
+      });
+    }
+
+    // Avoid
+    if (hasAvoid) {
+      this.y += 20;
+      this.subsectionTitle('Kaçınılması Gerekenler');
+      
+      eli5!.actionPlan!.avoid!.slice(0, 4).forEach((action) => {
+        this.checkSpace(55);
+        const boxY = this.y;
+        this.box(PAGE.margin, boxY, PAGE.contentWidth, 45, '#FEF2F2', 8);
+        
+        this.doc.circle(PAGE.margin + 22, boxY + 22, 15).fill(COLORS.danger);
+        this.font('Bold', 12).color(COLORS.white);
+        this.doc.text('X', PAGE.margin + 17, boxY + 15);
+
+        this.font('Regular', 10).color(COLORS.text);
+        this.doc.text(cleanActionText(action), PAGE.margin + 50, boxY + 14, { width: PAGE.contentWidth - 70 });
+        
+        this.y = boxY + 52;
+      });
+    }
+  }
+
+  // --------------------------------------------------------------------------
+  // METRICS ANALYSIS
+  // --------------------------------------------------------------------------
+
+  private renderMetricsAnalysis(): void {
+    const metrics = this.payload.eli5Report?.simplifiedMetrics;
+    if (!metrics) return;
+
+    const metricItems = [
+      { key: 'engagement', label: 'Etkileşim Performansı' },
+      { key: 'growth', label: 'Büyüme Potansiyeli' },
+      { key: 'contentQuality', label: 'İçerik Kalitesi' },
+      { key: 'audienceQuality', label: 'Kitle Kalitesi' },
+    ];
+
+    const validMetrics = metricItems.filter(m => {
+      const metric = metrics[m.key as keyof typeof metrics];
+      return metric && (metric.value || metric.verdict);
+    });
+
+    if (validMetrics.length === 0) return;
+
+    this.newPage();
+    this.sectionTitle('Metrik Analizi', '');
+
+    validMetrics.forEach((item) => {
+      const metric = metrics[item.key as keyof typeof metrics]!;
+      this.checkSpace(100);
+
+      const boxY = this.y;
+      this.box(PAGE.margin, boxY, PAGE.contentWidth, 90, COLORS.cardBg, 10);
+
+      // Label
+      this.font('Bold', 12).color(COLORS.primary);
+      this.doc.text(item.label, PAGE.margin + 15, boxY + 12);
+
+      // Value
+      this.font('Bold', 28).color(COLORS.text);
+      this.doc.text(metric.value || '-', PAGE.margin + 15, boxY + 32);
+
+      // Verdict badge
+      if (metric.verdict) {
+        const verdictColor = metric.verdict === 'iyi' || metric.verdict === 'good' ? COLORS.success :
+                            metric.verdict === 'ortalama' || metric.verdict === 'average' ? COLORS.warning : COLORS.danger;
+        this.box(PAGE.margin + 180, boxY + 35, 70, 22, verdictColor, 5);
+        this.font('Bold', 9).color(COLORS.white);
+        this.doc.text(metric.verdict.toUpperCase(), PAGE.margin + 185, boxY + 41, { width: 60, align: 'center' });
+      }
+
+      // Benchmark
+      if (metric.benchmark) {
+        this.font('Regular', 9).color(COLORS.muted);
+        this.doc.text(`Benchmark: ${metric.benchmark}`, PAGE.margin + 300, boxY + 15);
+      }
+
+      // Explanation
+      if (metric.explanation) {
+        this.font('Regular', 9).color(COLORS.textLight);
+        this.doc.text(metric.explanation, PAGE.margin + 15, boxY + 68, { width: PAGE.contentWidth - 30 });
+      }
+
+      this.y = boxY + 100;
+    });
+  }
+
+  // --------------------------------------------------------------------------
+  // AGENT SECTION
+  // --------------------------------------------------------------------------
+
+  private renderAgent(agentKey: string, title: string): void {
+    const agent = this.payload.agentResults?.[agentKey];
+    if (!agent) return;
+
+    const hasFindings = hasContent(agent.findings);
+    const hasRecs = hasContent(agent.recommendations);
+    const hasAgentMetrics = hasMetrics(agent.metrics);
+
+    // Skip if no content
+    if (!hasFindings && !hasRecs && !hasAgentMetrics) return;
+
+    this.newPage();
+    this.sectionTitle(title);
+
+    // Agent role
+    if (agent.agentRole) {
+      this.font('Regular', 10).color(COLORS.muted);
+      this.doc.text(agent.agentRole, PAGE.margin, this.y);
+      this.y += 25;
+    }
+
+    // Metrics
+    if (hasAgentMetrics) {
+      this.subsectionTitle('Ana Metrikler');
+
+      const metricEntries = Object.entries(agent.metrics!)
+        .filter(([, v]) => v !== null && v !== undefined)
+        .slice(0, 6);
+
+      if (metricEntries.length > 0) {
+        const cardW = (PAGE.contentWidth - 20) / 3;
+        const cardH = 55;
+
+        metricEntries.forEach(([key, value], i) => {
+          const row = Math.floor(i / 3);
+          const col = i % 3;
+          const x = PAGE.margin + col * (cardW + 10);
+          const y = this.y + row * (cardH + 10);
+
+          this.box(x, y, cardW, cardH, COLORS.cardBg, 8);
+
+          this.font('Bold', 18).color(COLORS.primary);
+          const displayVal = typeof value === 'number' ? value.toFixed(1) : String(value);
+          this.doc.text(displayVal, x + 10, y + 10, { width: cardW - 20 });
+
+          this.font('Regular', 8).color(COLORS.muted);
+          const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase()).substring(0, 25);
+          this.doc.text(label, x + 10, y + 35, { width: cardW - 20 });
+        });
+
+        this.y += Math.ceil(metricEntries.length / 3) * (cardH + 10) + 15;
+      }
+    }
+
+    // Findings
+    if (hasFindings) {
+      this.subsectionTitle('Bulgular');
+
+      agent.findings!.slice(0, 6).forEach((finding) => {
+        const text = extractFindingText(finding);
+        if (!text) return;
+
+        this.checkSpace(28);
+
+        const type = typeof finding === 'object' ? finding.type : null;
+        const icon = type === 'strength' ? '+' : type === 'weakness' ? '!' : type === 'opportunity' ? '*' : '-';
+        const iconColor = type === 'strength' ? COLORS.success : type === 'weakness' ? COLORS.danger : type === 'opportunity' ? COLORS.warning : COLORS.text;
+
+        this.font('Bold', 10).color(iconColor);
+        this.doc.text(`${icon}`, PAGE.margin, this.y);
+        this.font('Regular', 10).color(COLORS.text);
+        this.doc.text(text, PAGE.margin + 15, this.y, { width: PAGE.contentWidth - 30 });
+        this.y += 22;
+      });
+    }
+
+    // Recommendations
+    if (hasRecs) {
+      this.y += 10;
+      this.subsectionTitle('Öneriler');
+
+      agent.recommendations!.slice(0, 5).forEach((rec, i) => {
+        const text = extractRecText(rec);
+        if (!text) return;
+
+        this.checkSpace(35);
+
+        // Number badge
+        this.doc.circle(PAGE.margin + 10, this.y + 8, 10).fill(COLORS.accent);
+        this.font('Bold', 9).color(COLORS.white);
+        this.doc.text(`${i + 1}`, PAGE.margin + 5, this.y + 4);
+
+        // Rec text
+        this.font('Regular', 10).color(COLORS.text);
+        this.doc.text(text, PAGE.margin + 30, this.y, { width: PAGE.contentWidth - 45 });
+        this.y += 28;
+      });
+    }
+  }
+
+  // --------------------------------------------------------------------------
+  // SWOT ANALYSIS
+  // --------------------------------------------------------------------------
+
+  private renderSWOT(): void {
+    const domainMaster = this.payload.agentResults?.domainMaster;
+    const growthVirality = this.payload.agentResults?.growthVirality;
+
+    if (!domainMaster && !growthVirality) return;
+
+    // Collect SWOT data
+    const swot = { strengths: [] as string[], weaknesses: [] as string[], opportunities: [] as string[], threats: [] as string[] };
+
+    [domainMaster, growthVirality].forEach(agent => {
+      agent?.findings?.forEach((f: any) => {
+        const text = extractFindingText(f);
+        if (!text) return;
+        const type = typeof f === 'object' ? f.type?.toLowerCase() : null;
+        if (type === 'strength') swot.strengths.push(text);
+        else if (type === 'weakness') swot.weaknesses.push(text);
+        else if (type === 'opportunity') swot.opportunities.push(text);
+        else if (type === 'threat') swot.threats.push(text);
+      });
+    });
+
+    // Skip if no SWOT data
+    if (swot.strengths.length + swot.weaknesses.length + swot.opportunities.length + swot.threats.length === 0) return;
+
+    this.newPage();
+    this.sectionTitle('SWOT Analizi', '');
+
+    const qW = (PAGE.contentWidth - 15) / 2;
+    const qH = 160;
+
+    const quadrants = [
+      { title: 'Güçlü Yönler', items: swot.strengths, color: COLORS.success, x: PAGE.margin, y: this.y },
+      { title: 'Zayıf Yönler', items: swot.weaknesses, color: COLORS.danger, x: PAGE.margin + qW + 15, y: this.y },
+      { title: 'Fırsatlar', items: swot.opportunities, color: COLORS.accent, x: PAGE.margin, y: this.y + qH + 15 },
+      { title: 'Tehditler', items: swot.threats, color: COLORS.warning, x: PAGE.margin + qW + 15, y: this.y + qH + 15 },
+    ];
+
+    quadrants.forEach(q => {
+      this.box(q.x, q.y, qW, qH, COLORS.cardBg, 10);
+      
+      // Header bar
+      this.doc.rect(q.x, q.y, qW, 28).fill(q.color);
+      this.font('Bold', 10).color(COLORS.white);
+      this.doc.text(q.title, q.x + 10, q.y + 8);
+
+      // Items
+      this.font('Regular', 9).color(COLORS.text);
+      let itemY = q.y + 38;
+      const displayItems = q.items.slice(0, 4);
+
+      if (displayItems.length === 0) {
+        this.doc.fillColor(COLORS.muted).text('Veri bulunamadı', q.x + 10, itemY);
+      } else {
+        displayItems.forEach(item => {
+          const shortItem = item.length > 60 ? item.substring(0, 60) + '...' : item;
+          this.doc.text(`- ${shortItem}`, q.x + 10, itemY, { width: qW - 20 });
+          itemY += 28;
+        });
+      }
+    });
+
+    this.y += qH * 2 + 30;
+  }
+
+  // --------------------------------------------------------------------------
+  // HOOK REWRITES
+  // --------------------------------------------------------------------------
+
+  private renderHookRewrites(): void {
+    const hooks = this.payload.eli5Report?.rewrittenHooks;
+    if (!hasContent(hooks)) return;
+
+    this.newPage();
+    this.sectionTitle('Yeniden Yazılmış Hook\'lar', '');
+    this.font('Regular', 10).color(COLORS.muted);
+    this.doc.text('Dikkat çekici başlıklar için iyileştirilmiş öneriler', PAGE.margin, this.y);
+    this.y += 25;
+
+    hooks!.slice(0, 4).forEach((hook, i) => {
+      if (!hook.newHook) return;
+
+      this.checkSpace(110);
+
+      const boxY = this.y;
+      this.box(PAGE.margin, boxY, PAGE.contentWidth, 95, COLORS.cardBg, 10);
+
+      // Number
+      this.doc.circle(PAGE.margin + 22, boxY + 25, 16).fill(COLORS.accent);
+      this.font('Bold', 12).color(COLORS.white);
+      this.doc.text(`${i + 1}`, PAGE.margin + 17, boxY + 19);
+
+      // New hook
+      this.font('Bold', 10).color(COLORS.text);
+      this.doc.text('Yeni Hook:', PAGE.margin + 50, boxY + 12);
+      this.font('Regular', 10).color(COLORS.success);
+      this.doc.text(hook.newHook, PAGE.margin + 50, boxY + 28, { width: PAGE.contentWidth - 70 });
+
+      // Technique
+      if (hook.technique) {
+        this.font('Bold', 9).color(COLORS.accent);
+        this.doc.text(`Teknik: ${hook.technique}`, PAGE.margin + 50, boxY + 58);
+      }
+
+      // Why better
+      if (hook.whyBetter) {
+        this.font('Regular', 9).color(COLORS.textLight);
+        this.doc.text(`Neden daha iyi: ${hook.whyBetter}`, PAGE.margin + 50, boxY + 75, { width: PAGE.contentWidth - 70 });
+      }
+
+      this.y = boxY + 105;
+    });
+  }
+
+  // --------------------------------------------------------------------------
+  // CONTENT PLAN
+  // --------------------------------------------------------------------------
+
+  private renderContentPlan(): void {
+    const plan = this.payload.contentPlan;
+    if (!hasContent(plan?.weeklyPlan)) return;
+
+    this.newPage();
+    this.sectionTitle('7 Günlük İçerik Planı', '');
+
+    // Theme & pillars
+    if (plan!.monthlyTheme) {
+      this.font('Bold', 11).color(COLORS.accent);
+      this.doc.text(`Aylık Tema: ${plan!.monthlyTheme}`, PAGE.margin, this.y);
+      this.y += 20;
+    }
+
+    if (hasContent(plan!.contentPillars)) {
+      this.font('Regular', 10).color(COLORS.muted);
+      this.doc.text(`İçerik Sütunları: ${plan!.contentPillars!.join(', ')}`, PAGE.margin, this.y);
+      this.y += 25;
+    }
+
+    // Table
+    const colW = [55, 70, 200, 70, 85];
+    const headers = ['Gün', 'Tür', 'Konu', 'Saat', 'Hedef'];
+    const headerY = this.y;
+
+    this.box(PAGE.margin, headerY, PAGE.contentWidth, 26, COLORS.primary, 4);
+    this.font('Bold', 9).color(COLORS.white);
+    let colX = PAGE.margin + 5;
+    headers.forEach((h, i) => {
+      this.doc.text(h, colX, headerY + 8, { width: colW[i] - 10 });
+      colX += colW[i];
+    });
+
+    this.y = headerY + 32;
+
+    plan!.weeklyPlan!.slice(0, 7).forEach((day, i) => {
+      this.checkSpace(38);
+
+      const rowY = this.y;
+      const rowBg = i % 2 === 0 ? COLORS.cardBg : COLORS.white;
+      this.box(PAGE.margin, rowY, PAGE.contentWidth, 32, rowBg, 3);
+
+      this.font('Regular', 9).color(COLORS.text);
+      colX = PAGE.margin + 5;
+      const rowData = [
+        day.dayName || `Gün ${day.day || i + 1}`,
+        day.contentType || '-',
+        (day.topic || '-').substring(0, 50),
+        day.bestTime || '-',
+        (day.objective || '-').substring(0, 20),
+      ];
+
+      rowData.forEach((cell, j) => {
+        this.doc.text(cell, colX, rowY + 10, { width: colW[j] - 10 });
+        colX += colW[j];
+      });
+
+      this.y = rowY + 38;
+    });
+  }
+
+  // --------------------------------------------------------------------------
+  // FINAL PAGE
+  // --------------------------------------------------------------------------
+
+  private renderFinalPage(): void {
+    this.newPage();
+
+    const centerY = PAGE.height / 2 - 80;
+
+    this.font('Bold', 28).color(COLORS.primary);
+    this.doc.text('Raporunuz Hazır!', PAGE.margin, centerY, { align: 'center', width: PAGE.contentWidth });
+
+    this.font('Regular', 12).color(COLORS.textLight);
+    this.doc.text('Bu rapor Instagram AI tarafından otomatik olarak oluşturulmuştur.', PAGE.margin, centerY + 45, { align: 'center', width: PAGE.contentWidth });
+
+    // Analysis info
+    this.font('Regular', 10).color(COLORS.muted);
+    this.doc.text(`Analiz ID: ${this.payload.analysisId}`, PAGE.margin, centerY + 90, { align: 'center', width: PAGE.contentWidth });
+
+    const now = new Date();
+    this.doc.text(`Tarih: ${now.toLocaleDateString('tr-TR')} ${now.toLocaleTimeString('tr-TR')}`, PAGE.margin, centerY + 110, { align: 'center', width: PAGE.contentWidth });
+    this.doc.text(`Tier: ${this.payload.tier || 'Standard'}`, PAGE.margin, centerY + 130, { align: 'center', width: PAGE.contentWidth });
+
+    // Branding
+    this.font('Bold', 18).color(COLORS.primary);
+    this.doc.text('INSTAGRAM AI', PAGE.margin, PAGE.height - 90, { align: 'center', width: PAGE.contentWidth });
+    this.font('Regular', 10).color(COLORS.muted);
+    this.doc.text('Instagram Intelligence Platform', PAGE.margin, PAGE.height - 65, { align: 'center', width: PAGE.contentWidth });
+  }
+
+  // --------------------------------------------------------------------------
+  // MAIN GENERATE
+  // --------------------------------------------------------------------------
+
+  async generate(): Promise<{ buffer: Buffer; pageCount: number }> {
+    const chunks: Buffer[] = [];
+    this.doc.on('data', (chunk) => chunks.push(chunk));
+
+    // Always render
+    this.renderCover();
+    this.renderExecutiveSummary();
+    this.renderAccountStats();
+
+    // Conditional renders (only if data exists)
+    this.renderActionPlan();
+    this.renderMetricsAnalysis();
+
+    // Agent sections (only if agent has content)
+    this.renderAgent('domainMaster', 'Sektör ve Niş Analizi');
+    this.renderAgent('growthVirality', 'Büyüme ve Viral Potansiyel');
+    this.renderAgent('visualBrand', 'Görsel Marka Kimliği');
+    this.renderAgent('communityLoyalty', 'Topluluk Sağlığı ve Sadakat');
+    this.renderAgent('attentionArchitect', 'Dikkat ve Hook Optimizasyonu');
+    this.renderAgent('salesConversion', 'Monetizasyon ve Satış Dönüşümü');
+
+    // Special sections
+    this.renderSWOT();
+    this.renderHookRewrites();
+    this.renderContentPlan();
+
+    // Final
+    this.renderFinalPage();
+
+    this.doc.end();
+
+    await new Promise<void>((resolve, reject) => {
+      this.doc.on('end', () => resolve());
+      this.doc.on('error', (err) => reject(err));
+    });
+
+    return { buffer: Buffer.concat(chunks), pageCount: this.pageCount };
+  }
+}
+
+// ============================================================================
+// EXPORT
+// ============================================================================
+
+export async function generatePdfReport(payload: GeneratePayload): Promise<{ buffer: Buffer; pageCount: number }> {
+  const generator = new ProfessionalPDFGenerator(payload);
+  return generator.generate();
+}

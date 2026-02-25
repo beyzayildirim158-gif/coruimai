@@ -1,0 +1,9 @@
+{
+    "css.validate": false,
+    "html.validate.styles": false,
+    "python.analysis.extraPaths": [],
+    "python.analysis.diagnosticSeverityOverrides": {
+        "reportMissingImports": "none",
+        "reportMissingModuleSource": "none"
+    }
+}

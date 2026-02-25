@@ -1,0 +1,2954 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Instagram AI Analiz Raporu - @{{accountData.username}}</title>
+  <style>
+    /* FONTS */
+    @font-face {
+      font-family: 'NotoSans';
+      src: url('file:///app/fonts/NotoSans-Regular.ttf') format('truetype');
+      font-weight: 400;
+    }
+    @font-face {
+      font-family: 'NotoSans';
+      src: url('file:///app/fonts/NotoSans-Bold.ttf') format('truetype');
+      font-weight: 700;
+    }
+    
+    /* RESET */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    @page { size: A4; margin: 0; }
+    
+    body {
+      font-family: 'NotoSans', 'Noto Sans', -apple-system, sans-serif;
+      font-size: 10pt;
+      line-height: 1.5;
+      color: #1e293b;
+      background: white;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    
+    .page {
+      position: relative;
+      width: 210mm;
+      min-height: 297mm;
+      max-height: 297mm;
+      padding: 10mm 12mm;
+      background: white;
+      page-break-after: always;
+      overflow: hidden;
+    }
+    .page:last-child { page-break-after: auto; }
+    
+    /* PREVENT OVERFLOW */
+    .section { 
+      overflow: hidden; 
+      max-width: 100%;
+    }
+    .card, .stat-card, .finding-box, .hook-card, .verdict-card {
+      overflow: hidden;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+    
+    /* PAGE BREAK CONTROLS */
+    .page-break-before { page-break-before: always; }
+    .page-break-after { page-break-after: always; }
+    .avoid-break { page-break-inside: avoid; }
+    
+    /* TYPOGRAPHY */
+    h1 { font-size: 28pt; font-weight: 700; color: #0f172a; margin-bottom: 8px; }
+    h2 { font-size: 16pt; font-weight: 700; color: #1e3a8a; margin-bottom: 12px; }
+    h3 { font-size: 12pt; font-weight: 700; color: #334155; margin-bottom: 8px; }
+    h4 { font-size: 10pt; font-weight: 600; color: #475569; margin-bottom: 6px; }
+    p { margin-bottom: 6px; color: #475569; word-wrap: break-word; }
+    
+    /* LAYOUT */
+    .flex { display: flex; }
+    .flex-col { flex-direction: column; }
+    .items-center { align-items: center; }
+    .justify-between { justify-content: space-between; }
+    .gap-2 { gap: 8px; }
+    .gap-3 { gap: 12px; }
+    .gap-4 { gap: 16px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+    .grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+    .mb-2 { margin-bottom: 8px; }
+    .mb-3 { margin-bottom: 12px; }
+    .mb-4 { margin-bottom: 16px; }
+    .mt-2 { margin-top: 8px; }
+    .mt-3 { margin-top: 12px; }
+    
+    /* ================================
+       COVER PAGE
+       ================================ */
+    .cover {
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0f172a 100%);
+      color: white;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 297mm;
+    }
+    
+    .cover-pattern {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: radial-gradient(circle at 20% 80%, rgba(59,130,246,0.15) 0%, transparent 50%),
+                  radial-gradient(circle at 80% 20%, rgba(16,185,129,0.1) 0%, transparent 50%);
+      z-index: 1;
+    }
+    
+    .cover-content {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      padding: 25mm 20mm;
+    }
+    
+    .cover-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 15mm;
+    }
+    
+    .cover-logo {
+      font-size: 10pt;
+      font-weight: 700;
+      color: #60a5fa;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+    }
+    
+    .cover-date {
+      font-size: 9pt;
+      color: #94a3b8;
+      text-align: right;
+    }
+    
+    .cover-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+    
+    .profile-ring {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #f59e0b, #ef4444, #ec4899, #8b5cf6);
+      padding: 4px;
+      margin-bottom: 20px;
+    }
+    
+    .profile-inner {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: #0f172a;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .profile-img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    
+    .profile-placeholder {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40pt;
+      font-weight: 900;
+      color: white;
+    }
+    
+    .cover-username {
+      font-size: 28pt;
+      font-weight: 900;
+      color: white;
+      margin-bottom: 5px;
+    }
+    
+    .cover-fullname {
+      font-size: 12pt;
+      color: #94a3b8;
+      margin-bottom: 20px;
+    }
+    
+    .cover-stats {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-bottom: 25px;
+    }
+    
+    .cover-stat {
+      text-align: center;
+    }
+    
+    .cover-stat-value {
+      font-size: 20pt;
+      font-weight: 900;
+      color: white;
+    }
+    
+    .cover-stat-label {
+      font-size: 8pt;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    
+    .cover-score-box {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 20px 40px;
+      text-align: center;
+    }
+    
+    .cover-score-label {
+      font-size: 8pt;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 5px;
+    }
+    
+    .cover-score-grade {
+      font-size: 64pt;
+      font-weight: 900;
+      line-height: 1;
+    }
+    
+    .grade-A { color: #10b981; }
+    .grade-B { color: #22c55e; }
+    .grade-C { color: #f59e0b; }
+    .grade-D { color: #f97316; }
+    .grade-F { color: #ef4444; }
+    
+    .cover-score-value {
+      font-size: 12pt;
+      color: #94a3b8;
+      margin-top: 5px;
+    }
+    
+    .cover-footer {
+      text-align: center;
+      padding-top: 15px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .cover-footer-text {
+      font-size: 8pt;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+    }
+    
+    /* ================================
+       SECTION STYLES
+       ================================ */
+    .section {
+      margin-bottom: 12px;
+    }
+    
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid #e2e8f0;
+    }
+    
+    .section-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12pt;
+    }
+    
+    .section-icon.purple { background: #ede9fe; }
+    .section-icon.green { background: #dcfce7; }
+    .section-icon.blue { background: #dbeafe; }
+    .section-icon.amber { background: #fef3c7; }
+    .section-icon.red { background: #fee2e2; }
+    .section-icon.pink { background: #fce7f3; }
+    .section-icon.indigo { background: #e0e7ff; }
+    
+    .section-title {
+      font-size: 12pt;
+      font-weight: 700;
+      color: #0f172a;
+    }
+    
+    .section-subtitle {
+      font-size: 8pt;
+      color: #64748b;
+    }
+    
+    /* ================================
+       CARDS
+       ================================ */
+    .card {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 10px;
+      break-inside: avoid;
+      overflow: hidden;
+    }
+    
+    .card-gradient {
+      background: linear-gradient(135deg, #f8fafc 0%, white 100%);
+    }
+    
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    
+    .card-title {
+      font-size: 11pt;
+      font-weight: 700;
+      color: #1e3a8a;
+    }
+    
+    /* ================================
+       METRIC CARDS (Stats Grid)
+       ================================ */
+    .stat-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 8px;
+      text-align: center;
+      overflow: hidden;
+    }
+    
+    .stat-card.highlight {
+      background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+      border: none;
+      color: white;
+    }
+    
+    .stat-card.highlight .stat-label { color: rgba(255,255,255,0.7); }
+    .stat-card.highlight .stat-value { color: white; }
+    
+    .stat-label {
+      font-size: 6pt;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: #64748b;
+      margin-bottom: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .stat-value {
+      font-size: 14pt;
+      font-weight: 900;
+      color: #0f172a;
+    }
+    
+    .stat-change {
+      font-size: 8pt;
+      margin-top: 2px;
+    }
+    
+    .stat-change.positive { color: #10b981; }
+    .stat-change.negative { color: #ef4444; }
+    
+    /* ================================
+       BADGES & TAGS
+       ================================ */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 8pt;
+      font-weight: 600;
+    }
+    
+    .badge-purple { background: #ede9fe; color: #7c3aed; }
+    .badge-green { background: #dcfce7; color: #16a34a; }
+    .badge-blue { background: #dbeafe; color: #2563eb; }
+    .badge-amber { background: #fef3c7; color: #d97706; }
+    .badge-red { background: #fee2e2; color: #dc2626; }
+    .badge-pink { background: #fce7f3; color: #db2777; }
+    .badge-slate { background: #f1f5f9; color: #475569; }
+    
+    /* ================================
+       LISTS
+       ================================ */
+    .list {
+      list-style: none;
+      padding: 0;
+    }
+    
+    .list-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 8px 10px;
+      background: #f8fafc;
+      border-radius: 8px;
+      margin-bottom: 6px;
+      font-size: 9pt;
+    }
+    
+    .list-item.success { background: #ecfdf5; border-left: 3px solid #10b981; }
+    .list-item.warning { background: #fffbeb; border-left: 3px solid #f59e0b; }
+    .list-item.danger { background: #fef2f2; border-left: 3px solid #ef4444; }
+    .list-item.info { background: #eff6ff; border-left: 3px solid #3b82f6; }
+    
+    .list-icon {
+      font-size: 10pt;
+      line-height: 1;
+    }
+    
+    .list-content {
+      flex: 1;
+    }
+    
+    .list-title {
+      font-weight: 600;
+      color: #1e293b;
+      margin-bottom: 2px;
+    }
+    
+    .list-desc {
+      font-size: 8pt;
+      color: #64748b;
+    }
+    
+    /* ================================
+       EXECUTIVE SUMMARY
+       ================================ */
+    .exec-summary {
+      background: linear-gradient(135deg, #f8fafc 0%, white 100%);
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    
+    .exec-health {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px;
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      margin-bottom: 12px;
+    }
+    
+    .health-score {
+      font-size: 24pt;
+      font-weight: 900;
+      color: #0f172a;
+    }
+    
+    .health-badge {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 9pt;
+      font-weight: 600;
+    }
+    
+    .health-badge.good { background: #dcfce7; color: #16a34a; }
+    .health-badge.medium { background: #fef3c7; color: #d97706; }
+    .health-badge.poor { background: #fee2e2; color: #dc2626; }
+    
+    /* ================================
+       HOOK REWRITES
+       ================================ */
+    .hook-card {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 8px;
+      break-inside: avoid;
+    }
+    
+    .hook-before {
+      background: #fef2f2;
+      border-left: 3px solid #ef4444;
+      padding: 8px;
+      border-radius: 4px;
+      margin-bottom: 6px;
+    }
+    
+    .hook-before-label {
+      font-size: 6pt;
+      font-weight: 700;
+      color: #991b1b;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+    
+    .hook-before-text {
+      font-size: 8pt;
+      color: #7f1d1d;
+      font-style: italic;
+      text-decoration: line-through;
+    }
+    
+    .hook-after {
+      background: #ecfdf5;
+      border-left: 3px solid #10b981;
+      padding: 8px;
+      border-radius: 4px;
+    }
+    
+    .hook-after-label {
+      font-size: 6pt;
+      font-weight: 700;
+      color: #065f46;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+    
+    .hook-after-text {
+      font-size: 9pt;
+      color: #064e3b;
+      font-weight: 600;
+    }
+    
+    .hook-reason {
+      margin-top: 6px;
+      font-size: 7pt;
+      color: #64748b;
+      font-style: italic;
+    }
+    
+    /* ================================
+       PRIORITY ACTIONS
+       ================================ */
+    .action-item {
+      display: flex;
+      gap: 10px;
+      padding: 10px;
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      margin-bottom: 6px;
+      break-inside: avoid;
+    }
+    
+    .action-priority {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10pt;
+      font-weight: 700;
+      color: white;
+      flex-shrink: 0;
+    }
+    
+    .priority-1 { background: #ef4444; }
+    .priority-2 { background: #f97316; }
+    .priority-3 { background: #f59e0b; }
+    .priority-4 { background: #3b82f6; }
+    .priority-5 { background: #64748b; }
+    
+    .action-content {
+      flex: 1;
+    }
+    
+    .action-title {
+      font-size: 10pt;
+      font-weight: 600;
+      color: #0f172a;
+      margin-bottom: 4px;
+    }
+    
+    .action-desc {
+      font-size: 8pt;
+      color: #64748b;
+      margin-bottom: 6px;
+    }
+    
+    .action-meta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    
+    /* ================================
+       AGENT RESULTS
+       ================================ */
+    .agent-card {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      overflow: hidden;
+      break-inside: avoid;
+    }
+    
+    .agent-header {
+      padding: 12px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    
+    .agent-header.purple { background: linear-gradient(135deg, #f5f3ff, #ede9fe); }
+    .agent-header.green { background: linear-gradient(135deg, #f0fdf4, #dcfce7); }
+    .agent-header.amber { background: linear-gradient(135deg, #fffbeb, #fef3c7); }
+    .agent-header.pink { background: linear-gradient(135deg, #fdf2f8, #fce7f3); }
+    .agent-header.red { background: linear-gradient(135deg, #fef2f2, #fee2e2); }
+    .agent-header.blue { background: linear-gradient(135deg, #eff6ff, #dbeafe); }
+    .agent-header.slate { background: linear-gradient(135deg, #f8fafc, #f1f5f9); }
+    
+    .agent-title {
+      font-size: 11pt;
+      font-weight: 700;
+      color: #0f172a;
+    }
+    
+    .agent-role {
+      font-size: 8pt;
+      color: #64748b;
+    }
+    
+    .agent-body {
+      padding: 12px;
+    }
+    
+    .agent-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    
+    .agent-metric {
+      text-align: center;
+      padding: 8px;
+      background: #f8fafc;
+      border-radius: 8px;
+    }
+    
+    .agent-metric-value {
+      font-size: 14pt;
+      font-weight: 900;
+      color: #1e3a8a;
+    }
+    
+    .agent-metric-label {
+      font-size: 7pt;
+      color: #64748b;
+      text-transform: uppercase;
+    }
+    
+    /* ================================
+       CALENDAR
+       ================================ */
+    .calendar-day {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-left: 4px solid #3b82f6;
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 8px;
+      break-inside: avoid;
+    }
+    
+    .calendar-day-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    
+    .calendar-day-name {
+      font-size: 11pt;
+      font-weight: 700;
+      color: #1e3a8a;
+    }
+    
+    .calendar-day-type {
+      font-size: 7pt;
+      padding: 3px 8px;
+      background: #dbeafe;
+      color: #1e40af;
+      border-radius: 10px;
+      font-weight: 600;
+    }
+    
+    .calendar-topic {
+      font-size: 9pt;
+      color: #374151;
+      margin-bottom: 6px;
+    }
+    
+    .calendar-hook {
+      background: #f0fdf4;
+      border-left: 2px solid #22c55e;
+      padding: 8px;
+      border-radius: 4px;
+      font-size: 9pt;
+      font-style: italic;
+      color: #166534;
+    }
+    
+    /* ================================
+       PAGE FOOTER
+       ================================ */
+    .page-footer {
+      position: absolute;
+      bottom: 8mm;
+      left: 15mm;
+      right: 15mm;
+      text-align: center;
+      font-size: 7pt;
+      color: #94a3b8;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 6px;
+    }
+    
+    /* ================================
+       FINAL VERDICT (DeepSeek)
+       ================================ */
+    .verdict-card {
+      background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+      border: 1px solid #c7d2fe;
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+    
+    .verdict-situation {
+      background: white;
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    
+    .verdict-issues {
+      margin-bottom: 10px;
+    }
+    
+    .verdict-issue {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 8px;
+      padding: 8px;
+      margin-bottom: 6px;
+      font-size: 9pt;
+      color: #991b1b;
+    }
+    
+    .verdict-actions {
+      margin-bottom: 10px;
+    }
+    
+    .verdict-action {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+      border-radius: 8px;
+      padding: 8px;
+      margin-bottom: 6px;
+      font-size: 9pt;
+      color: #065f46;
+    }
+    
+    .verdict-action-num {
+      width: 18px;
+      height: 18px;
+      background: #10b981;
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 8pt;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    
+    .verdict-warning {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 9pt;
+      color: #92400e;
+    }
+    
+    /* ================================
+       ELI5 SECTION
+       ================================ */
+    .eli5-card {
+      background: linear-gradient(135deg, #fdf4ff, #fae8ff);
+      border: 1px solid #e9d5ff;
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+    
+    .eli5-headline {
+      font-size: 12pt;
+      font-weight: 700;
+      color: #7c3aed;
+      margin-bottom: 8px;
+    }
+    
+    .eli5-metric {
+      background: white;
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 8px;
+    }
+    
+    .eli5-metric-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+    
+    .eli5-metric-name {
+      font-size: 9pt;
+      font-weight: 600;
+      color: #0f172a;
+    }
+    
+    .eli5-metric-value {
+      font-size: 10pt;
+      font-weight: 700;
+    }
+    
+    .eli5-metric-value.good { color: #16a34a; }
+    .eli5-metric-value.medium { color: #d97706; }
+    .eli5-metric-value.bad { color: #dc2626; }
+    
+    .eli5-metric-explanation {
+      font-size: 8pt;
+      color: #64748b;
+    }
+    
+    /* BUSINESS IDENTITY */
+    .business-card {
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+    
+    .business-card.service { background: #eff6ff; border: 1px solid #bfdbfe; }
+    .business-card.creator { background: #faf5ff; border: 1px solid #e9d5ff; }
+    .business-card.personal { background: #f8fafc; border: 1px solid #e2e8f0; }
+    
+    .business-type {
+      font-size: 14pt;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    
+    .business-card.service .business-type { color: #1e40af; }
+    .business-card.creator .business-type { color: #7c3aed; }
+    .business-card.personal .business-type { color: #475569; }
+    
+    .business-note {
+      font-size: 9pt;
+      color: #475569;
+      margin-bottom: 10px;
+    }
+    
+    .metrics-to-track {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    
+    .metric-tag {
+      padding: 4px 8px;
+      border-radius: 10px;
+      font-size: 8pt;
+      font-weight: 600;
+    }
+    
+    .metric-tag.good { background: white; border: 1px solid #a7f3d0; color: #16a34a; }
+    .metric-tag.bad { background: white; border: 1px solid #fecaca; color: #dc2626; text-decoration: line-through; }
+    
+    /* ================================
+       AŞAMA 4: SCRIPT CARD (Reels Senaryosu)
+       ================================ */
+    .script-card {
+      background: #0f172a;
+      border-radius: 12px;
+      padding: 16px;
+      margin: 12px 0;
+      color: #e2e8f0;
+    }
+    
+    .script-card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #334155;
+    }
+    
+    .script-card-icon {
+      font-size: 18pt;
+    }
+    
+    .script-card-title {
+      font-size: 12pt;
+      font-weight: 700;
+      color: #f8fafc;
+    }
+    
+    .script-card-duration {
+      font-size: 8pt;
+      color: #94a3b8;
+      margin-left: auto;
+      background: #1e293b;
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+    
+    .script-section {
+      margin-bottom: 12px;
+      padding: 10px;
+      background: #1e293b;
+      border-radius: 8px;
+      border-left: 3px solid #3b82f6;
+    }
+    
+    .script-section.hook { border-left-color: #ef4444; }
+    .script-section.development { border-left-color: #f59e0b; }
+    .script-section.cta { border-left-color: #10b981; }
+    
+    .script-section-name {
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 8pt;
+      font-weight: 700;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 6px;
+    }
+    
+    .script-section.hook .script-section-name { color: #fca5a5; }
+    .script-section.development .script-section-name { color: #fcd34d; }
+    .script-section.cta .script-section-name { color: #6ee7b7; }
+    
+    .script-instruction {
+      font-size: 9pt;
+      color: #e2e8f0;
+      margin-bottom: 4px;
+    }
+    
+    .script-text {
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 9pt;
+      color: #a5f3fc;
+      background: #0f172a;
+      padding: 6px 8px;
+      border-radius: 4px;
+      margin-top: 4px;
+    }
+    
+    .script-overlay {
+      font-size: 8pt;
+      color: #fde047;
+      font-style: italic;
+    }
+    
+    .script-tips {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid #334155;
+    }
+    
+    .script-tips-title {
+      font-size: 8pt;
+      font-weight: 700;
+      color: #94a3b8;
+      margin-bottom: 6px;
+    }
+    
+    .script-tip {
+      font-size: 8pt;
+      color: #cbd5e1;
+      padding-left: 12px;
+      position: relative;
+      margin-bottom: 3px;
+    }
+    
+    .script-tip::before {
+      content: '•';
+      position: absolute;
+      left: 0;
+      color: #3b82f6;
+    }
+    
+    /* ================================
+       AŞAMA 4: N/A & Warning Styles
+       ================================ */
+    .value-na {
+      color: #94a3b8;
+      font-style: italic;
+    }
+    
+    .api-warning {
+      background: #fef3c7;
+      border: 1px solid #fcd34d;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin: 10px 0;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    
+    .api-warning-icon {
+      font-size: 14pt;
+      flex-shrink: 0;
+    }
+    
+    .api-warning-text {
+      font-size: 9pt;
+      color: #92400e;
+    }
+    
+    /* ================================
+       CORIUM-STYLE: CONFIDENCE & SWOT
+       ================================ */
+    
+    /* Confidence Level Indicators */
+    .confidence-high {
+      background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+      border: 1px solid #a7f3d0;
+    }
+    .confidence-medium {
+      background: linear-gradient(135deg, #fffbeb, #fef3c7);
+      border: 1px solid #fde68a;
+    }
+    .confidence-low {
+      background: linear-gradient(135deg, #fef2f2, #fee2e2);
+      border: 1px solid #fecaca;
+    }
+    
+    /* SWOT Analysis Cards */
+    .swot-card {
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 10px;
+    }
+    .swot-strength {
+      background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+      border: 1px solid #86efac;
+      border-left: 4px solid #22c55e;
+    }
+    .swot-weakness {
+      background: linear-gradient(135deg, #fef2f2, #fee2e2);
+      border: 1px solid #fca5a5;
+      border-left: 4px solid #ef4444;
+    }
+    .swot-opportunity {
+      background: linear-gradient(135deg, #eff6ff, #dbeafe);
+      border: 1px solid #93c5fd;
+      border-left: 4px solid #3b82f6;
+    }
+    .swot-threat {
+      background: linear-gradient(135deg, #fffbeb, #fef3c7);
+      border: 1px solid #fcd34d;
+      border-left: 4px solid #f59e0b;
+    }
+    
+    /* Pipeline Flow */
+    .pipeline-step {
+      text-align: center;
+      padding: 8px;
+      flex: 1;
+    }
+    .pipeline-icon {
+      width: 40px;
+      height: 40px;
+      margin: 0 auto 6px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16pt;
+    }
+    .pipeline-arrow {
+      color: #475569;
+      font-size: 16pt;
+      display: flex;
+      align-items: center;
+    }
+    
+    /* Tier Badges */
+    .tier-free { background: #f1f5f9; color: #64748b; }
+    .tier-standard { background: #dbeafe; color: #1e40af; }
+    .tier-premium { background: linear-gradient(135deg, #fef3c7, #fde68a); color: #92400e; }
+    
+    /* Monetization Cards */
+    .monetization-card {
+      border-radius: 12px;
+      padding: 14px;
+      background: linear-gradient(135deg, #fffbeb, #fef3c7);
+      border: 1px solid #fde68a;
+    }
+    .revenue-stream {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      background: white;
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+    .revenue-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #fef3c7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16pt;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============================================================
+       PAGE 1: COVER
+       ============================================================ -->
+  <div class="page cover">
+    <div class="cover-pattern"></div>
+    <div class="cover-content">
+      <div class="cover-header">
+        <div class="cover-logo">INSTAGRAM AI</div>
+        <div class="cover-date">
+          Rapor Tarihi<br>
+          <strong>{{formatDate analysisDate}}</strong>
+        </div>
+      </div>
+      
+      <div class="cover-main">
+        <div class="profile-ring">
+          <div class="profile-inner">
+            {{#if accountData.profilePicUrl}}
+            <img class="profile-img" src="{{accountData.profilePicUrl}}" alt="@{{accountData.username}}">
+            {{else}}
+            <div class="profile-placeholder">{{getInitial accountData.username}}</div>
+            {{/if}}
+          </div>
+        </div>
+        
+        <div class="cover-username">@{{accountData.username}}</div>
+        
+        {{#if accountData.fullName}}
+        <div class="cover-fullname">{{accountData.fullName}}</div>
+        {{/if}}
+        
+        <div class="cover-stats">
+          <div class="cover-stat">
+            <div class="cover-stat-value">{{formatNumber accountData.followers}}</div>
+            <div class="cover-stat-label">Takipçi</div>
+          </div>
+          <div class="cover-stat">
+            <div class="cover-stat-value">{{formatNumber accountData.following}}</div>
+            <div class="cover-stat-label">Takip</div>
+          </div>
+          <div class="cover-stat">
+            <div class="cover-stat-value">{{formatNumber accountData.posts}}</div>
+            <div class="cover-stat-label">Gönderi</div>
+          </div>
+          <div class="cover-stat">
+            <div class="cover-stat-value">{{formatPercent accountData.engagementRate}}</div>
+            <div class="cover-stat-label">Etkileşim</div>
+          </div>
+        </div>
+        
+        {{#if scoreGrade}}
+        <div class="cover-score-box">
+          <div class="cover-score-label">Genel Performans Puanı</div>
+          <div class="cover-score-grade grade-{{scoreGrade}}">{{scoreGrade}}</div>
+          {{#if overallScore}}
+          <div class="cover-score-value">{{overallScore}}/100 Puan</div>
+          {{/if}}
+        </div>
+        {{/if}}
+      </div>
+      
+      <div class="cover-footer">
+        <div class="cover-footer-text">Yapay Zekâ Destekli Kapsamlı Hesap Analizi</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       PAGE 2: EXECUTIVE SUMMARY & ACCOUNT STATS (CORIUM-STYLE)
+       ============================================================ -->
+  <div class="page">
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon purple">📊</div>
+        <div>
+          <div class="section-title">Yönetici Özeti</div>
+          <div class="section-subtitle">McKinsey-Seviye Hesap Değerlendirmesi</div>
+        </div>
+        <!-- Confidence Badge - Corium Style -->
+        {{#if sanitizationReport.metrics_summary.trust_score}}
+        <span class="badge {{getConfidenceBadge sanitizationReport.metrics_summary.trust_score}}" style="margin-left: auto;">
+          🔒 {{getConfidenceText sanitizationReport.metrics_summary.trust_score}}
+        </span>
+        {{/if}}
+      </div>
+      
+      <!-- Account Health - Enhanced -->
+      <div class="exec-summary">
+        <div class="exec-health">
+          <div>
+            <div style="font-size: 8pt; color: #64748b; text-transform: uppercase;">Hesap Sağlığı</div>
+            <div class="health-score">{{#if overallScore}}{{overallScore}}{{else}}--{{/if}}/100</div>
+            <!-- Confidence-Driven Note -->
+            {{#if sanitizationReport.metrics_summary.trust_score}}
+            <div style="font-size: 7pt; color: #94a3b8; margin-top: 2px;">
+              {{getConfidencePhrase sanitizationReport.metrics_summary.trust_score "Bu skor"}}
+            </div>
+            {{/if}}
+          </div>
+          <div class="health-badge {{getHealthClass overallScore}}">
+            {{getHealthStatus overallScore}}
+          </div>
+        </div>
+        
+        <!-- Strategic Phase Badge - Corium Style -->
+        {{#if sanitizationReport.phase_info}}
+        <div style="background: linear-gradient(135deg, {{getPhaseColor sanitizationReport.phase_info.determined_phase}}15, {{getPhaseColor sanitizationReport.phase_info.determined_phase}}05); border: 1px solid {{getPhaseColor sanitizationReport.phase_info.determined_phase}}30; border-radius: 10px; padding: 10px 14px; margin-bottom: 12px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <span style="font-size: 8pt; color: #64748b;">Stratejik Faz:</span>
+              <span style="font-size: 10pt; font-weight: 700; color: {{getPhaseTextColor sanitizationReport.phase_info.determined_phase}}; margin-left: 6px;">
+                {{getPhaseIcon sanitizationReport.phase_info.determined_phase}} {{sanitizationReport.phase_info.phase_name}}
+              </span>
+            </div>
+            <span class="badge badge-slate">⏱ {{sanitizationReport.phase_info.duration}}</span>
+          </div>
+          {{#if sanitizationReport.phase_info.reasoning}}
+          <div style="font-size: 8pt; color: #475569; margin-top: 6px; font-style: italic;">
+            "{{sanitizationReport.phase_info.reasoning}}"
+          </div>
+          {{/if}}
+        </div>
+        {{/if}}
+        
+        <!-- Stats Grid -->
+        <div class="grid-5 mb-3">
+          <div class="stat-card highlight">
+            <div class="stat-label">Takipçi</div>
+            <div class="stat-value">{{formatNumber accountData.followers}}</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Takip</div>
+            <div class="stat-value">{{formatNumber accountData.following}}</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Gönderi</div>
+            <div class="stat-value">{{formatNumber accountData.posts}}</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Etkileşim</div>
+            <div class="stat-value">{{formatPercent accountData.engagementRate}}</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Bot Riski</div>
+            <div class="stat-value" style="color: {{getBotScoreColor accountData.botScore}}">
+              {{#if accountData.botScore}}{{accountData.botScore}}{{else}}--{{/if}}
+            </div>
+          </div>
+        </div>
+        
+        <!-- Additional Info Badges -->
+        <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+          {{#if accountData.isBusiness}}
+          <span class="badge badge-purple">İşletme Hesabı</span>
+          {{/if}}
+          {{#if accountData.verified}}
+          <span class="badge badge-blue">✓ Doğrulanmış</span>
+          {{/if}}
+          {{#if accountData.avgLikes}}
+          <span class="badge badge-pink">Ort. {{formatNumber accountData.avgLikes}} beğeni</span>
+          {{/if}}
+          {{#if accountData.avgComments}}
+          <span class="badge badge-amber">Ort. {{formatNumber accountData.avgComments}} yorum</span>
+          {{/if}}
+        </div>
+      </div>
+    </div>
+
+    <!-- Business Identity -->
+    {{#if eli5Report.businessIdentity}}
+    <div class="section">
+      <div class="business-card {{getBusinessClass eli5Report.businessIdentity.account_type}}">
+        <div style="font-size: 8pt; color: #64748b; text-transform: uppercase; margin-bottom: 4px;">Hesap Türü</div>
+        <div class="business-type">{{eli5Report.businessIdentity.account_type}}</div>
+        {{#if eli5Report.businessIdentity.analysis_note}}
+        <div class="business-note">{{eli5Report.businessIdentity.analysis_note}}</div>
+        {{/if}}
+        {{#if eli5Report.businessIdentity.correct_success_metrics}}
+        <div style="margin-bottom: 8px;">
+          <div style="font-size: 7pt; color: #64748b; text-transform: uppercase; margin-bottom: 4px;">Takip Edilmesi Gereken Metrikler</div>
+          <div class="metrics-to-track">
+            {{#each eli5Report.businessIdentity.correct_success_metrics}}
+            <span class="metric-tag good">{{this}}</span>
+            {{/each}}
+          </div>
+        </div>
+        {{/if}}
+        {{#if eli5Report.businessIdentity.wrong_metrics_to_avoid}}
+        <div>
+          <div style="font-size: 7pt; color: #64748b; text-transform: uppercase; margin-bottom: 4px;">Yanıltıcı Metrikler</div>
+          <div class="metrics-to-track">
+            {{#each eli5Report.businessIdentity.wrong_metrics_to_avoid}}
+            <span class="metric-tag bad">{{this}}</span>
+            {{/each}}
+          </div>
+        </div>
+        {{/if}}
+      </div>
+    </div>
+    {{/if}}
+
+    <!-- Quick Summary Cards -->
+    {{#if eli5Report.executiveSummary}}
+    <div class="grid-2">
+      {{#if eli5Report.executiveSummary.topStrengths}}
+      <div class="card" style="border-top: 3px solid #10b981;">
+        <h4 style="color: #16a34a; margin-bottom: 8px;">✓ Güçlü Yönler</h4>
+        {{#each eli5Report.executiveSummary.topStrengths}}
+        <div class="list-item success">
+          <span class="list-icon">✓</span>
+          <span>{{this}}</span>
+        </div>
+        {{/each}}
+      </div>
+      {{/if}}
+      
+      {{#if eli5Report.executiveSummary.criticalIssues}}
+      <div class="card" style="border-top: 3px solid #ef4444;">
+        <h4 style="color: #dc2626; margin-bottom: 8px;">⚠ Kritik Sorunlar</h4>
+        {{#each eli5Report.executiveSummary.criticalIssues}}
+        <div class="list-item danger">
+          <span class="list-icon">⚠</span>
+          <span>{{this}}</span>
+        </div>
+        {{/each}}
+      </div>
+      {{/if}}
+    </div>
+    {{/if}}
+
+    <div class="page-footer">Instagram AI Raporu - Sayfa 2 - {{reportId}}</div>
+  </div>
+
+  <!-- ============================================================
+       PAGE 2B: SWOT ANALYSIS (Corium-Style)
+       ============================================================ -->
+  {{#if eli5Report.swotAnalysis}}
+  <div class="page">
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon indigo">📋</div>
+        <div>
+          <div class="section-title">SWOT Analizi</div>
+          <div class="section-subtitle">Stratejik güçlü/zayıf yönler ve fırsatlar</div>
+        </div>
+      </div>
+      
+      <div class="grid-2" style="gap: 12px;">
+        <!-- Strengths -->
+        <div class="card" style="border-top: 3px solid #10b981;">
+          <h4 style="color: #16a34a; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+            💪 Güçlü Yönler (Strengths)
+          </h4>
+          {{#each eli5Report.swotAnalysis.strengths}}
+          <div class="list-item success" style="font-size: 9pt;">
+            <span class="list-icon">✓</span>
+            <span>{{this}}</span>
+          </div>
+          {{/each}}
+        </div>
+        
+        <!-- Weaknesses -->
+        <div class="card" style="border-top: 3px solid #ef4444;">
+          <h4 style="color: #dc2626; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+            ⚠️ Zayıf Yönler (Weaknesses)
+          </h4>
+          {{#each eli5Report.swotAnalysis.weaknesses}}
+          <div class="list-item danger" style="font-size: 9pt;">
+            <span class="list-icon">⚠</span>
+            <span>{{this}}</span>
+          </div>
+          {{/each}}
+        </div>
+        
+        <!-- Opportunities -->
+        <div class="card" style="border-top: 3px solid #3b82f6;">
+          <h4 style="color: #2563eb; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+            🚀 Fırsatlar (Opportunities)
+          </h4>
+          {{#each eli5Report.swotAnalysis.opportunities}}
+          <div class="list-item info" style="font-size: 9pt;">
+            <span class="list-icon">→</span>
+            <span>{{this}}</span>
+          </div>
+          {{/each}}
+        </div>
+        
+        <!-- Threats -->
+        <div class="card" style="border-top: 3px solid #f59e0b;">
+          <h4 style="color: #d97706; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+            🛡️ Tehditler (Threats)
+          </h4>
+          {{#each eli5Report.swotAnalysis.threats}}
+          <div class="list-item warning" style="font-size: 9pt;">
+            <span class="list-icon">!</span>
+            <span>{{this}}</span>
+          </div>
+          {{/each}}
+        </div>
+      </div>
+    </div>
+
+    <div class="page-footer">Instagram AI Raporu - SWOT Analizi - {{reportId}}</div>
+  </div>
+  {{/if}}
+
+  <!-- ============================================================
+       PAGE 2C: MONETIZATION ASSESSMENT (Corium-Style)
+       ============================================================ -->
+  {{#if agentResults.salesConversion}}
+  <div class="page">
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon amber">💰</div>
+        <div>
+          <div class="section-title">Monetizasyon Değerlendirmesi</div>
+          <div class="section-subtitle">Gelir potansiyeli ve hazırlık analizi</div>
+        </div>
+      </div>
+      
+      <!-- Monetization Readiness Score -->
+      {{#if agentResults.salesConversion.metrics}}
+      <div class="card mb-3" style="border-left: 4px solid #f59e0b;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <div>
+            <div style="font-size: 8pt; color: #64748b; text-transform: uppercase;">Monetizasyon Hazırlık Skoru</div>
+            <div style="font-size: 24pt; font-weight: 900; color: {{getScoreColor agentResults.salesConversion.metrics.overallScore}};">
+              {{formatScore agentResults.salesConversion.metrics.overallScore}}<span style="font-size: 12pt; color: #64748b;">/100</span>
+            </div>
+          </div>
+          <div style="text-align: right;">
+            {{#if agentResults.salesConversion.metrics.brandDealReadiness}}
+            <div class="badge {{getScoreBadgeClass agentResults.salesConversion.metrics.brandDealReadiness}}">
+              Marka İşbirliği: {{formatScore agentResults.salesConversion.metrics.brandDealReadiness}}%
+            </div>
+            {{/if}}
+          </div>
+        </div>
+        
+        <div class="grid-4" style="gap: 8px;">
+          {{#if agentResults.salesConversion.metrics.conversionPotential}}
+          <div class="stat-card">
+            <div class="stat-label">Dönüşüm Potansiyeli</div>
+            <div class="stat-value" style="font-size: 14pt; color: {{getScoreColor agentResults.salesConversion.metrics.conversionPotential}};">
+              {{formatScore agentResults.salesConversion.metrics.conversionPotential}}
+            </div>
+          </div>
+          {{/if}}
+          {{#if agentResults.salesConversion.metrics.trustIndicators}}
+          <div class="stat-card">
+            <div class="stat-label">Güven Göstergeleri</div>
+            <div class="stat-value" style="font-size: 14pt; color: {{getScoreColor agentResults.salesConversion.metrics.trustIndicators}};">
+              {{formatScore agentResults.salesConversion.metrics.trustIndicators}}
+            </div>
+          </div>
+          {{/if}}
+          {{#if agentResults.salesConversion.metrics.audienceQuality}}
+          <div class="stat-card">
+            <div class="stat-label">Kitle Kalitesi</div>
+            <div class="stat-value" style="font-size: 14pt; color: {{getScoreColor agentResults.salesConversion.metrics.audienceQuality}};">
+              {{formatScore agentResults.salesConversion.metrics.audienceQuality}}
+            </div>
+          </div>
+          {{/if}}
+          {{#if agentResults.salesConversion.metrics.contentSellability}}
+          <div class="stat-card">
+            <div class="stat-label">İçerik Satılabilirliği</div>
+            <div class="stat-value" style="font-size: 14pt; color: {{getScoreColor agentResults.salesConversion.metrics.contentSellability}};">
+              {{formatScore agentResults.salesConversion.metrics.contentSellability}}
+            </div>
+          </div>
+          {{/if}}
+        </div>
+      </div>
+      {{/if}}
+      
+      <!-- Revenue Streams -->
+      {{#if agentResults.salesConversion.revenueStreams}}
+      <div class="card mb-3">
+        <h4 style="color: #d97706; margin-bottom: 10px;">💵 Gelir Kaynakları Potansiyeli</h4>
+        <div class="grid-2" style="gap: 10px;">
+          {{#each agentResults.salesConversion.revenueStreams}}
+          <div style="display: flex; align-items: center; gap: 10px; padding: 10px; background: #f8fafc; border-radius: 8px;">
+            <div style="width: 40px; height: 40px; border-radius: 50%; background: #fef3c7; display: flex; align-items: center; justify-content: center; font-size: 16pt;">
+              {{#if this.icon}}{{this.icon}}{{else}}💰{{/if}}
+            </div>
+            <div style="flex: 1;">
+              <div style="font-size: 9pt; font-weight: 600; color: #0f172a;">{{this.name}}</div>
+              <div style="font-size: 8pt; color: #64748b;">{{this.description}}</div>
+            </div>
+            <div class="badge {{getScoreBadgeClass this.potential}}">{{formatScore this.potential}}%</div>
+          </div>
+          {{/each}}
+        </div>
+      </div>
+      {{/if}}
+      
+      <!-- Monetization Findings & Recommendations -->
+      <div class="grid-2" style="gap: 10px;">
+        {{#if agentResults.salesConversion.findings}}
+        <div class="card">
+          <h4 style="color: #475569; margin-bottom: 8px; font-size: 10pt;">🔍 Bulgular</h4>
+          {{#each agentResults.salesConversion.findings}}
+          {{#unless (isJsonString this)}}
+          <div class="list-item info" style="font-size: 8pt;">
+            <span>•</span>
+            <span>{{extractFinding this}}</span>
+          </div>
+          {{/unless}}
+          {{/each}}
+        </div>
+        {{/if}}
+        
+        {{#if agentResults.salesConversion.recommendations}}
+        <div class="card">
+          <h4 style="color: #16a34a; margin-bottom: 8px; font-size: 10pt;">💡 Öneriler</h4>
+          {{#each agentResults.salesConversion.recommendations}}
+          {{#unless (isJsonString this)}}
+          <div class="list-item success" style="font-size: 8pt;">
+            <span>→</span>
+            <span>{{extractFinding this}}</span>
+          </div>
+          {{/unless}}
+          {{/each}}
+        </div>
+        {{/if}}
+      </div>
+    </div>
+
+    <div class="page-footer">Instagram AI Raporu - Monetizasyon - {{reportId}}</div>
+  </div>
+  {{/if}}
+
+  <!-- ============================================================
+       PAGE 3: ADVANCED ANALYSIS (Risk + Strategies)
+       ============================================================ -->
+  {{#if advancedAnalysis}}
+  <div class="page">
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon indigo">✨</div>
+        <div>
+          <div class="section-title">Gelişmiş Analiz</div>
+          <div class="section-subtitle">11 modüllü derin Instagram analizi</div>
+        </div>
+      </div>
+      
+      <!-- Executive Summary from Advanced Analysis -->
+      {{#if advancedAnalysis.executiveSummary}}
+      <div class="card" style="border-left: 4px solid {{getGradeColor advancedAnalysis.executiveSummary.grade}}; margin-bottom: 12px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <div>
+            <div style="font-size: 14pt; font-weight: 700; color: #0f172a;">{{advancedAnalysis.executiveSummary.headline}}</div>
+            <div style="font-size: 9pt; color: #64748b;">{{advancedAnalysis.executiveSummary.subheadline}}</div>
+          </div>
+          <div style="text-align: center;">
+            <div style="font-size: 28pt; font-weight: 900; color: {{getGradeColor advancedAnalysis.executiveSummary.grade}};">{{advancedAnalysis.executiveSummary.grade}}</div>
+            <div style="font-size: 10pt; color: #64748b;">{{advancedAnalysis.executiveSummary.score}}/100</div>
+          </div>
+        </div>
+      </div>
+      {{/if}}
+      
+      <!-- Risk Assessment Dashboard -->
+      {{#if advancedAnalysis.riskAssessments}}
+      <div class="card mb-3">
+        <h4 style="color: #dc2626; margin-bottom: 10px;">🛡️ Risk Değerlendirmesi</h4>
+        <div class="grid-4" style="gap: 8px;">
+          <div class="stat-card" style="background: {{getRiskBgColor advancedAnalysis.riskAssessments.overall}};">
+            <div class="stat-label">Genel Risk</div>
+            <div class="stat-value" style="color: {{getRiskTextColor advancedAnalysis.riskAssessments.overall}}; font-size: 11pt;">
+              {{formatRiskLevel advancedAnalysis.riskAssessments.overall}}
+            </div>
+          </div>
+          <div class="stat-card" style="background: {{getRiskBgColor advancedAnalysis.riskAssessments.bot_risk}};">
+            <div class="stat-label">Bot Riski</div>
+            <div class="stat-value" style="color: {{getRiskTextColor advancedAnalysis.riskAssessments.bot_risk}}; font-size: 11pt;">
+              {{formatRiskLevel advancedAnalysis.riskAssessments.bot_risk}}
+            </div>
+          </div>
+          <div class="stat-card" style="background: {{getRiskBgColor advancedAnalysis.riskAssessments.shadowban_risk}};">
+            <div class="stat-label">Shadowban</div>
+            <div class="stat-value" style="color: {{getRiskTextColor advancedAnalysis.riskAssessments.shadowban_risk}}; font-size: 11pt;">
+              {{formatRiskLevel advancedAnalysis.riskAssessments.shadowban_risk}}
+            </div>
+          </div>
+          <div class="stat-card" style="background: {{getRiskBgColor advancedAnalysis.riskAssessments.algorithm_penalty}};">
+            <div class="stat-label">Algoritma Cezası</div>
+            <div class="stat-value" style="color: {{getRiskTextColor advancedAnalysis.riskAssessments.algorithm_penalty}}; font-size: 11pt;">
+              {{formatRiskLevel advancedAnalysis.riskAssessments.algorithm_penalty}}
+            </div>
+          </div>
+        </div>
+        
+        {{#if advancedAnalysis.riskAssessments.risk_factors}}
+        <div style="margin-top: 10px;">
+          <div style="font-size: 8pt; font-weight: 600; color: #991b1b; margin-bottom: 6px;">Risk Faktörleri:</div>
+          {{#each advancedAnalysis.riskAssessments.risk_factors}}
+          <div class="list-item danger" style="font-size: 8pt; padding: 6px 8px;">
+            <span>⚠</span>
+            <span>{{this}}</span>
+          </div>
+          {{/each}}
+        </div>
+        {{/if}}
+      </div>
+      {{/if}}
+      
+      <!-- Critical Alerts & Quick Wins -->
+      {{#if advancedAnalysis.executiveSummary}}
+      <div class="grid-2" style="gap: 10px; margin-bottom: 12px;">
+        {{#if advancedAnalysis.executiveSummary.criticalAlerts}}
+        <div class="card" style="border-top: 3px solid #ef4444; padding: 12px;">
+          <h4 style="color: #dc2626; margin-bottom: 8px; font-size: 10pt;">🚨 Kritik Uyarılar</h4>
+          {{#each advancedAnalysis.executiveSummary.criticalAlerts}}
+          <div class="list-item danger" style="font-size: 8pt; padding: 6px;">
+            <span>⚠</span>
+            <span>{{this}}</span>
+          </div>
+          {{/each}}
+        </div>
+        {{/if}}
+        
+        {{#if advancedAnalysis.executiveSummary.quickWins}}
+        <div class="card" style="border-top: 3px solid #10b981; padding: 12px;">
+          <h4 style="color: #16a34a; margin-bottom: 8px; font-size: 10pt;">⚡ Hızlı Kazanımlar</h4>
+          {{#each advancedAnalysis.executiveSummary.quickWins}}
+          <div class="list-item success" style="font-size: 8pt; padding: 6px;">
+            <span>✓</span>
+            <span>{{this}}</span>
+          </div>
+          {{/each}}
+        </div>
+        {{/if}}
+      </div>
+      {{/if}}
+      
+      <!-- Top Priorities -->
+      {{#if advancedAnalysis.executiveSummary.topPriorities}}
+      <div class="card" style="border-left: 4px solid #3b82f6;">
+        <h4 style="color: #1e40af; margin-bottom: 8px; font-size: 10pt;">🎯 Öncelikler</h4>
+        {{#each advancedAnalysis.executiveSummary.topPriorities}}
+        <div class="list-item info" style="font-size: 9pt;">
+          <span style="font-weight: 700; color: #1e40af;">{{math @index "+" 1}}.</span>
+          <span>{{this}}</span>
+        </div>
+        {{/each}}
+      </div>
+      {{/if}}
+    </div>
+
+    <div class="page-footer">Instagram AI Raporu - Gelişmiş Analiz - {{reportId}}</div>
+  </div>
+  {{/if}}
+
+  <!-- ============================================================
+       PAGE 3B: ADVANCED STRATEGIES (Hashtag, Content, Viral)
+       ============================================================ -->
+  {{#if advancedAnalysis.strategies}}
+  <div class="page">
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon purple">📊</div>
+        <div>
+          <div class="section-title">Strateji Analizleri</div>
+          <div class="section-subtitle">Hashtag, içerik formatı ve viral potansiyel</div>
+        </div>
+      </div>
+      
+      <!-- Hashtag Strategy -->
+      {{#if advancedAnalysis.strategies.hashtagStrategy}}
+      <div class="card mb-3">
+        <div class="card-header">
+          <span style="font-size: 14pt;">#</span>
+          <div class="card-title">Hashtag Stratejisi</div>
+          <span class="badge {{getScoreBadgeClass advancedAnalysis.strategies.hashtagStrategy.effectiveness_score}}">
+            {{advancedAnalysis.strategies.hashtagStrategy.effectiveness_score}}/100
+          </span>
+        </div>
+        
+        <!-- Current vs Optimal -->
+        <div class="grid-2" style="gap: 12px; margin-bottom: 10px;">
+          <div>
+            <div style="font-size: 8pt; font-weight: 600; color: #64748b; margin-bottom: 6px;">Mevcut Dağılım</div>
+            {{#each advancedAnalysis.strategies.hashtagStrategy.current_strategy.distribution}}
+            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+              <span style="font-size: 8pt; color: #64748b; width: 40px;">{{formatKey @key}}</span>
+              <div style="flex: 1; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden;">
+                <div style="height: 100%; width: {{getHashtagBarWidth this}}%; background: {{getHashtagColor @key}}; border-radius: 4px;"></div>
+              </div>
+              <span style="font-size: 8pt; font-weight: 600; width: 20px;">{{this}}</span>
+            </div>
+            {{/each}}
+          </div>
+          <div>
+            <div style="font-size: 8pt; font-weight: 600; color: #64748b; margin-bottom: 6px;">Optimal Dağılım</div>
+            {{#each advancedAnalysis.strategies.hashtagStrategy.optimal_strategy}}
+            {{#unless (eq @key "total")}}
+            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+              <span style="font-size: 8pt; color: #64748b; width: 40px;">{{formatKey @key}}</span>
+              <div style="flex: 1; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden;">
+                <div style="height: 100%; width: {{getHashtagBarWidth this}}%; background: {{getHashtagColor @key}}; border-radius: 4px;"></div>
+              </div>
+              <span style="font-size: 8pt; font-weight: 600; width: 20px;">{{this}}</span>
+            </div>
+            {{/unless}}
+            {{/each}}
+          </div>
+        </div>
+        
+        {{#if advancedAnalysis.strategies.hashtagStrategy.issues}}
+        <div style="margin-top: 8px;">
+          {{#each advancedAnalysis.strategies.hashtagStrategy.issues}}
+          <div class="list-item warning" style="font-size: 8pt;">
+            <span>⚠</span>
+            <span>{{this.recommendation}}</span>
+          </div>
+          {{/each}}
+        </div>
+        {{/if}}
+      </div>
+      {{/if}}
+      
+      <!-- Content Format Analysis -->
+      {{#if advancedAnalysis.strategies.contentFormats}}
+      <div class="card mb-3">
+        <div class="card-header">
+          <span style="font-size: 14pt;">📹</span>
+          <div class="card-title">İçerik Format Analizi</div>
+        </div>
+        
+        <div class="grid-2" style="gap: 12px; margin-bottom: 10px;">
+          <div>
+            <div style="font-size: 8pt; font-weight: 600; color: #64748b; margin-bottom: 6px;">Mevcut Mix</div>
+            {{#each advancedAnalysis.strategies.contentFormats.current_mix}}
+            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+              <span style="font-size: 8pt; color: #64748b; width: 60px;">{{formatContentKey @key}}</span>
+              <div style="flex: 1; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden;">
+                <div style="height: 100%; width: {{this}}%; background: {{getContentColor @key}}; border-radius: 4px;"></div>
+              </div>
+              <span style="font-size: 8pt; font-weight: 600; width: 30px;">{{this}}%</span>
+            </div>
+            {{/each}}
+          </div>
+          <div>
+            <div style="font-size: 8pt; font-weight: 600; color: #64748b; margin-bottom: 6px;">Optimal Mix</div>
+            {{#each advancedAnalysis.strategies.contentFormats.optimal_mix}}
+            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+              <span style="font-size: 8pt; color: #64748b; width: 60px;">{{formatContentKey @key}}</span>
+              <div style="flex: 1; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden;">
+                <div style="height: 100%; width: {{this}}%; background: {{getContentColor @key}}; border-radius: 4px;"></div>
+              </div>
+              <span style="font-size: 8pt; font-weight: 600; width: 30px;">{{this}}%</span>
+            </div>
+            {{/each}}
+          </div>
+        </div>
+        
+        {{#if advancedAnalysis.strategies.contentFormats.recommendations}}
+        <div style="background: #f0fdf4; border: 1px solid #a7f3d0; border-radius: 8px; padding: 10px; margin-top: 8px;">
+          <div style="font-size: 8pt; font-weight: 600; color: #065f46; margin-bottom: 6px;">📅 Haftalık Hedefler</div>
+          <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+            {{#each advancedAnalysis.strategies.contentFormats.recommendations.weekly_targets}}
+            <span class="badge badge-green">{{formatContentKey @key}}: {{this}}</span>
+            {{/each}}
+          </div>
+        </div>
+        {{/if}}
+      </div>
+      {{/if}}
+      
+      <!-- Viral Potential -->
+      {{#if advancedAnalysis.strategies.viralPotential}}
+      <div class="card">
+        <div class="card-header">
+          <span style="font-size: 14pt;">⚡</span>
+          <div class="card-title">Viral Potansiyel</div>
+          <span class="badge {{getScoreBadgeClass advancedAnalysis.strategies.viralPotential.readiness_score}}">
+            {{advancedAnalysis.strategies.viralPotential.readiness_score}}/100
+          </span>
+        </div>
+        
+        <!-- Viral Factors -->
+        {{#if advancedAnalysis.strategies.viralPotential.viral_readiness}}
+        <div class="grid-4" style="gap: 8px; margin-bottom: 10px;">
+          {{#each advancedAnalysis.strategies.viralPotential.viral_readiness.factors}}
+          <div class="stat-card">
+            <div class="stat-label">{{formatViralFactor @key}}</div>
+            <div class="stat-value" style="font-size: 14pt; color: {{getScoreColor this}};">{{this}}%</div>
+          </div>
+          {{/each}}
+        </div>
+        {{/if}}
+        
+        <!-- Strengths & Weaknesses -->
+        <div class="grid-2" style="gap: 10px;">
+          {{#if advancedAnalysis.strategies.viralPotential.strengths}}
+          <div style="background: #ecfdf5; padding: 10px; border-radius: 8px;">
+            <div style="font-size: 8pt; font-weight: 600; color: #065f46; margin-bottom: 6px;">✓ Güçlü Yönler</div>
+            {{#each advancedAnalysis.strategies.viralPotential.strengths}}
+            <div style="font-size: 8pt; color: #047857;">• {{this}}</div>
+            {{/each}}
+          </div>
+          {{/if}}
+          
+          {{#if advancedAnalysis.strategies.viralPotential.weaknesses}}
+          <div style="background: #fef2f2; padding: 10px; border-radius: 8px;">
+            <div style="font-size: 8pt; font-weight: 600; color: #991b1b; margin-bottom: 6px;">✗ Zayıf Yönler</div>
+            {{#each advancedAnalysis.strategies.viralPotential.weaknesses}}
+            <div style="font-size: 8pt; color: #dc2626;">• {{this}}</div>
+            {{/each}}
+          </div>
+          {{/if}}
+        </div>
+        
+        {{#if advancedAnalysis.strategies.viralPotential.immediate_opportunities}}
+        <div style="margin-top: 10px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 10px;">
+          <div style="font-size: 8pt; font-weight: 600; color: #1e40af; margin-bottom: 6px;">🎯 Acil Fırsatlar</div>
+          {{#each advancedAnalysis.strategies.viralPotential.immediate_opportunities}}
+          <div style="font-size: 8pt; color: #1e3a8a;">• {{this}}</div>
+          {{/each}}
+        </div>
+        {{/if}}
+      </div>
+      {{/if}}
+    </div>
+
+    <div class="page-footer">Instagram AI Raporu - Strateji Analizi - {{reportId}}</div>
+  </div>
+  {{/if}}
+
+  <!-- ============================================================
+       PAGE 3C-ALT: DETAILED FINDINGS
+       ============================================================ -->
+  {{#if advancedAnalysis.detailedFindings}}
+  <div class="page">
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon blue">🔍</div>
+        <div>
+          <div class="section-title">Detaylı Bulgular</div>
+          <div class="section-subtitle">Tüm modüllerin ayrıntılı analiz sonuçları</div>
+        </div>
+      </div>
+      
+      <!-- Bot Activity -->
+      {{#if advancedAnalysis.detailedFindings.botActivity}}
+      <div class="card mb-3">
+        <div class="card-header">
+          <span style="font-size: 14pt;">🤖</span>
+          <div class="card-title">Bot/Fake Takipçi Analizi</div>
+        </div>
+        <div class="grid-4" style="gap: 8px;">
+          {{#if advancedAnalysis.detailedFindings.botActivity.botPercentage}}
+          <div class="stat-card">
+            <div class="stat-label">Bot Oranı</div>
+            <div class="stat-value" style="color: {{getBotScoreColor advancedAnalysis.detailedFindings.botActivity.botPercentage}};">
+              {{advancedAnalysis.detailedFindings.botActivity.botPercentage}}%
+            </div>
+          </div>
+          {{/if}}
+          {{#if advancedAnalysis.detailedFindings.botActivity.authenticityScore}}
+          <div class="stat-card">
+            <div class="stat-label">Gerçeklik Skoru</div>
+            <div class="stat-value" style="color: {{getScoreColor advancedAnalysis.detailedFindings.botActivity.authenticityScore}};">
+              {{advancedAnalysis.detailedFindings.botActivity.authenticityScore}}
+            </div>
+          </div>
+          {{/if}}
+        </div>
+        {{#if advancedAnalysis.detailedFindings.botActivity.breakdown}}
+        <div style="margin-top: 10px;">
+          <div style="font-size: 8pt; font-weight: 600; color: #64748b; margin-bottom: 6px;">Takipçi Dağılımı:</div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <span class="badge badge-green">✓ Gerçek: {{advancedAnalysis.detailedFindings.botActivity.breakdown.real}}</span>
+            <span class="badge badge-amber">👻 Ghost: {{advancedAnalysis.detailedFindings.botActivity.breakdown.ghost}}</span>
+            <span class="badge badge-red">🤖 Bot: {{advancedAnalysis.detailedFindings.botActivity.breakdown.bot}}</span>
+          </div>
+        </div>
+        {{/if}}
+      </div>
+      {{/if}}
+      
+      <!-- Engagement Benchmarks -->
+      {{#if advancedAnalysis.detailedFindings.engagementBenchmarks}}
+      <div class="card mb-3">
+        <div class="card-header">
+          <span style="font-size: 14pt;">📊</span>
+          <div class="card-title">Etkileşim Karşılaştırması</div>
+        </div>
+        {{#if advancedAnalysis.detailedFindings.engagementBenchmarks.metrics}}
+        <div class="grid-3" style="gap: 8px;">
+          {{#each advancedAnalysis.detailedFindings.engagementBenchmarks.metrics}}
+          <div class="stat-card">
+            <div class="stat-label">{{formatKey @key}}</div>
+            <div class="stat-value" style="font-size: 14pt;">{{formatMetricValue this}}</div>
+          </div>
+          {{/each}}
+        </div>
+        {{/if}}
+      </div>
+      {{/if}}
+      
+      <!-- Shadowban Risk -->
+      {{#if advancedAnalysis.detailedFindings.shadowbanRisk}}
+      <div class="card mb-3" style="background: {{getRiskBgColor advancedAnalysis.detailedFindings.shadowbanRisk.riskLevel}};">
+        <div class="card-header">
+          <span style="font-size: 14pt;">👁️</span>
+          <div class="card-title">Shadowban Risk Analizi</div>
+          <span class="badge {{getRiskBadgeClass advancedAnalysis.detailedFindings.shadowbanRisk.riskLevel}}">
+            {{formatRiskLevel advancedAnalysis.detailedFindings.shadowbanRisk.riskLevel}}
+          </span>
+        </div>
+        {{#if advancedAnalysis.detailedFindings.shadowbanRisk.indicators}}
+        <div style="margin-top: 8px;">
+          <div style="font-size: 8pt; font-weight: 600; color: #64748b; margin-bottom: 6px;">Risk Göstergeleri:</div>
+          {{#each advancedAnalysis.detailedFindings.shadowbanRisk.indicators}}
+          <div class="list-item warning" style="font-size: 8pt;">
+            <span>⚠</span>
+            <span>{{this}}</span>
+          </div>
+          {{/each}}
+        </div>
+        {{/if}}
+      </div>
+      {{/if}}
+      
+      <!-- Data Quality -->
+      {{#if advancedAnalysis.detailedFindings.dataQuality}}
+      <div class="card">
+        <div class="card-header">
+          <span style="font-size: 14pt;">🔬</span>
+          <div class="card-title">Veri Kalitesi</div>
+        </div>
+        <div class="grid-3" style="gap: 8px;">
+          {{#if advancedAnalysis.detailedFindings.dataQuality.score}}
+          <div class="stat-card">
+            <div class="stat-label">Veri Skoru</div>
+            <div class="stat-value" style="font-size: 14pt; color: {{getScoreColor advancedAnalysis.detailedFindings.dataQuality.score}};">
+              {{advancedAnalysis.detailedFindings.dataQuality.score}}%
+            </div>
+          </div>
+          {{/if}}
+          {{#if advancedAnalysis.detailedFindings.dataQuality.confidence}}
+          <div class="stat-card">
+            <div class="stat-label">Güven Düzeyi</div>
+            <div class="stat-value" style="font-size: 11pt;">{{advancedAnalysis.detailedFindings.dataQuality.confidence}}</div>
+          </div>
+          {{/if}}
+          {{#if advancedAnalysis.detailedFindings.dataQuality.postsAnalyzed}}
+          <div class="stat-card">
+            <div class="stat-label">Analiz Edilen Post</div>
+            <div class="stat-value" style="font-size: 14pt;">{{advancedAnalysis.detailedFindings.dataQuality.postsAnalyzed}}</div>
+          </div>
+          {{/if}}
+        </div>
+      </div>
+      {{/if}}
+    </div>
+
+    <div class="page-footer">Instagram AI Raporu - Detaylı Bulgular - {{reportId}}</div>
+  </div>
+  {{/if}}
+
+  <!-- ============================================================
+       PAGE 3C: ACTION PLAN TIMELINE
+       ============================================================ -->
+  {{#if advancedAnalysis.prioritizedRecommendations}}
+  <div class="page">
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon green">🎯</div>
+        <div>
+          <div class="section-title">Aksiyon Planı Zaman Çizelgesi</div>
+          <div class="section-subtitle">Önceliklendirilmiş büyüme stratejisi</div>
+        </div>
+      </div>
+      
+      <!-- Immediate Actions -->
+      {{#if advancedAnalysis.prioritizedRecommendations.immediate}}
+      <div class="card mb-3" style="border-left: 4px solid #ef4444;">
+        <h4 style="color: #dc2626; margin-bottom: 10px; font-size: 10pt;">⚡ Acil (Bu Hafta)</h4>
+        {{#each advancedAnalysis.prioritizedRecommendations.immediate}}
+        <div class="action-item" style="margin-bottom: 8px;">
+          <div class="action-priority priority-1">{{math @index "+" 1}}</div>
+          <div class="action-content">
+            <div class="action-title">{{this.title}}</div>
+            {{#if this.description}}
+            <div class="action-desc">{{this.description}}</div>
+            {{/if}}
+            <div class="action-meta">
+              {{#if this.estimatedImpact}}<span class="badge badge-green">{{this.estimatedImpact}}</span>{{/if}}
+              {{#if this.priority}}<span class="badge {{getPriorityBadge this.priority}}">{{formatPriority this.priority}}</span>{{/if}}
+            </div>
+          </div>
+        </div>
+        {{/each}}
+      </div>
+      {{/if}}
+      
+      <!-- Short Term Actions -->
+      {{#if advancedAnalysis.prioritizedRecommendations.short_term}}
+      <div class="card mb-3" style="border-left: 4px solid #f97316;">
+        <h4 style="color: #ea580c; margin-bottom: 10px; font-size: 10pt;">📅 Kısa Vadeli (2-4 Hafta)</h4>
+        {{#each advancedAnalysis.prioritizedRecommendations.short_term}}
+        <div class="action-item" style="margin-bottom: 8px;">
+          <div class="action-priority priority-2">{{math @index "+" 1}}</div>
+          <div class="action-content">
+            <div class="action-title">{{this.title}}</div>
+            {{#if this.description}}
+            <div class="action-desc">{{this.description}}</div>
+            {{/if}}
+            <div class="action-meta">
+              {{#if this.estimatedImpact}}<span class="badge badge-green">{{this.estimatedImpact}}</span>{{/if}}
+              {{#if this.priority}}<span class="badge {{getPriorityBadge this.priority}}">{{formatPriority this.priority}}</span>{{/if}}
+            </div>
+          </div>
+        </div>
+        {{/each}}
+      </div>
+      {{/if}}
+      
+      <!-- Medium Term Actions -->
+      {{#if advancedAnalysis.prioritizedRecommendations.medium_term}}
+      <div class="card mb-3" style="border-left: 4px solid #3b82f6;">
+        <h4 style="color: #2563eb; margin-bottom: 10px; font-size: 10pt;">📆 Orta Vadeli (1-3 Ay)</h4>
+        {{#each advancedAnalysis.prioritizedRecommendations.medium_term}}
+        <div class="action-item" style="margin-bottom: 8px;">
+          <div class="action-priority priority-3">{{math @index "+" 1}}</div>
+          <div class="action-content">
+            <div class="action-title">{{this.title}}</div>
+            {{#if this.description}}
+            <div class="action-desc">{{this.description}}</div>
+            {{/if}}
+          </div>
+        </div>
+        {{/each}}
+      </div>
+      {{/if}}
+      
+      <!-- Long Term Actions -->
+      {{#if advancedAnalysis.prioritizedRecommendations.long_term}}
+      <div class="card" style="border-left: 4px solid #8b5cf6;">
+        <h4 style="color: #7c3aed; margin-bottom: 10px; font-size: 10pt;">🗓️ Uzun Vadeli (3+ Ay)</h4>
+        {{#each advancedAnalysis.prioritizedRecommendations.long_term}}
+        <div class="action-item" style="margin-bottom: 8px;">
+          <div class="action-priority priority-4">{{math @index "+" 1}}</div>
+          <div class="action-content">
+            <div class="action-title">{{this.title}}</div>
+            {{#if this.description}}
+            <div class="action-desc">{{this.description}}</div>
+            {{/if}}
+          </div>
+        </div>
+        {{/each}}
+      </div>
+      {{/if}}
+    </div>
+
+    <div class="page-footer">Instagram AI Raporu - Aksiyon Planı - {{reportId}}</div>
+  </div>
+  {{/if}}
+
+  <!-- ============================================================
+       PAGE 4: ELI5 REPORT (Simplified)
+       ============================================================ -->
+  {{#if eli5Report}}
+  <div class="page">
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon pink">💬</div>
+        <div>
+          <div class="section-title">Detaylı Açıklamalar</div>
+          <div class="section-subtitle">Anlaşılır metrik yorumları</div>
+        </div>
+      </div>
+      
+      <!-- ELI5 Headline -->
+      {{#if eli5Report.executiveSummary.headline}}
+      <div class="eli5-card">
+        <div class="eli5-headline">{{eli5Report.executiveSummary.headline}}</div>
+        {{#if eli5Report.executiveSummary.gradeExplanation}}
+        <p style="font-size: 9pt; color: #6b21a8;">{{eli5Report.executiveSummary.gradeExplanation}}</p>
+        {{/if}}
+      </div>
+      {{/if}}
+      
+      <!-- Critical Warning -->
+      {{#if eli5Report.criticalWarning}}
+      <div class="card mb-3" style="background: linear-gradient(135deg, #fef2f2, #fee2e2); border: 2px solid #ef4444;">
+        <h4 style="color: #dc2626; margin-bottom: 6px;">⚠️ KRİTİK UYARI</h4>
+        <p style="font-size: 9pt; color: #991b1b; font-weight: 600;">{{eli5Report.criticalWarning}}</p>
+      </div>
+      {{/if}}
+
+      <!-- Findings -->
+      {{#if eli5Report.findings}}
+      <div class="card mb-3">
+        <h4 style="margin-bottom: 8px;">🔍 Temel Bulgular ve Aksiyonlar</h4>
+        {{#each eli5Report.findings}}
+        <div class="finding-box" style="background: #f8fafc; border-radius: 6px; padding: 8px; margin-bottom: 8px; border-left: 3px solid {{getCategoryBorderColor this.category}};">
+          <div style="font-size: 7pt; color: #64748b; text-transform: uppercase; margin-bottom: 2px; font-weight: 600;">{{this.category}}</div>
+          {{#if this.kusur}}
+          <div style="font-size: 8pt; color: #dc2626; margin-bottom: 4px; font-weight: 500;">❌ {{this.kusur}}</div>
+          {{/if}}
+          {{#if this.aciklama}}
+          <div style="font-size: 8pt; color: #7c3aed; margin-bottom: 4px; background: #f5f3ff; padding: 6px; border-radius: 4px; font-style: italic;">
+            💡 <strong>Açıklama:</strong> {{this.aciklama}}
+          </div>
+          {{else}}
+          {{#if this.Cevap}}
+          <div style="font-size: 8pt; color: #7c3aed; margin-bottom: 4px; background: #f5f3ff; padding: 6px; border-radius: 4px; font-style: italic;">
+            💡 <strong>Açıklama:</strong> {{this.Cevap}}
+          </div>
+          {{/if}}
+          {{/if}}
+          {{#if this.aksiyon}}
+          <div style="font-size: 8pt; color: #059669; background: #ecfdf5; padding: 6px; border-radius: 4px;">
+            ✅ <strong>Yapılması Gereken:</strong> {{this.aksiyon}}
+          </div>
+          {{/if}}
+          {{#if this.realite}}
+          <div style="font-size: 8pt; color: #374151; margin-top: 3px;">{{this.realite}}</div>
+          {{/if}}
+          {{#if this.neden_onemli}}
+          <div style="font-size: 7pt; color: #6b7280; font-style: italic; margin-top: 3px;">{{this.neden_onemli}}</div>
+          {{/if}}
+        </div>
+        {{/each}}
+      </div>
+      {{/if}}
+      
+      <!-- Simplified Metrics -->
+      {{#if eli5Report.simplifiedMetrics}}
+      <div class="card mb-3">
+        <h4 style="margin-bottom: 10px;">📊 Metrik Yorumları</h4>
+        <div class="grid-2">
+          {{#each eli5Report.simplifiedMetrics}}
+          <div class="eli5-metric">
+            <div class="eli5-metric-header">
+              <span class="eli5-metric-name">{{this.name}}</span>
+              <span class="eli5-metric-value {{getVerdictClass this.verdict}}">{{this.value}}</span>
+            </div>
+            <div class="eli5-metric-explanation">{{this.explanation}}</div>
+            <span class="badge {{getVerdictBadgeClass this.verdict}}" style="margin-top: 4px;">{{this.verdict}}</span>
+          </div>
+          {{/each}}
+        </div>
+      </div>
+      {{/if}}
+      
+      <!-- What Happens If Nothing -->
+      {{#if eli5Report.whatHappensIfNothing}}
+      <div class="card" style="background: #fef2f2; border: 1px solid #fecaca;">
+        <h4 style="color: #dc2626; margin-bottom: 6px;">⚠ Hiçbir Şey Yapmazsan Ne Olur?</h4>
+        <p style="font-size: 9pt; color: #991b1b;">{{eli5Report.whatHappensIfNothing}}</p>
+      </div>
+      {{/if}}
+      
+      <!-- Motivational Kick -->
+      {{#if eli5Report.motivationalKick}}
+      <div class="card" style="background: linear-gradient(135deg, #ecfdf5, #d1fae5); border: 1px solid #a7f3d0;">
+        <h4 style="color: #065f46; margin-bottom: 6px;">⭐ Motivasyon</h4>
+        <p style="font-size: 9pt; color: #064e3b; font-weight: 500;">{{eli5Report.motivationalKick}}</p>
+      </div>
+      {{/if}}
+    </div>
+
+    <div class="page-footer">Instagram AI Raporu - Sayfa 3 - {{reportId}}</div>
+  </div>
+  {{/if}}
+
+  <!-- ============================================================
+       PAGE 4: HOOK REWRITES
+       ============================================================ -->
+  {{#if eli5Report.rewrittenHooks}}
+  <div class="page">
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon amber">💡</div>
+        <div>
+          <div class="section-title">İyileştirilmiş Hook'lar</div>
+          <div class="section-subtitle">İçeriklerinizi daha dikkat çekici hale getirin</div>
+        </div>
+      </div>
+      
+      {{#each eli5Report.rewrittenHooks}}
+      <div class="hook-card">
+        <div class="hook-before">
+          <div class="hook-before-label">Orijinal</div>
+          <div class="hook-before-text">"{{#if this.original}}{{this.original}}{{else}}{{this.badHook}}{{/if}}"</div>
+        </div>
+        <div class="hook-after">
+          <div class="hook-after-label">İyileştirilmiş</div>
+          <div class="hook-after-text">"{{#if this.rewritten}}{{this.rewritten}}{{else}}{{this.newHook}}{{/if}}"</div>
+        </div>
+        {{#if this.reason}}
+        <div class="hook-reason">💡 {{this.reason}}</div>
+        {{/if}}
+        {{#if this.whyItWorks}}
+        <div class="hook-reason">💡 {{this.whyItWorks}}</div>
+        {{/if}}
+        {{#if this.triggerUsed}}
+        <div style="margin-top: 4px;">
+          <span class="badge badge-purple" style="font-size: 7pt;">Tetikleyici: {{this.triggerUsed}}</span>
+        </div>
+        {{/if}}
+      </div>
+      {{/each}}
+    </div>
+
+    <div class="page-footer">Instagram AI Raporu - Hook'lar - {{reportId}}</div>
+  </div>
+  {{/if}}
+
+  <!-- ============================================================
+       PAGE 4B: SUPREME HOOK FORMULA
+       ============================================================ -->
+  {{#if eli5Report.supremeHookFormula}}
+  <div class="page">
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon purple">🎣</div>
+        <div>
+          <div class="section-title">Supreme Hook Formülü</div>
+          <div class="section-subtitle">Hesabınıza özel başarılı hook stratejisi</div>
+        </div>
+      </div>
+      
+      <div class="card mb-3" style="background: linear-gradient(135deg, #f5f3ff, #ede9fe); border: 2px solid #8b5cf6;">
+        {{#if eli5Report.supremeHookFormula.accountNiche}}
+        <div style="margin-bottom: 8px;">
+          <div style="font-size: 7pt; color: #7c3aed; text-transform: uppercase; font-weight: 600;">Hesap Nişi</div>
+          <div style="font-size: 10pt; color: #5b21b6; font-weight: 700;">{{eli5Report.supremeHookFormula.accountNiche}}</div>
+        </div>
+        {{/if}}
+        
+        {{#if eli5Report.supremeHookFormula.bestTrigger}}
+        <div style="margin-bottom: 8px;">
+          <div style="font-size: 7pt; color: #7c3aed; text-transform: uppercase; font-weight: 600;">En Etkili Tetikleyici</div>
+          <div style="font-size: 12pt; color: #7c3aed; font-weight: 900;">{{eli5Report.supremeHookFormula.bestTrigger}}</div>
+        </div>
+        {{/if}}
+        
+        {{#if eli5Report.supremeHookFormula.templateFormula}}
+        <div style="margin-bottom: 8px; background: white; padding: 8px; border-radius: 6px; border: 1px dashed #8b5cf6;">
+          <div style="font-size: 7pt; color: #7c3aed; text-transform: uppercase; font-weight: 600; margin-bottom: 2px;">Hook Şablonu</div>
+          <div style="font-size: 9pt; color: #1e1b4b; font-weight: 600; font-family: monospace;">{{eli5Report.supremeHookFormula.templateFormula}}</div>
+        </div>
+        {{/if}}
+        
+        {{#if eli5Report.supremeHookFormula.examples}}
+        <div>
+          <div style="font-size: 7pt; color: #7c3aed; text-transform: uppercase; font-weight: 600; margin-bottom: 6px;">Örnek Hook'lar</div>
+          {{#each eli5Report.supremeHookFormula.examples}}
+          <div style="background: white; padding: 6px 8px; border-radius: 4px; margin-bottom: 4px; border-left: 3px solid #8b5cf6;">
+            <span style="font-size: 8pt; color: #374151;">🎯 {{this}}</span>
+          </div>
+          {{/each}}
+        </div>
+        {{/if}}
+      </div>
+    </div>
+
+    <div class="page-footer">Instagram AI Raporu - Hook Formülü - {{reportId}}</div>
+  </div>
+  {{/if}}
+
+  <!-- ============================================================
+       PAGE 4C: WEEKLY ACTION PLAN
+       ============================================================ -->
+  {{#if eli5Report.weeklyActionPlan}}
+  <div class="page">
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon green">📅</div>
+        <div>
+          <div class="section-title">Haftalık Aksiyon Planı</div>
+          <div class="section-subtitle">Bu hafta yapmanız gereken somut adımlar</div>
+        </div>
+      </div>
+      
+      <div class="grid-2" style="gap: 10px;">
+        {{#if eli5Report.weeklyActionPlan.monday}}
+        <div class="card" style="border-left: 3px solid #3b82f6; background: linear-gradient(135deg, #eff6ff, #dbeafe);">
+          <div style="font-size: 9pt; font-weight: 700; color: #1d4ed8; margin-bottom: 4px;">📌 PAZARTESİ</div>
+          <p style="font-size: 8pt; color: #1e40af; margin: 0;">{{eli5Report.weeklyActionPlan.monday}}</p>
+        </div>
+        {{/if}}
+        
+        {{#if eli5Report.weeklyActionPlan.tuesday}}
+        <div class="card" style="border-left: 3px solid #8b5cf6; background: linear-gradient(135deg, #f5f3ff, #ede9fe);">
+          <div style="font-size: 9pt; font-weight: 700; color: #6d28d9; margin-bottom: 4px;">📌 SALI</div>
+          <p style="font-size: 8pt; color: #5b21b6; margin: 0;">{{eli5Report.weeklyActionPlan.tuesday}}</p>
+        </div>
+        {{/if}}
+        
+        {{#if eli5Report.weeklyActionPlan.wednesday}}
+        <div class="card" style="border-left: 3px solid #10b981; background: linear-gradient(135deg, #ecfdf5, #d1fae5);">
+          <div style="font-size: 9pt; font-weight: 700; color: #059669; margin-bottom: 4px;">📌 ÇARŞAMBA</div>
+          <p style="font-size: 8pt; color: #047857; margin: 0;">{{eli5Report.weeklyActionPlan.wednesday}}</p>
+        </div>
+        {{/if}}
+        
+        {{#if eli5Report.weeklyActionPlan.thursday}}
+        <div class="card" style="border-left: 3px solid #f59e0b; background: linear-gradient(135deg, #fffbeb, #fef3c7);">
+          <div style="font-size: 9pt; font-weight: 700; color: #d97706; margin-bottom: 4px;">📌 PERŞEMBE</div>
+          <p style="font-size: 8pt; color: #b45309; margin: 0;">{{eli5Report.weeklyActionPlan.thursday}}</p>
+        </div>
+        {{/if}}
+        
+        {{#if eli5Report.weeklyActionPlan.friday}}
+        <div class="card" style="border-left: 3px solid #ef4444; background: linear-gradient(135deg, #fef2f2, #fee2e2);">
+          <div style="font-size: 9pt; font-weight: 700; color: #dc2626; margin-bottom: 4px;">📌 CUMA</div>
+          <p style="font-size: 8pt; color: #b91c1c; margin: 0;">{{eli5Report.weeklyActionPlan.friday}}</p>
+        </div>
+        {{/if}}
+        
+        {{#if eli5Report.weeklyActionPlan.weekend}}
+        <div class="card" style="border-left: 3px solid #06b6d4; background: linear-gradient(135deg, #ecfeff, #cffafe); grid-column: span 2;">
+          <div style="font-size: 9pt; font-weight: 700; color: #0891b2; margin-bottom: 4px;">🏖️ HAFTA SONU</div>
+          <p style="font-size: 8pt; color: #0e7490; margin: 0;">{{eli5Report.weeklyActionPlan.weekend}}</p>
+        </div>
+        {{/if}}
+      </div>
+    </div>
+
+    <div class="page-footer">Instagram AI Raporu - Haftalık Plan - {{reportId}}</div>
+  </div>
+  {{/if}}
+
+  <!-- ============================================================
+       PAGE 5: FINAL VERDICT (DeepSeek)
+       ============================================================ -->
+  {{#if eli5Report.finalVerdict}}
+  <div class="page">
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon indigo">🎯</div>
+        <div>
+          <div class="section-title">Final Analiz</div>
+          <div class="section-subtitle">Kapsamlı Son Değerlendirme</div>
+        </div>
+      </div>
+      
+      <div class="verdict-card">
+        {{#if eli5Report.finalVerdict.situation}}
+        <div class="verdict-situation">
+          <h4 style="color: #475569; margin-bottom: 6px;">📋 Mevcut Durum</h4>
+          <p style="font-size: 9pt; color: #374151;">{{eli5Report.finalVerdict.situation}}</p>
+        </div>
+        {{/if}}
+        
+        {{#if eli5Report.finalVerdict.critical_issues}}
+        <div class="verdict-issues">
+          <h4 style="color: #dc2626; margin-bottom: 8px;">⚠ Kritik Sorunlar</h4>
+          {{#each eli5Report.finalVerdict.critical_issues}}
+          <div class="verdict-issue">
+            <span>⚠</span>
+            <span>{{this}}</span>
+          </div>
+          {{/each}}
+        </div>
+        {{/if}}
+        
+        {{#if eli5Report.finalVerdict.this_week_actions}}
+        <div class="verdict-actions">
+          <h4 style="color: #065f46; margin-bottom: 8px;">📅 Bu Hafta Yapılması Gerekenler</h4>
+          {{#each eli5Report.finalVerdict.this_week_actions}}
+          <div class="verdict-action">
+            <span class="verdict-action-num">{{math @index "+" 1}}</span>
+            <span>{{this}}</span>
+          </div>
+          {{/each}}
+        </div>
+        {{/if}}
+        
+        {{#if eli5Report.finalVerdict.warning}}
+        <div class="verdict-warning">
+          <strong>⚡ Uyarı:</strong> {{eli5Report.finalVerdict.warning}}
+        </div>
+        {{/if}}
+      </div>
+    </div>
+
+    <div class="page-footer">Instagram AI Raporu - Sayfa 5 - {{reportId}}</div>
+  </div>
+  {{/if}}
+
+  <!-- ============================================================
+       PAGE 6: PRIORITIZED ACTIONS
+       ============================================================ -->
+  {{#if prioritizedActions}}
+  <div class="page">
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon green">🎯</div>
+        <div>
+          <div class="section-title">Öncelikli Aksiyonlar</div>
+          <div class="section-subtitle">Öncelik sırasına göre yapılması gerekenler</div>
+        </div>
+      </div>
+      
+      {{#each prioritizedActions}}
+      <div class="action-item">
+        <div class="action-priority priority-{{this.priority}}">
+          #{{this.priority}}
+        </div>
+        <div class="action-content">
+          <div class="action-title">{{this.action}}</div>
+          {{#if this.description}}
+          <div class="action-desc">{{this.description}}</div>
+          {{/if}}
+          <div class="action-meta">
+            <span class="badge badge-green">{{this.expectedImpact}}</span>
+            <span class="badge {{getDifficultyBadge this.difficulty}}">{{this.difficulty}}</span>
+            <span class="badge badge-slate">⏱ {{this.timeToResult}}</span>
+          </div>
+        </div>
+      </div>
+      {{/each}}
+    </div>
+
+    <div class="page-footer">Instagram AI Raporu - Aksiyonlar - {{reportId}}</div>
+  </div>
+  {{/if}}
+
+  <!-- ============================================================
+       PAGE 7+: DETAILED AGENT RESULTS
+       ============================================================ -->
+  {{#if agentResults}}
+  <div class="page">
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon blue">✨</div>
+        <div>
+          <div class="section-title">Detaylı Ajan Analizleri</div>
+          <div class="section-subtitle">Her alanın uzman değerlendirmesi</div>
+        </div>
+      </div>
+      
+      {{#each agentResults}}
+      {{#unless this.parseError}}
+      {{#if this.agentName}}
+      <div class="agent-card">
+        <div class="agent-header {{getAgentColor @key}}">
+          <div class="agent-title">{{getAgentTitle @key this.agentName}}</div>
+          <div class="agent-role">{{getAgentRole @key this.agentRole}}</div>
+        </div>
+        <div class="agent-body">
+          {{#if this.metrics}}
+          <div class="agent-metrics">
+            {{#each this.metrics}}
+            {{#unless (eq @key "overallScore")}}
+            <div class="agent-metric">
+              <div class="agent-metric-value">{{formatMetricValue this}}</div>
+              <div class="agent-metric-label">{{formatKey @key}}</div>
+            </div>
+            {{/unless}}
+            {{/each}}
+          </div>
+          {{/if}}
+          
+          {{#if this.findings}}
+          <div style="margin-top: 8px;">
+            <div style="font-size: 8pt; font-weight: 600; color: #475569; margin-bottom: 6px;">Bulgular:</div>
+            {{#each this.findings}}
+            {{#unless (isJsonString this)}}
+            <div class="list-item info" style="font-size: 8pt;">
+              <span>•</span>
+              <span>{{extractFinding this}}</span>
+            </div>
+            {{/unless}}
+            {{/each}}
+          </div>
+          {{/if}}
+        </div>
+      </div>
+      {{/if}}
+      {{/unless}}
+      {{/each}}
+    </div>
+
+    <div class="page-footer">Instagram AI Raporu - Detaylı Analiz - {{reportId}}</div>
+  </div>
+  {{/if}}
+
+  <!-- ============================================================
+       CONTENT CALENDAR
+       ============================================================ -->
+  {{#if contentPlan.weeklyPlan}}
+  <div class="page">
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon amber">📅</div>
+        <div>
+          <div class="section-title">7 Günlük İçerik Planı</div>
+          <div class="section-subtitle">Her gün ne paylaşacağınızı planlayın</div>
+        </div>
+      </div>
+      
+      {{#if contentPlan.monthlyTheme}}
+      <div class="card" style="background: #fffbeb; border: 1px solid #fde68a; margin-bottom: 12px;">
+        <strong style="color: #92400e;">📌 Bu Ayın Teması:</strong>
+        <span style="color: #78350f;"> {{contentPlan.monthlyTheme}}</span>
+      </div>
+      {{/if}}
+      
+      {{#each contentPlan.weeklyPlan}}
+      <div class="calendar-day">
+        <div class="calendar-day-header">
+          <div class="calendar-day-name">{{this.dayName}}</div>
+          <div class="calendar-day-type">{{this.contentType}}</div>
+        </div>
+        <div class="calendar-topic">
+          <strong>Konu:</strong> {{this.topic}}
+        </div>
+        {{#if this.hook}}
+        <div class="calendar-hook">"{{this.hook}}"</div>
+        {{/if}}
+        {{#if this.bestTime}}
+        <div style="font-size: 8pt; color: #64748b; margin-top: 6px;">
+          ⏰ En İyi Saat: <strong>{{this.bestTime}}</strong>
+        </div>
+        {{/if}}
+      </div>
+      {{/each}}
+    </div>
+
+    <div class="page-footer">Instagram AI Raporu - İçerik Planı - {{reportId}}</div>
+  </div>
+  {{/if}}
+
+  <!-- ============================================================
+       STRATEGIC PHASE & SANITIZATION REPORT
+       ============================================================ -->
+  {{#if sanitizationReport}}
+  <div class="page">
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon indigo">🔧</div>
+        <div>
+          <div class="section-title">Veri Tutarlılık Raporu</div>
+          <div class="section-subtitle">Metrik doğrulama ve düzeltmeler</div>
+        </div>
+      </div>
+      
+      {{#if sanitizationReport.phase_info}}
+      <div class="card" style="border-left: 4px solid {{getPhaseColor sanitizationReport.phase_info.determined_phase}}; margin-bottom: 12px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <div>
+            <div style="font-size: 8pt; color: #64748b; text-transform: uppercase;">Stratejik Faz</div>
+            <div style="font-size: 14pt; font-weight: 700; color: {{getPhaseTextColor sanitizationReport.phase_info.determined_phase}}">
+              {{getPhaseIcon sanitizationReport.phase_info.determined_phase}} {{sanitizationReport.phase_info.phase_name}}
+            </div>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size: 8pt; color: #64748b;">Tahmini Süre</div>
+            <div style="font-weight: 600;">{{sanitizationReport.phase_info.duration}}</div>
+          </div>
+        </div>
+        
+        {{#if sanitizationReport.phase_info.reasoning}}
+        <div style="font-size: 9pt; color: #475569; margin-bottom: 10px; padding: 8px; background: #f8fafc; border-radius: 6px;">
+          {{sanitizationReport.phase_info.reasoning}}
+        </div>
+        {{/if}}
+        
+        <div class="grid-2" style="gap: 10px;">
+          {{#if sanitizationReport.phase_info.focus_areas}}
+          <div style="background: #ecfdf5; padding: 10px; border-radius: 8px;">
+            <div style="font-size: 8pt; font-weight: 600; color: #065f46; margin-bottom: 6px;">✓ Odak Alanları</div>
+            {{#each sanitizationReport.phase_info.focus_areas}}
+            <div style="font-size: 8pt; color: #047857;">• {{formatKey this}}</div>
+            {{/each}}
+          </div>
+          {{/if}}
+          
+          {{#if sanitizationReport.phase_info.blocked_strategies}}
+          <div style="background: #fef2f2; padding: 10px; border-radius: 8px;">
+            <div style="font-size: 8pt; font-weight: 600; color: #991b1b; margin-bottom: 6px;">✗ Engellenen Stratejiler</div>
+            {{#each sanitizationReport.phase_info.blocked_strategies}}
+            <div style="font-size: 8pt; color: #dc2626;">• {{formatKey this}}</div>
+            {{/each}}
+          </div>
+          {{/if}}
+        </div>
+      </div>
+      {{/if}}
+      
+      {{#if sanitizationReport.metrics_summary}}
+      <div class="card mb-3">
+        <h4 style="margin-bottom: 10px;">📊 Sağlık Metrikleri</h4>
+        <div class="grid-4">
+          <div class="stat-card">
+            <div class="stat-label">Genel Sağlık</div>
+            <div class="stat-value" style="color: {{getScoreColor sanitizationReport.metrics_summary.overall_health}}">
+              {{sanitizationReport.metrics_summary.overall_health}}
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Etkileşim Derinliği</div>
+            <div class="stat-value" style="color: {{getScoreColor sanitizationReport.metrics_summary.engagement_depth}}">
+              {{sanitizationReport.metrics_summary.engagement_depth}}
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Güven Skoru</div>
+            <div class="stat-value" style="color: {{getScoreColor sanitizationReport.metrics_summary.trust_score}}">
+              {{sanitizationReport.metrics_summary.trust_score}}
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Ghost %</div>
+            <div class="stat-value" style="color: {{getGhostColor sanitizationReport.metrics_summary.ghost_follower_percent}}">
+              {{formatPercent sanitizationReport.metrics_summary.ghost_follower_percent}}
+            </div>
+          </div>
+        </div>
+      </div>
+      {{/if}}
+      
+      {{#if sanitizationReport.corrections}}
+      <div class="card mb-3">
+        <h4 style="color: #d97706; margin-bottom: 8px;">🔧 Yapılan Düzeltmeler</h4>
+        {{#each sanitizationReport.corrections}}
+        <div class="list-item warning">
+          <span class="list-icon">🔧</span>
+          <div class="list-content">
+            <div class="list-title">{{formatKey @key}}</div>
+            <div class="list-desc">{{formatCorrectionValue this}}</div>
+          </div>
+        </div>
+        {{/each}}
+      </div>
+      {{/if}}
+      
+      {{#if sanitizationReport.warnings}}
+      <div class="card">
+        <h4 style="color: #f59e0b; margin-bottom: 8px;">⚠ Uyarılar</h4>
+        {{#each sanitizationReport.warnings}}
+        <div class="list-item warning">
+          <span class="list-icon">⚠</span>
+          <span>{{this}}</span>
+        </div>
+        {{/each}}
+      </div>
+      {{/if}}
+    </div>
+
+    <div class="page-footer">Instagram AI Raporu - Tutarlılık Raporu - {{reportId}}</div>
+  </div>
+  {{/if}}
+
+  <!-- ============================================================
+       COMPREHENSIVE METRICS SUMMARY
+       ============================================================ -->
+  {{#if agentResults}}
+  <div class="page">
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon blue">📊</div>
+        <div>
+          <div class="section-title">Kapsamlı Metrik Özeti</div>
+          <div class="section-subtitle">Tüm ajan skorları bir bakışta</div>
+        </div>
+      </div>
+      
+      <div class="grid-3" style="gap: 10px;">
+        {{#each agentResults}}
+        {{#if this.metrics}}
+        {{#if this.metrics.overallScore}}
+        <div class="stat-card" style="text-align: left; padding: 14px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span style="font-size: 9pt; font-weight: 600; color: #334155;">{{getAgentTitle @key this.agentName}}</span>
+            <span class="badge {{getScoreBadgeClass this.metrics.overallScore}}" style="font-size: 12pt; font-weight: 700;">
+              {{formatScore this.metrics.overallScore}}
+            </span>
+          </div>
+          {{#if this.findings.length}}
+          <div style="font-size: 8pt; color: #64748b;">
+            {{this.findings.length}} bulgu • {{#if this.recommendations}}{{this.recommendations.length}} öneri{{/if}}
+          </div>
+          {{/if}}
+        </div>
+        {{/if}}
+        {{/if}}
+        {{/each}}
+      </div>
+      
+      {{#if hardValidation}}
+      {{#if hardValidation.violations.length}}
+      <div class="card" style="margin-top: 12px; background: #fef2f2; border: 1px solid #fecaca;">
+        <h4 style="color: #991b1b; margin-bottom: 8px;">⚠ Doğrulama İhlalleri</h4>
+        {{#each hardValidation.violations}}
+        <div class="list-item danger">
+          <span class="list-icon">⚠</span>
+          <div class="list-content">
+            <div class="list-title">{{this.rule}}</div>
+            <div class="list-desc">{{this.message}}</div>
+          </div>
+        </div>
+        {{/each}}
+      </div>
+      {{/if}}
+      {{/if}}
+    </div>
+
+    <div class="page-footer">Instagram AI Raporu - Metrik Özeti - {{reportId}}</div>
+  </div>
+  {{/if}}
+
+  <!-- ============================================================
+       METADATA & ANALYSIS INFO (Corium-Style Enhanced)
+       ============================================================ -->
+  <div class="page">
+    <div class="section">
+      <div class="section-header">
+        <div class="section-icon slate">ℹ️</div>
+        <div>
+          <div class="section-title">Analiz Bilgileri & Veri Kalitesi</div>
+          <div class="section-subtitle">Rapor güvenilirliği ve metodoloji</div>
+        </div>
+      </div>
+      
+      <!-- Data Quality Dashboard -->
+      <div class="card mb-3">
+        <h4 style="color: #1e40af; margin-bottom: 12px;">🔬 Veri Kalitesi Göstergeleri</h4>
+        <div class="grid-4" style="gap: 10px;">
+          {{#if advancedAnalysis.metadata.data_quality_score}}
+          <div class="stat-card">
+            <div class="stat-label">Veri Kalitesi</div>
+            <div class="stat-value" style="color: {{getScoreColor advancedAnalysis.metadata.data_quality_score}};">
+              {{advancedAnalysis.metadata.data_quality_score}}%
+            </div>
+          </div>
+          {{else}}
+          <div class="stat-card">
+            <div class="stat-label">Veri Kalitesi</div>
+            <div class="stat-value" style="color: {{getScoreColor sanitizationReport.metrics_summary.trust_score}};">
+              {{#if sanitizationReport.metrics_summary.trust_score}}{{sanitizationReport.metrics_summary.trust_score}}%{{else}}--{{/if}}
+            </div>
+          </div>
+          {{/if}}
+          
+          <div class="stat-card">
+            <div class="stat-label">Güven Seviyesi</div>
+            <div class="stat-value" style="font-size: 11pt;">
+              {{#if advancedAnalysis.metadata.confidence_level}}
+                {{advancedAnalysis.metadata.confidence_level}}
+              {{else}}
+                {{getConfidenceText sanitizationReport.metrics_summary.trust_score}}
+              {{/if}}
+            </div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-label">Analiz Tarihi</div>
+            <div class="stat-value" style="font-size: 9pt;">{{formatDate analysisDate}}</div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-label">Rapor Tier</div>
+            <div class="stat-value" style="font-size: 11pt; text-transform: capitalize;">
+              {{#if tier}}{{tier}}{{else}}Standard{{/if}}
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Analysis Pipeline Flow - Corium Style -->
+      <div class="card mb-3" style="background: linear-gradient(135deg, #0f172a, #1e3a8a); color: white; padding: 16px;">
+        <h4 style="color: #60a5fa; margin-bottom: 12px; font-size: 10pt;">🔄 Analiz Pipeline Akışı</h4>
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 4px; font-size: 7pt;">
+          <!-- Step 1: Data Collection -->
+          <div style="text-align: center; flex: 1;">
+            <div style="width: 36px; height: 36px; margin: 0 auto 6px; background: #3b82f6; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14pt;">
+              📥
+            </div>
+            <div style="color: #94a3b8;">Veri Toplama</div>
+            <div style="color: #60a5fa; font-size: 6pt;">Apify + Fallback</div>
+          </div>
+          <div style="color: #475569;">→</div>
+          
+          <!-- Step 2: Normalization -->
+          <div style="text-align: center; flex: 1;">
+            <div style="width: 36px; height: 36px; margin: 0 auto 6px; background: #8b5cf6; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14pt;">
+              🔧
+            </div>
+            <div style="color: #94a3b8;">Normalizasyon</div>
+            <div style="color: #a78bfa; font-size: 6pt;">V2 Deterministik</div>
+          </div>
+          <div style="color: #475569;">→</div>
+          
+          <!-- Step 3: Integrity Engine -->
+          <div style="text-align: center; flex: 1;">
+            <div style="width: 36px; height: 36px; margin: 0 auto 6px; background: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14pt;">
+              🛡️
+            </div>
+            <div style="color: #94a3b8;">Güvenilirlik</div>
+            <div style="color: #6ee7b7; font-size: 6pt;">Integrity Engine</div>
+          </div>
+          <div style="color: #475569;">→</div>
+          
+          <!-- Step 4: AI Analysis -->
+          <div style="text-align: center; flex: 1;">
+            <div style="width: 36px; height: 36px; margin: 0 auto 6px; background: #f59e0b; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14pt;">
+              🤖
+            </div>
+            <div style="color: #94a3b8;">AI Analiz</div>
+            <div style="color: #fcd34d; font-size: 6pt;">7 Uzman Ajan</div>
+          </div>
+          <div style="color: #475569;">→</div>
+          
+          <!-- Step 5: Report Generation -->
+          <div style="text-align: center; flex: 1;">
+            <div style="width: 36px; height: 36px; margin: 0 auto 6px; background: #ec4899; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14pt;">
+              📄
+            </div>
+            <div style="color: #94a3b8;">PDF Rapor</div>
+            <div style="color: #f9a8d4; font-size: 6pt;">Puppeteer</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Agent Modules Used -->
+      <div class="card mb-3">
+        <h4 style="color: #475569; margin-bottom: 10px; font-size: 10pt;">🔧 Kullanılan Analiz Modülleri</h4>
+        <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+          <span class="badge badge-purple">🏢 Domain Master</span>
+          <span class="badge badge-green">📈 Growth & Virality</span>
+          <span class="badge badge-amber">💰 Sales Conversion</span>
+          <span class="badge badge-pink">🎨 Visual Brand</span>
+          <span class="badge badge-red">❤️ Community Loyalty</span>
+          <span class="badge badge-blue">🎯 Attention Architect</span>
+          <span class="badge badge-slate">🔒 System Governor</span>
+        </div>
+      </div>
+      
+      <!-- Confidence-Driven Language Notice -->
+      {{#if sanitizationReport.metrics_summary.trust_score}}
+      <div class="card mb-3" style="background: {{getRiskBgColor (getConfidenceLevel sanitizationReport.metrics_summary.trust_score)}}; border: 1px solid #e2e8f0;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="font-size: 24pt;">
+            {{#if (gt sanitizationReport.metrics_summary.trust_score 79)}}🟢{{else}}{{#if (gt sanitizationReport.metrics_summary.trust_score 59)}}🟡{{else}}🔴{{/if}}{{/if}}
+          </div>
+          <div>
+            <div style="font-size: 10pt; font-weight: 600; color: #0f172a;">
+              {{getConfidenceText sanitizationReport.metrics_summary.trust_score}} Raporu
+            </div>
+            <div style="font-size: 8pt; color: #475569;">
+              {{#if (gt sanitizationReport.metrics_summary.trust_score 79)}}
+                Bu rapor yüksek güvenilirlikli verilerle oluşturulmuştur. Öneriler kesin ifadelerle sunulmaktadır.
+              {{else}}
+                {{#if (gt sanitizationReport.metrics_summary.trust_score 59)}}
+                  Bu rapor mevcut verilere dayanmaktadır. Bazı tahminler içerebilir.
+                {{else}}
+                  Bu rapor sınırlı veriyle hazırlanmıştır. Sonuçlar ön değerlendirme niteliğindedir.
+                {{/if}}
+              {{/if}}
+            </div>
+          </div>
+        </div>
+      </div>
+      {{/if}}
+      
+      <!-- Disclaimer -->
+      <div class="card" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+        <h4 style="color: #475569; margin-bottom: 8px;">📋 Önemli Notlar</h4>
+        <ul style="font-size: 8pt; color: #64748b; margin: 0; padding-left: 16px;">
+          <li style="margin-bottom: 4px;">Bu rapor, Instagram hesabınızın belirli bir andaki anlık görüntüsünü yansıtır.</li>
+          <li style="margin-bottom: 4px;">Metrikler ve öneriler, mevcut veriler ve sektör standartlarına dayanmaktadır.</li>
+          <li style="margin-bottom: 4px;">Sonuçlar, hesap değişiklikleri ve platform güncellemeleri ile değişebilir.</li>
+          <li style="margin-bottom: 4px;">Bot/fake takipçi tespiti tahmine dayalıdır ve %100 doğruluk garantisi vermez.</li>
+          <li style="margin-bottom: 4px;">Raporun dil tonu, veri güvenilirlik skoruna göre otomatik ayarlanmaktadır.</li>
+          <li>En iyi sonuçlar için önerileri düzenli olarak uygulayın ve yeniden analiz edin.</li>
+        </ul>
+      </div>
+      
+      <!-- Report ID & Version -->
+      <div style="margin-top: 12px; text-align: center; font-size: 7pt; color: #94a3b8;">
+        <div>Rapor ID: {{reportId}} | Versiyon: 2.0 (Corium-Enhanced)</div>
+        <div>Oluşturulma: {{formatDate analysisDate}} | @{{accountData.username}}</div>
+      </div>
+    </div>
+    
+    <div class="page-footer">Instagram AI Raporu - Analiz Bilgileri - {{reportId}}</div>
+  </div>
+
+</body>
+</html>
