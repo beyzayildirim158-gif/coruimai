@@ -6,7 +6,7 @@ import { useAuthStore } from '@/store/authStore';
 import { useAnalysisStore } from '@/store/analysisStore';
 import toast from 'react-hot-toast';
 
-const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:3001';
+const WS_URL = process.env.NEXT_PUBLIC_SOCKET_URL || process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:3001';
 
 interface UseAnalysisWebSocketOptions {
   onComplete?: (analysisId: string) => void;
