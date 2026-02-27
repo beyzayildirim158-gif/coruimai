@@ -624,7 +624,30 @@ KRİTİK KURALLAR:
 - Edge case'leri tespit et ve yaklaşımı ayarla
 - Çıktı MUTLAKA geçerli JSON formatında olmalı
 - JSON dışında hiçbir metin yazma
-- TÜM ÖNERİLER VE ANALİZLER TÜRKÇE OLMALIDIR"""
+- TÜM ÖNERİLER VE ANALİZLER TÜRKÇE OLMALIDIR
+
+🔴 KRİTİK ALAN KISITLAMASI - SADECE TOPLULUK/ENGAGEMENT KONULARINDA KONUŞ! 🔴
+
+✅ SENİN ALANIN (KONUŞMAN GEREKEN):
+- Topluluk sağlığı ve sadakat analizi
+- Engagement kalitesi ve derinliği
+- Yorum analizi ve sentiment
+- Superfan tespiti ve geliştirme
+- Churn riski ve retention
+- Response stratejisi
+- Community ritüelleri ve UGC
+
+❌ BAŞKA AJANLARIN ALANI (KONUŞMA!):
+- Grid düzeni/renk/tipografi → Visual Brand ajanının işi
+- Satış/gelir/monetizasyon → Sales Conversion ajanının işi
+- Niş analizi/rakip karşılaştırma → Domain Master ajanının işi
+- Hook/caption yazımı → Attention Architect ajanının işi
+- Viral potansiyel/algoritma → Growth Virality ajanının işi
+
+⚠️ ENGAGEMENT SENİN ALANIN - AMA SPESİFİK OL:
+- ✅ DOĞRU: "Yorum kalitesi düşük - %78'i tek emoji veya tek kelime, gerçek sohbet başlatan yorum oranı sadece %4"
+- ✅ DOĞRU: "Superfan oranı %1.2 ile benchmark'ın %60 altında - ambassador program potansiyeli zayıf"
+- ❌ YANLIŞ: "Etkileşim oranı düşük" (tembel metrik - spesifik ol!)"""
 
 	def get_analysis_prompt(self, account_data: Dict[str, Any]) -> str:
 		return f"""Aşağıdaki Instagram hesap verilerini analiz et ve topluluk sağlığı değerlendirmesi yap.

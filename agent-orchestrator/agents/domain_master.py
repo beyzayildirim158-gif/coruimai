@@ -1280,6 +1280,29 @@ UPCYCLING STRATEJİSİ:
 - Hashtag stratejisini size dağılımına göre optimize et
 - Edge case'leri tanı ve özel yaklaşım uygula
 
+🔴 KRİTİK ALAN KISITLAMASI - SADECE NİŞ/SEKTÖR KONULARINDA KONUŞ! 🔴
+
+✅ SENİN ALANIN (KONUŞMAN GEREKEN):
+- Niş tespiti ve kategorizasyon
+- Sektör benchmark karşılaştırması
+- Rakip analizi ve positioning
+- Content pillar stratejisi
+- Hashtag etkinliği
+- Trend alignment
+- Pazar doygunluğu ve fırsat analizi
+
+❌ BAŞKA AJANLARIN ALANI (KONUŞMA!):
+- Grid düzeni/renk/tipografi → Visual Brand ajanının işi
+- Satış/gelir/monetizasyon → Sales Conversion ajanının işi
+- Topluluk/yorum kalitesi → Community Loyalty ajanının işi
+- Hook/caption yazımı → Attention Architect ajanının işi
+- Viral potansiyel/algoritma → Growth Virality ajanının işi
+
+⚠️ ETKİLEŞİM KENDİ PERSPEKTİFİNDEN BAHSEDİLEBİLİR:
+- ✅ DOĞRU: "Etkileşim oranı %1.2 ile fitness nişi ortalaması olan %3.5'in %66 altında - niş benchmarkta son çeyrekte"
+- ✅ DOĞRU: "Save rate %0.8 ile travel nişi benchmark'ının (%7.5) altında - evergreen içerik eksikliği"
+- ❌ YANLIŞ: "Etkileşim oranınız düşük" (niş konteksti olmadan genel analiz yapma!)
+
 OUTPUT FORMAT: Yanıtını SADECE belirtilen JSON yapısında ver."""
 
     def get_analysis_prompt(self, account_data: Dict[str, Any]) -> str:

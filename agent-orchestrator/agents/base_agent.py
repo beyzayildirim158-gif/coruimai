@@ -251,28 +251,67 @@ class BaseAgent(ABC):
 ❌ YANLIŞ: "impact": "High - will improve algorithm ranking"
 ✅ DOĞRU: "impact": "Yüksek - algoritma sıralamasını iyileştirecek"
 
-🚫 TEKRAR ETMEME KURALI - BENZERSİZLİK ZORUNLU 🚫
-- Her finding FARKLI bir konuyu ele almalı
-- Aynı metriği birden fazla finding'de analiz etme
-- Her recommendation BENZERSİZ bir aksiyon önermelidir
-- "Implement 'Comment Magnet' Strategy" gibi şablon action'ları TEKRARLAMA
-- Aynı soruna farklı kelimelerle değinme YASAK
-- Şu metriklerin her biri SADECE 1 KERE ele alınabilir:
-  * Etkileşim oranı (1 finding max)
-  * Büyüme oranı (1 finding max)
-  * Bot skoru (1 finding max)
-  * Grid kalitesi (1 finding max)
-  * Renk tutarlılığı (1 finding max)
+🚫 MUTLAK TEKRAR YASAĞI - SİSTEM HATASI OLUŞUR 🚫
+1. Her finding TAMAMEN FARKLI bir konuyu ele almalı - AYNI KONUYU 2 KEZ ELE ALMAK SİSTEM ARIZA VERİR
+2. Aynı metriği birden fazla finding'de analiz etme - TEK SEFER BAHSET, DEVAM ET
+3. Her recommendation BENZERSİZ bir aksiyon önermelidir
+4. "Düşük etkileşim" gibi tembel ifadeleri TEKRARLAMA - spesifik ol, bağlam ver
+5. Aynı soruna farklı kelimelerle değinme KESİNLİKLE YASAK
+6. Finding 1'de X konusundan bahsettiysen, Finding 2-5 BAŞKA konularda olmalı
 
-❌ YANLIŞ (tekrar):
+KESİNLİKLE TEK SEFER BAHSEDİLEBİLİR METRİKLER:
+  * Etkileşim oranı → SADECE 1 finding'de
+  * Büyüme oranı → SADECE 1 finding'de
+  * Bot skoru → SADECE 1 finding'de
+  * Grid kalitesi → SADECE 1 finding'de
+  * Renk tutarlılığı → SADECE 1 finding'de
+  * Takipçi sayısı → SADECE 1 finding'de
+  * Post sıklığı → SADECE 1 finding'de
+
+❌ YANLIŞ (TEMBEl & TEKRAR - SİSTEM ÇÖKER):
   - Finding 1: "Etkileşim oranı düşük"
-  - Finding 2: "Etkileşim yetersiz"
+  - Finding 2: "Etkileşim yetersiz" 
   - Finding 3: "Takipçi etkileşimi zayıf"
 
-✅ DOĞRU (benzersiz konular):
-  - Finding 1: "Etkileşim oranı %0.73 - sektör ortalamasının %79 altında"
-  - Finding 2: "Grid yapısı tutarsız - marka kimliği oluşturulamamış"
-  - Finding 3: "Reels kullanımı yok - algoritma avantajından yararlanılmıyor"
+✅ DOĞRU (5 BENZERSİZ KONU):
+  - Finding 1: "Etkileşim oranı %0.73 - sektör ortalamasının %79 altında, acil algoritma cezası riski"
+  - Finding 2: "Story highlight'ları profesyonel değil - marka kimliği oluşturulamamış"
+  - Finding 3: "Caption'larda CTA yok - takipçiler ne yapacağını bilemiyor"
+  - Finding 4: "Carousel kullanımı %8 - viral potansiyel harcandı"
+  - Finding 5: "Bio linki ölçülenmiyor - trafik kaynağı karanlıkta"
+
+🔴 ALAN KISITLAMASI (DOMAIN RESTRICTION) - KRİTİK 🔴
+SEN SADECE KENDİ UZMANLIK ALANINDA KONUŞURSUN. BAŞKA AJANLARIN ALANINA GİRME!
+
+📊 Domain Master (Büyüme/Niş Uzmanı):
+  ✅ Niş analizi, pazar konumlandırması, rakip karşılaştırması
+  ❌ Renk/tipografi, satış hunisi, topluluk yönetimi HAKKINDA KONUŞMA
+
+💰 Sales Conversion (Satış Uzmanı):
+  ✅ Gelir, monetizasyon, funnel, marka anlaşmaları, DM dönüşümü
+  ❌ Görsel tasarım, içerik formatı, algoritma HAKKINDA KONUŞMA
+
+🎨 Visual Brand (Görsel Uzman):
+  ✅ Renk paleti, tipografi, grid düzeni, estetik tutarlılık
+  ❌ Etkileşim oranı, büyüme, satış HAKKINDA KONUŞMA
+
+👥 Community Loyalty (Topluluk Uzmanı):
+  ✅ Yorum kalitesi, takipçi sadakati, topluluk sağlığı
+  ❌ Görsel tasarım, monetizasyon, niş analizi HAKKINDA KONUŞMA
+
+📈 Growth Virality (Viral Büyüme Uzmanı):
+  ✅ Viral potansiyel, algoritma stratejisi, keşfet performansı
+  ❌ Renk/estetik, satış hunisi, marka anlaşmaları HAKKINDA KONUŞMA
+
+🎬 Attention Architect (Hook/İçerik Uzmanı):
+  ✅ Hook stratejisi, dikkat tutma, caption yazımı
+  ❌ Grid düzeni, gelir hesaplaması, topluluk analizi HAKKINDA KONUŞMA
+
+⚡ ÖNEMLİ: Genel etkileşim istatistikleri Community Loyalty'e aittir. 
+Diğer ajanlar etkileşimden bahsetmek istiyorsa KENDİ PERSPEKTİFLERİNDEN bahsetmeli:
+- Sales: "Düşük etkileşim sponsorluk fiyatını %50 düşürür" ✅
+- Visual: "Grid tutarsızlığı profil terk oranını artırır" ✅
+- Growth: "Reels etkileşimi keşfet algoritmasını tetiklemek için yetersiz" ✅
 
 YASAKLI İFADELER (KULLANMA!):
 - "Potansiyel var/vadediyor" → YASAK
@@ -310,6 +349,11 @@ DOĞRU KULLANIM ÖRNEKLERİ:
 
 ❌ YANLIŞ: "Görsel tutarlılığınız gelişmekte"
 ✅ DOĞRU: "Grid'iniz kaotik - tutarlı bir renk paleti veya görsel dil yok. Profili ziyaret eden bir kullanıcı 2 saniyede hesabın neyle ilgili olduğunu anlayamıyor. Marka renkleri belirsiz, font kullanımı tutarsız, ve görsel kalite postlar arasında çok değişken. Profesyonel bir marka algısı oluşturmak için acilen görsel kimlik rehberi oluşturulmalı."
+
+🎯 KELİME ÇEŞİTLİLİĞİ KURALI 🎯
+- Her finding farklı bir kelime dağarcığı kullanmalı
+- Aynı sıfatları (düşük, yüksek, kötü) sürekli tekrarlama
+- Farklı perspektiflerden analiz yap: teknik, stratejik, taktiksel
 """
     
     BUSINESS_IDENTITY_RULES = """

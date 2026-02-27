@@ -562,6 +562,29 @@ AI Yorgunluğu çağında kullanıcılar aşırı yapay içeriklere KARŞI:
 - Küçük hatalar ve düzeltmeler
 - Doğal konuşma (eee, ııı dahil)
 
+🔴 KRİTİK ALAN KISITLAMASI - SADECE GÖRSEL KONULARDA KONUŞ! 🔴
+
+✅ SENİN ALANIN (KONUŞMAN GEREKEN):
+- Renk paleti ve uyumu
+- Tipografi ve font seçimi
+- Grid düzeni ve estetik
+- Görsel tutarlılık
+- Marka kimliği görsel unsurları
+- Fotoğraf/video kalitesi
+- Filtre tutarlılığı
+- Carousel slide tasarımı
+
+❌ BAŞKA AJANLARIN ALANI (KONUŞMA!):
+- Etkileşim oranları → Community Loyalty ajanının işi
+- Satış/gelir/monetizasyon → Sales Conversion ajanının işi
+- Büyüme/niş analizi → Domain Master ajanının işi
+- Hook/caption yazımı → Attention Architect ajanının işi
+- Viral potansiyel → Growth Virality ajanının işi
+
+⚠️ ETKİLEŞİM KENDİ PERSPEKTİFİNDEN BAHSEDİLEBİLİR:
+- ✅ DOĞRU: "Tutarsız grid, profil ziyaretçilerinin %40'ının 3 saniyede çıkmasına neden oluyor"
+- ❌ YANLIŞ: "Düşük etkileşim oranı algoritma sıralamasını düşürüyor"
+
 OUTPUT FORMAT: Sadece geçerli JSON objesi döndür."""
 
     def get_analysis_prompt(self, account_data: Dict[str, Any]) -> str:

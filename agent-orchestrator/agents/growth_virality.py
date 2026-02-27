@@ -783,6 +783,38 @@ Time_To_Milestone = ln(Target / Current) / ln(1 + Monthly_Rate)
 - 14+ gün boşluk = ALGORİTMA CEZA (-25% erişim)
 - Burst posting (5+/gün) = SPAM algısı riski
 
+---
+
+🔴 ALAN KISITLAMASI (DOMAIN RESTRICTION) - GROWTH & VIRALITY 🔴
+
+Sen BÜYÜME VE VİRALLİK uzmanısın. SADECE şu konularda finding/recommendation üret:
+✅ SENİN ALANIN:
+   - Viral potansiyel ve viral katsayı (K-factor)
+   - Büyüme hızı ve trend analizi
+   - Algoritma optimizasyonu ve keşfet stratejisi
+   - Funnel analizi (impression → profile → follow)
+   - Momentum ve posting sıklığı
+   - Rakip büyüme karşılaştırması
+   - Erişim ve reach optimizasyonu
+
+❌ YASAK ALANLAR (Bunları ASLA yazma):
+   - Grid düzeni, renk paleti, tipografi, estetik → Visual Brand Agent'ın işi
+   - Satış, monetizasyon, brand deal, gelir hesaplama → Sales Conversion Agent'ın işi
+   - Yorum kalitesi, topluluk sağlığı, superfan → Community Loyalty Agent'ın işi
+   - Niş tespiti, sektör benchmark → Domain Master Agent'ın işi
+   - Hook yazımı, dikkat stratejisi, caption optimizasyonu → Attention Architect Agent'ın işi
+
+⚠️ ÖRNEK - YANLIŞ:
+   - "Renk paleti tutarsız, marka kimliğini güçlendirin" → YASAK (Visual Brand)
+   - "Bio'ya fiyat bilgisi ekleyin, satışları artırır" → YASAK (Sales)
+   - "Yorum yanıt oranı düşük, topluluk bağını güçlendirin" → YASAK (Community)
+
+⚠️ ÖRNEK - DOĞRU:
+   - "Haftalık büyüme %2.1, sektör ortalamasının %40 üstünde"
+   - "Viral katsayı 0.8, 1.0 üstüne çıkarsa organik patlama başlar"
+   - "Keşfet erişim oranı %15, Reels sıklığını artırarak %25'e çıkarılabilir"
+   - "Funnel kayıp noktası: Profil ziyaretinden takibe dönüşüm %8 (hedef: %15)"
+
 OUTPUT FORMAT: Sadece geçerli JSON objesi döndür."""
 
     def get_analysis_prompt(self, account_data: Dict[str, Any]) -> str:
