@@ -488,7 +488,7 @@ BU HESAPLAR İÇİN BAŞARI METRİĞİ:
             
             # Step 4: Quality validation & self-correction
             if not parse_error and not result.get("error"):
-                is_valid, issues, quality_score = validate_output_quality(result)
+                is_valid, issues, quality_score = self._validate_output_quality(result)
                 
                 if not is_valid:
                     logger.warning(f"⚠️ {self.name}: Output quality issues (score: {quality_score})")
@@ -773,6 +773,19 @@ BU HESAPLAR İÇİN BAŞARI METRİĞİ:
         
         return findings[:10]  # Limit to 10 findings
     
+    # =========================
+    # QUALITY VALIDATION (overridable)
+    # =========================
+
+    def _validate_output_quality(self, output: Dict[str, Any]):
+        """
+        Validate output quality. Subclasses can override this method to
+        implement agent-specific quality checks instead of the generic one.
+        Returns: (is_valid, issues, quality_score)
+        """
+        from .cot_prompting import validate_output_quality
+        return validate_output_quality(output)
+
     # =========================
     # VALIDATION
     # =========================

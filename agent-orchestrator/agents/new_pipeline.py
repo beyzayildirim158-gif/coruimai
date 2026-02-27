@@ -737,8 +737,9 @@ class NewPipelineOrchestrator:
         # ── 5. Content format distribution ──────────────────────────────
         posts = account_data.get("recentPosts") or []
         # A post has meaningful type data if it's NOT the generic default 'image'
-        # or if __typename / product_type was properly parsed into reel/carousel
-        has_type_data = any(p.get("type") not in (None, "", "image") for p in posts)
+        # OR if all posts are confirmed images (type="image") — that IS valid data.
+        # Report as missing only when type field is completely absent for all posts.
+        has_type_data = any(p.get("type") is not None and p.get("type") != "" for p in posts)
         if posts and not has_type_data:
             missing.append({
                 "field": "content_format_distribution",
@@ -1007,9 +1008,9 @@ HESAP TİPİ: {benchmarks.get('account_type', 'CONTENT_CREATOR')}
                                     "finding": finding[:100],
                                 })
         
-        # Run full governor analysis
+        # Run full governor analysis — routes through _run_agent_with_retry for DeepSeek fallback
         await self._rate_limit_wait()
-        governor_result = await self.governor.analyze(audit_data)
+        governor_result = await self._run_agent_with_retry(self.governor, audit_data, "systemGovernor")
         
         # Post-process: dedupe, clean, filter meaningless entries
         governor_result = self.governor.post_process_result(governor_result)

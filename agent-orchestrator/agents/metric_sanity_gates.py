@@ -1588,14 +1588,24 @@ class MetricSanityGates:
             numeric_values = [self._to_number(v) for v in metrics.values()]
             valid_numeric = [v for v in numeric_values if v is not None]
 
-            # Rule: if any numeric metric is 0/null/'Veri Yok' block qualitative critique
+            # Rule: ALL numeric metrics are 0 → hallucination containment
             has_only_zero_or_missing = bool(valid_numeric) and all(v == 0 for v in valid_numeric)
-            has_missing_like_values = any(
-                (v is None) or (isinstance(v, str) and v.strip().lower() in {"veri yok", "hesaplanamadı", "n/a", "insufficient data"})
-                for v in metrics.values()
+
+            # Rule: MAJORITY (>50%) of metric values are null/missing → containment
+            # Single null value is normal (e.g. competitor data); don't suppress entire agent
+            total_metric_count = len(metrics)
+            missing_count = sum(
+                1 for v in metrics.values()
+                if (v is None) or (isinstance(v, str) and v.strip().lower() in {
+                    "veri yok", "hesaplanamadı", "n/a", "insufficient data"
+                })
+            )
+            has_mostly_missing = (
+                total_metric_count > 0 and
+                (missing_count / total_metric_count) > 0.5
             )
 
-            if has_only_zero_or_missing or has_missing_like_values:
+            if has_only_zero_or_missing or has_mostly_missing:
                 agent_result["findings"] = [
                     {
                         "finding": "Bu metrik için yeterli veri toplanamadı, bu nedenle yapay zeka analizi devre dışı bırakıldı.",

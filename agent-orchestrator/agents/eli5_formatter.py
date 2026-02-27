@@ -36,6 +36,59 @@ class ELI5FormatterAgent(BaseAgent):
         # Hook psikoloji tetikleyicileri
         self._init_hook_psychology()
     
+    def _validate_output_quality(self, output: Dict[str, Any]):
+        """
+        ELI5-specific quality validator.
+        ELI5 uses {kusur, aciklama, aksiyon} in findings (not {finding}),
+        weeklyActionPlan instead of recommendations, and executiveSummary.grade
+        instead of metrics.overallScore.
+        """
+        issues = []
+        quality_score = 100
+
+        # 1. findings with ELI5-specific field names
+        findings = output.get("findings", [])
+        if len(findings) < 3:
+            issues.append(f"Yetersiz bulgu sayısı: {len(findings)}/3")
+            quality_score -= 30
+
+        for i, f in enumerate(findings[:5]):
+            if isinstance(f, dict):
+                kusur = f.get("kusur", "") or ""
+                aciklama = f.get("aciklama", "") or ""
+                aksiyon = f.get("aksiyon", "") or ""
+                combined = kusur + aciklama + aksiyon
+            else:
+                combined = str(f)
+            if len(combined) < 50:
+                issues.append(f"Bulgu {i+1} çok kısa: {len(combined)} karakter")
+                quality_score -= 10
+
+        # 2. weeklyActionPlan veya rewrittenHooks
+        weekly = output.get("weeklyActionPlan", {})
+        hooks = output.get("rewrittenHooks", [])
+        if not weekly and len(hooks) < 1:
+            issues.append(f"Yetersiz öneri sayısı: 0/3")
+            quality_score -= 20
+
+        # 3. executiveSummary
+        summary = output.get("executiveSummary", {})
+        if not summary or not summary.get("headline"):
+            issues.append("executiveSummary.headline eksik")
+            quality_score -= 15
+
+        # 4. Inject overallScore from grade if missing
+        if "metrics" not in output:
+            output["metrics"] = {}
+        if "overallScore" not in output.get("metrics", {}):
+            grade = (summary or {}).get("grade", "C")
+            grade_map = {"A": 85, "B": 70, "C": 55, "D": 40, "F": 25}
+            output.setdefault("metrics", {})["overallScore"] = grade_map.get(grade, 50)
+
+        quality_score = max(0, quality_score)
+        is_valid = quality_score >= 50 and len(issues) <= 3
+        return is_valid, issues, quality_score
+
     def _init_hook_psychology(self):
         """Hook yazımı için psikolojik tetikleyiciler"""
         
