@@ -94,16 +94,16 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-2 xl:grid-cols-4">
         {statCards.map((card) => (
           <StatCard key={card.label} {...card} />
         ))}
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-5">
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-5">
         <div className="lg:col-span-3">
           {usageHistoryQuery.isLoading ? (
-            <div className="flex h-72 items-center justify-center rounded-3xl border border-slate-200 bg-white text-slate-500 shadow-sm">
+            <div className="flex h-56 sm:h-72 items-center justify-center rounded-2xl sm:rounded-3xl border border-slate-200 bg-white text-slate-500 shadow-sm text-sm sm:text-base">
               <LoaderIcon size={20} className="mr-2" /> {locale === 'tr' ? 'Kullanım trendleri yükleniyor...' : 'Loading usage trends...'}
             </div>
           ) : (
@@ -120,17 +120,17 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-5">
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-5">
         <div className="lg:col-span-3">
           <RecentAnalyses analyses={analysesQuery.data} isLoading={analysesQuery.isLoading} />
         </div>
-        <div className="space-y-3 rounded-3xl border border-slate-200 bg-white p-6 lg:col-span-2 shadow-sm">
+        <div className="space-y-3 rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-4 sm:p-6 lg:col-span-2 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm uppercase tracking-[0.3em] text-slate-500">
+              <p className="text-xs sm:text-sm uppercase tracking-[0.2em] sm:tracking-[0.3em] text-slate-500">
                 {locale === 'tr' ? 'Son PDF\'ler' : 'Latest PDFs'}
               </p>
-              <h3 className="text-2xl font-semibold text-slate-900">
+              <h3 className="text-lg sm:text-2xl font-semibold text-slate-900">
                 {locale === 'tr' ? 'Rapor kuyruğu' : 'Report queue'}
               </h3>
             </div>

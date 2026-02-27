@@ -118,15 +118,15 @@ function CircularGauge({
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
   
   const sizeClasses = {
-    sm: 'w-20 h-20',
-    md: 'w-28 h-28',
-    lg: 'w-36 h-36',
+    sm: 'w-16 h-16 sm:w-20 sm:h-20',
+    md: 'w-20 h-20 sm:w-28 sm:h-28',
+    lg: 'w-28 h-28 sm:w-36 sm:h-36',
   };
 
   const textSizes = {
-    sm: 'text-lg',
-    md: 'text-2xl',
-    lg: 'text-3xl',
+    sm: 'text-sm sm:text-lg',
+    md: 'text-lg sm:text-2xl',
+    lg: 'text-2xl sm:text-3xl',
   };
 
   return (
@@ -174,7 +174,7 @@ function SegmentedProgressBar({ segments }: { segments: AudienceSegment[] }) {
   return (
     <div className="w-full">
       {/* Progress bar */}
-      <div className="h-8 rounded-full overflow-hidden flex bg-slate-100">
+      <div className="h-6 sm:h-8 rounded-full overflow-hidden flex bg-slate-100">
         {segments.map((segment, idx) => (
           <div
             key={idx}
@@ -186,7 +186,7 @@ function SegmentedProgressBar({ segments }: { segments: AudienceSegment[] }) {
             }}
           >
             {/* Tooltip on hover */}
-            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-slate-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 pointer-events-none">
+            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-slate-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 pointer-events-none">
               {segment.label}: {segment.percentage.toFixed(1)}%
               <br />
               ({segment.count.toLocaleString()} kişi)
@@ -196,15 +196,15 @@ function SegmentedProgressBar({ segments }: { segments: AudienceSegment[] }) {
       </div>
       
       {/* Legend */}
-      <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="mt-3 sm:mt-4 grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">
         {segments.map((segment, idx) => (
-          <div key={idx} className="flex items-center gap-2">
+          <div key={idx} className="flex items-center gap-1.5 sm:gap-2">
             <div
-              className="w-3 h-3 rounded-full flex-shrink-0"
+              className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full flex-shrink-0"
               style={{ backgroundColor: segment.color }}
             />
             <div className="min-w-0">
-              <p className="text-sm font-medium text-slate-900 truncate">{segment.label}</p>
+              <p className="text-xs sm:text-sm font-medium text-slate-900 truncate">{segment.label}</p>
               <p className="text-xs text-slate-500">{segment.percentage.toFixed(1)}%</p>
             </div>
           </div>
@@ -307,36 +307,38 @@ export function HighImpactDashboard({ data, locale = 'tr' }: HighImpactDashboard
   };
 
   return (
-    <div className="high-impact-dashboard print-section space-y-6">
+    <div className="high-impact-dashboard print-section space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="rounded-3xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 p-6 text-white shadow-xl">
-        <div className="flex items-center gap-4">
-          <div className="p-3 bg-white/20 rounded-2xl backdrop-blur">
-            <SparkIcon size={32} className="text-white" />
+      <div className="rounded-2xl sm:rounded-3xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 p-4 sm:p-6 text-white shadow-xl">
+        <div className="flex items-start sm:items-center gap-3 sm:gap-4 flex-col sm:flex-row">
+          <div className="p-2 sm:p-3 bg-white/20 rounded-xl sm:rounded-2xl backdrop-blur">
+            <SparkIcon size={24} className="text-white sm:hidden" />
+            <SparkIcon size={32} className="text-white hidden sm:block" />
           </div>
-          <div>
-            <h2 className="text-2xl font-bold">{labels.title}</h2>
-            <p className="text-white/80 mt-1">{labels.subtitle}</p>
+          <div className="flex-1 min-w-0">
+            <h2 className="text-xl sm:text-2xl font-bold">{labels.title}</h2>
+            <p className="text-white/80 mt-1 text-sm sm:text-base">{labels.subtitle}</p>
           </div>
-          <div className="ml-auto">
-            <div className="px-4 py-2 bg-white/20 rounded-xl backdrop-blur">
-              <span className="text-sm">@{data.username}</span>
+          <div className="sm:ml-auto w-full sm:w-auto">
+            <div className="px-3 sm:px-4 py-1.5 sm:py-2 bg-white/20 rounded-lg sm:rounded-xl backdrop-blur text-center sm:text-left">
+              <span className="text-xs sm:text-sm">@{data.username}</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* Grid Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         
         {/* 1. Audience Röntgen */}
-        <div className="avoid-break rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-2.5 rounded-xl bg-blue-100">
-              <UsersIcon size={20} className="text-blue-600" />
+        <div className="avoid-break rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm">
+          <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+            <div className="p-2 sm:p-2.5 rounded-lg sm:rounded-xl bg-blue-100">
+              <UsersIcon size={18} className="text-blue-600 sm:hidden" />
+              <UsersIcon size={20} className="text-blue-600 hidden sm:block" />
             </div>
             <div>
-              <h3 className="font-bold text-slate-900">{labels.audienceTitle}</h3>
+              <h3 className="font-bold text-slate-900 text-sm sm:text-base">{labels.audienceTitle}</h3>
               <p className="text-xs text-slate-500">{labels.audienceSubtitle}</p>
             </div>
           </div>
@@ -345,8 +347,8 @@ export function HighImpactDashboard({ data, locale = 'tr' }: HighImpactDashboard
           
           {/* Warning if ghost followers > 30% */}
           {(data.audienceSegments.find(s => s.label.toLowerCase().includes('ghost') || s.label.toLowerCase().includes('hayalet'))?.percentage ?? 0) > 30 && (
-            <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-xl flex items-start gap-2">
-              <AlertTriangleIcon size={16} className="text-red-500 flex-shrink-0 mt-0.5" />
+            <div className="mt-3 sm:mt-4 p-2 sm:p-3 bg-red-50 border border-red-200 rounded-lg sm:rounded-xl flex items-start gap-2">
+              <AlertTriangleIcon size={14} className="text-red-500 flex-shrink-0 mt-0.5" />
               <p className="text-xs text-red-700">
                 {locale === 'tr' 
                   ? 'Takipçilerinizin büyük çoğunluğu pasif! Bu, etkileşim oranınızı düşürüyor ve algoritma tarafından cezalandırılmanıza neden oluyor.'
@@ -357,43 +359,44 @@ export function HighImpactDashboard({ data, locale = 'tr' }: HighImpactDashboard
         </div>
 
         {/* 2. Slap in the Face Benchmark */}
-        <div className="avoid-break rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-2.5 rounded-xl bg-amber-100">
-              <TargetIcon size={20} className="text-amber-600" />
+        <div className="avoid-break rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm">
+          <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+            <div className="p-2 sm:p-2.5 rounded-lg sm:rounded-xl bg-amber-100">
+              <TargetIcon size={18} className="text-amber-600 sm:hidden" />
+              <TargetIcon size={20} className="text-amber-600 hidden sm:block" />
             </div>
             <div>
-              <h3 className="font-bold text-slate-900">{labels.benchmarkTitle}</h3>
+              <h3 className="font-bold text-slate-900 text-sm sm:text-base">{labels.benchmarkTitle}</h3>
               <p className="text-xs text-slate-500">{labels.benchmarkSubtitle}</p>
             </div>
           </div>
 
           {/* Big Comparison Card */}
-          <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl p-5">
-            <div className="grid grid-cols-3 gap-4 text-center">
+          <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl sm:rounded-2xl p-3 sm:p-5">
+            <div className="grid grid-cols-3 gap-2 sm:gap-4 text-center">
               <div>
                 <p className="text-xs text-slate-500 mb-1">{labels.yourER}</p>
-                <p className={`text-3xl font-bold ${data.benchmark.yourValue < data.benchmark.nicheAverage ? 'text-red-600' : 'text-green-600'}`}>
+                <p className={`text-xl sm:text-3xl font-bold ${data.benchmark.yourValue < data.benchmark.nicheAverage ? 'text-red-600' : 'text-green-600'}`}>
                   {data.benchmark.yourValue.toFixed(2)}%
                 </p>
               </div>
               <div className="flex items-center justify-center">
-                <div className="text-2xl">vs</div>
+                <div className="text-lg sm:text-2xl">vs</div>
               </div>
               <div>
                 <p className="text-xs text-slate-500 mb-1">{labels.nicheAvg}</p>
-                <p className="text-3xl font-bold text-slate-700">
+                <p className="text-xl sm:text-3xl font-bold text-slate-700">
                   {data.benchmark.nicheAverage.toFixed(2)}%
                 </p>
               </div>
             </div>
 
             {/* Gap indicator */}
-            <div className="mt-4 pt-4 border-t border-slate-200">
+            <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-slate-200">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-slate-600">{labels.gap}:</span>
-                <span className={`text-lg font-bold flex items-center gap-1 ${data.benchmark.gap < 0 ? 'text-red-600' : 'text-green-600'}`}>
-                  {data.benchmark.gap < 0 ? <TrendingDownIcon size={18} /> : <TrendingUpIcon size={18} />}
+                <span className="text-xs sm:text-sm text-slate-600">{labels.gap}:</span>
+                <span className={`text-sm sm:text-lg font-bold flex items-center gap-1 ${data.benchmark.gap < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                  {data.benchmark.gap < 0 ? <TrendingDownIcon size={16} /> : <TrendingUpIcon size={16} />}
                   {data.benchmark.gap > 0 ? '+' : ''}{data.benchmark.gap.toFixed(1)}%
                 </span>
               </div>
@@ -407,82 +410,84 @@ export function HighImpactDashboard({ data, locale = 'tr' }: HighImpactDashboard
         </div>
 
         {/* 3. Algorithmic Reality Check - Full width */}
-        <div className="avoid-break lg:col-span-2 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-2.5 rounded-xl bg-purple-100">
-              <EyeIcon size={20} className="text-purple-600" />
+        <div className="avoid-break lg:col-span-2 rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm">
+          <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+            <div className="p-2 sm:p-2.5 rounded-lg sm:rounded-xl bg-purple-100">
+              <EyeIcon size={18} className="text-purple-600 sm:hidden" />
+              <EyeIcon size={20} className="text-purple-600 hidden sm:block" />
             </div>
             <div>
-              <h3 className="font-bold text-slate-900">{labels.attentionTitle}</h3>
+              <h3 className="font-bold text-slate-900 text-sm sm:text-base">{labels.attentionTitle}</h3>
               <p className="text-xs text-slate-500">{labels.attentionSubtitle}</p>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
+          <div className="grid grid-cols-3 sm:grid-cols-5 gap-3 sm:gap-6">
             <CircularGauge
               value={data.attentionMetrics.scrollStopProbability}
               label={locale === 'tr' ? 'Scroll Durma' : 'Scroll Stop'}
               color={getGaugeColor(data.attentionMetrics.scrollStopProbability)}
-              size="md"
+              size="sm"
             />
             <CircularGauge
               value={data.attentionMetrics.thumbnailImpact}
               label={locale === 'tr' ? 'Thumbnail Etkisi' : 'Thumbnail Impact'}
               color={getGaugeColor(data.attentionMetrics.thumbnailImpact)}
-              size="md"
+              size="sm"
             />
             <CircularGauge
               value={data.attentionMetrics.curiosityGap}
               label={locale === 'tr' ? 'Merak Boşluğu' : 'Curiosity Gap'}
               color={getGaugeColor(data.attentionMetrics.curiosityGap)}
-              size="md"
+              size="sm"
             />
             <CircularGauge
               value={data.attentionMetrics.hookEffectiveness}
               label={locale === 'tr' ? 'Hook Etkinliği' : 'Hook Effectiveness'}
               color={getGaugeColor(data.attentionMetrics.hookEffectiveness)}
-              size="md"
+              size="sm"
             />
             <CircularGauge
               value={data.attentionMetrics.first3SecondsRetention}
               label={locale === 'tr' ? 'İlk 3sn Tutma' : 'First 3s Retention'}
               color={getGaugeColor(data.attentionMetrics.first3SecondsRetention)}
-              size="md"
+              size="sm"
             />
           </div>
         </div>
 
         {/* 4. Hook Engineering */}
         {data.hookRewrites.length > 0 && (
-          <div className="avoid-break rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-2.5 rounded-xl bg-green-100">
-                <LightbulbIcon size={20} className="text-green-600" />
+          <div className="avoid-break rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm">
+            <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+              <div className="p-2 sm:p-2.5 rounded-lg sm:rounded-xl bg-green-100">
+                <LightbulbIcon size={18} className="text-green-600 sm:hidden" />
+                <LightbulbIcon size={20} className="text-green-600 hidden sm:block" />
               </div>
               <div>
-                <h3 className="font-bold text-slate-900">{labels.hookTitle}</h3>
+                <h3 className="font-bold text-slate-900 text-sm sm:text-base">{labels.hookTitle}</h3>
                 <p className="text-xs text-slate-500">{labels.hookSubtitle}</p>
               </div>
             </div>
 
             {data.hookRewrites.slice(0, 1).map((hook, idx) => (
-              <div key={idx} className="space-y-3">
+              <div key={idx} className="space-y-2 sm:space-y-3">
                 {/* Original */}
-                <div className="p-3 bg-red-50 border border-red-200 rounded-xl">
+                <div className="p-2 sm:p-3 bg-red-50 border border-red-200 rounded-lg sm:rounded-xl">
                   <p className="text-xs font-medium text-red-600 mb-1">❌ {labels.original}</p>
-                  <p className="text-sm text-red-800">{hook.original}</p>
+                  <p className="text-xs sm:text-sm text-red-800">{hook.original}</p>
                 </div>
                 
                 {/* Improved */}
-                <div className="p-3 bg-green-50 border border-green-200 rounded-xl">
+                <div className="p-2 sm:p-3 bg-green-50 border border-green-200 rounded-lg sm:rounded-xl">
                   <p className="text-xs font-medium text-green-600 mb-1">✅ {labels.improved}</p>
-                  <p className="text-sm text-green-800 font-medium">{hook.improved}</p>
+                  <p className="text-xs sm:text-sm text-green-800 font-medium">{hook.improved}</p>
                 </div>
 
                 {/* Trigger Badge */}
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-xs text-slate-500">{labels.trigger}:</span>
-                  <span className="inline-flex items-center gap-1 px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
+                  <span className="inline-flex items-center gap-1 px-2 sm:px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
                     {hook.triggerEmoji} {hook.trigger}
                   </span>
                 </div>
@@ -492,13 +497,14 @@ export function HighImpactDashboard({ data, locale = 'tr' }: HighImpactDashboard
         )}
 
         {/* 5. Brand Color Math */}
-        <div className="avoid-break rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-2.5 rounded-xl bg-pink-100">
-              <PaletteIcon size={20} className="text-pink-600" />
+        <div className="avoid-break rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm">
+          <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+            <div className="p-2 sm:p-2.5 rounded-lg sm:rounded-xl bg-pink-100">
+              <PaletteIcon size={18} className="text-pink-600 sm:hidden" />
+              <PaletteIcon size={20} className="text-pink-600 hidden sm:block" />
             </div>
             <div>
-              <h3 className="font-bold text-slate-900">{labels.brandTitle}</h3>
+              <h3 className="font-bold text-slate-900 text-sm sm:text-base">{labels.brandTitle}</h3>
               <p className="text-xs text-slate-500">{labels.brandSubtitle}</p>
             </div>
           </div>

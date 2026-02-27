@@ -28,11 +28,11 @@ export function PlanLimits({ tierName, limitUsed, limitTotal, features = {} }: P
   const isNearLimit = limitPercent >= 80;
 
   return (
-    <div className="rounded-3xl border border-slate-200 bg-gradient-to-b from-primary-50 to-white p-6 text-slate-900 shadow-sm">
-      <p className="text-sm uppercase tracking-[0.3em] text-slate-500">
+    <div className="rounded-2xl sm:rounded-3xl border border-slate-200 bg-gradient-to-b from-primary-50 to-white p-4 sm:p-6 text-slate-900 shadow-sm">
+      <p className="text-xs sm:text-sm uppercase tracking-[0.2em] sm:tracking-[0.3em] text-slate-500">
         {locale === 'tr' ? 'Plan telemetrisi' : 'Plan telemetry'}
       </p>
-      <h3 className="text-2xl font-semibold text-slate-900">
+      <h3 className="text-lg sm:text-2xl font-semibold text-slate-900">
         {tierName ?? 'STARTER'} {locale === 'tr' ? 'seviyesi' : 'tier'}
       </h3>
       {limitTotal && limitTotal > 0 && (
@@ -58,11 +58,11 @@ export function PlanLimits({ tierName, limitUsed, limitTotal, features = {} }: P
           )}
         </div>
       )}
-      <div className="mt-5 space-y-3 text-sm text-slate-700">
+      <div className="mt-4 sm:mt-5 space-y-2 sm:space-y-3 text-xs sm:text-sm text-slate-700">
         {Object.entries(features).map(([key, value]) => (
-          <div key={key} className="flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2">
-            <span>{featureLabels[key] ?? key}</span>
-            <span className={value ? 'text-emerald-600' : 'text-slate-400'}>
+          <div key={key} className="flex items-center justify-between rounded-xl sm:rounded-2xl border border-slate-200 bg-slate-50 px-3 sm:px-4 py-2">
+            <span className="truncate mr-2">{featureLabels[key] ?? key}</span>
+            <span className={`flex-shrink-0 ${value ? 'text-emerald-600' : 'text-slate-400'}`}>
               {value 
                 ? (locale === 'tr' ? 'Dahil' : 'Included')
                 : (locale === 'tr' ? 'Kilitli' : 'Locked')}
@@ -75,7 +75,7 @@ export function PlanLimits({ tierName, limitUsed, limitTotal, features = {} }: P
       {tierName !== 'ENTERPRISE' && (
         <Link
           href="/billing"
-          className="mt-5 flex items-center justify-center gap-2 rounded-2xl bg-primary-600 px-4 py-3 text-sm font-semibold text-white hover:bg-primary-700 transition-colors"
+          className="mt-4 sm:mt-5 flex items-center justify-center gap-2 rounded-xl sm:rounded-2xl bg-primary-600 px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold text-white hover:bg-primary-700 transition-colors"
         >
           {locale === 'tr' ? 'Planı yükselt' : 'Upgrade plan'}
           <ArrowUpRightIcon className="h-4 w-4" />

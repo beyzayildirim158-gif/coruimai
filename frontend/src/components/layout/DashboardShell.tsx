@@ -43,8 +43,8 @@ export function DashboardShell({ children }: DashboardShellProps) {
       
       <div className="flex flex-1 flex-col">
         <TopBar onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
-        <main className="flex-1 bg-slate-50 px-4 py-6 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-6xl space-y-6">{children}</div>
+        <main className="flex-1 bg-slate-50 px-3 py-4 sm:px-6 sm:py-6 lg:px-8">
+          <div className="mx-auto max-w-6xl space-y-4 sm:space-y-6">{children}</div>
         </main>
       </div>
     </div>

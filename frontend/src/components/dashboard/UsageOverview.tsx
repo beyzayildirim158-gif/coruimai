@@ -30,23 +30,23 @@ export function UsageOverview({ usage, monthlyLimit }: UsageOverviewProps) {
   }));
 
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-6 text-slate-900 shadow-sm">
-      <div className="flex items-center justify-between">
+    <div className="rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-4 sm:p-6 text-slate-900 shadow-sm">
+      <div className="flex items-start sm:items-center justify-between flex-col sm:flex-row gap-2 sm:gap-0">
         <div>
-          <p className="text-sm uppercase tracking-[0.3em] text-slate-500">
+          <p className="text-xs sm:text-sm uppercase tracking-[0.2em] sm:tracking-[0.3em] text-slate-500">
             {locale === 'tr' ? 'Kullanım nabzı' : 'Usage pulse'}
           </p>
-          <h3 className="text-2xl font-semibold text-slate-900">
+          <h3 className="text-lg sm:text-2xl font-semibold text-slate-900">
             {locale === 'tr' ? 'Analiz hızı' : 'Analysis velocity'}
           </h3>
         </div>
         {monthlyLimit !== undefined && monthlyLimit > 0 && (
-          <div className="rounded-full border border-slate-200 bg-slate-50 px-4 py-1 text-xs text-slate-600">
+          <div className="rounded-full border border-slate-200 bg-slate-50 px-3 sm:px-4 py-1 text-xs text-slate-600">
             {locale === 'tr' ? 'Aylık kota' : 'Monthly quota'} · {monthlyLimit}
           </div>
         )}
       </div>
-      <div className="mt-6 h-60">
+      <div className="mt-4 sm:mt-6 h-44 sm:h-60">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={chartData} margin={{ left: 0, right: 0 }}>
             <defs>

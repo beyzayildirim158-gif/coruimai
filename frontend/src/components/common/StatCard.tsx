@@ -26,14 +26,14 @@ export function StatCard({ label, value, helper, icon, change, tone = 'default',
         <p className="text-sm uppercase tracking-[0.3em] text-slate-500">{label}</p>
         {icon && <div className="text-primary-500">{icon}</div>}
       </div>
-      <p className="mt-3 text-4xl font-semibold text-slate-900">{value}</p>
+      <p className="mt-2 sm:mt-3 text-2xl sm:text-3xl lg:text-4xl font-semibold text-slate-900">{value}</p>
       {helper && <p className="mt-2 text-sm text-slate-500">{helper}</p>}
       {change && <p className="mt-3 text-xs text-emerald-600">{change}</p>}
     </>
   );
 
   const classes = clsx(
-    'rounded-3xl border p-5 text-slate-900 shadow-sm transition-all',
+    'rounded-2xl sm:rounded-3xl border p-4 sm:p-5 text-slate-900 shadow-sm transition-all',
     toneClasses[tone],
     href && 'hover:border-primary-300 hover:shadow-md cursor-pointer'
   );

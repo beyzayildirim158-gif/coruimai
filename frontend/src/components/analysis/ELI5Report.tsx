@@ -125,28 +125,29 @@ export function ELI5Report({ data }: Props) {
   const { executiveSummary, findings, simplifiedMetrics, rewrittenHooks, whatHappensIfNothing, motivationalKick } = data;
 
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+    <div className="rounded-2xl sm:rounded-3xl border border-slate-200 bg-white shadow-sm overflow-hidden">
       {/* Header */}
       <button
         onClick={() => setExpanded(!expanded)}
-        className="flex w-full items-center justify-between bg-gradient-to-r from-purple-50 to-pink-50 p-6"
+        className="flex w-full items-center justify-between bg-gradient-to-r from-purple-50 to-pink-50 p-4 sm:p-6"
       >
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-100">
-            <CommentIcon size={20} className="text-purple-600" />
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-purple-100">
+            <CommentIcon size={18} className="text-purple-600 sm:hidden" />
+            <CommentIcon size={20} className="text-purple-600 hidden sm:block" />
           </div>
           <div className="text-left">
-            <p className="text-sm uppercase tracking-[0.3em] text-slate-500">
+            <p className="text-xs sm:text-sm uppercase tracking-[0.2em] sm:tracking-[0.3em] text-slate-500">
               {locale === 'tr' ? 'Detaylı Analiz' : 'Detailed Analysis'}
             </p>
-            <p className="text-lg font-semibold text-slate-900">
+            <p className="text-base sm:text-lg font-semibold text-slate-900">
               {locale === 'tr' ? 'Anlaşılır Açıklamalar' : 'Clear Explanations'}
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           {executiveSummary?.grade && (
-            <span className={`rounded-lg px-3 py-1 text-xl font-bold ${getGradeColor(executiveSummary.grade)} ${getGradeBgColor(executiveSummary.grade)}`}>
+            <span className={`rounded-lg px-2 sm:px-3 py-1 text-lg sm:text-xl font-bold ${getGradeColor(executiveSummary.grade)} ${getGradeBgColor(executiveSummary.grade)}`}>
               {executiveSummary.grade}
             </span>
           )}
@@ -159,22 +160,22 @@ export function ELI5Report({ data }: Props) {
       </button>
 
       {expanded && (
-        <div className="p-6 space-y-6">
+        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
           {/* Executive Summary */}
           {executiveSummary && (
-            <div className={`rounded-2xl border p-4 ${getGradeBgColor(executiveSummary.grade)}`}>
+            <div className={`rounded-xl sm:rounded-2xl border p-3 sm:p-4 ${getGradeBgColor(executiveSummary.grade)}`}>
               {executiveSummary.headline && (
-                <h3 className="text-lg font-bold text-slate-900 mb-2">
+                <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-2">
                   {executiveSummary.headline}
                 </h3>
               )}
               {executiveSummary.gradeExplanation && (
-                <p className="text-sm text-slate-700 mb-2">
+                <p className="text-xs sm:text-sm text-slate-700 mb-2">
                   {executiveSummary.gradeExplanation}
                 </p>
               )}
               {executiveSummary.overallVerdict && (
-                <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${getVerdictColor(executiveSummary.overallVerdict)} bg-white/80`}>
+                <span className={`inline-flex items-center rounded-full px-2 sm:px-3 py-1 text-xs font-medium ${getVerdictColor(executiveSummary.overallVerdict)} bg-white/80`}>
                   {executiveSummary.overallVerdict}
                 </span>
               )}
@@ -184,33 +185,38 @@ export function ELI5Report({ data }: Props) {
           {/* Findings */}
           {findings && findings.length > 0 && (
             <div>
-              <h4 className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-3">
+              <h4 className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-700 mb-2 sm:mb-3">
                 <AlertTriangleIcon size={16} className="text-amber-500" />
                 {locale === 'tr' ? 'Temel Bulgular' : 'Key Findings'}
               </h4>
-              <div className="space-y-3">
+              <div className="space-y-2 sm:space-y-3">
                 {findings.map((finding, idx) => {
                   // Support both field naming conventions
                   const explanation = finding.realite || finding.aptalaCevap;
                   const importance = finding.neden_onemli || finding.aksiyon;
                   
                   return (
-                    <div key={idx} className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                      <div className="flex items-start gap-3">
+                    <div key={idx} className="rounded-lg sm:rounded-xl border border-slate-200 bg-slate-50 p-3 sm:p-4">
+                      <div className="flex items-start gap-2 sm:gap-3">
                         <div className="flex-shrink-0 mt-0.5">
                           {finding.kusur ? (
-                            <AlertTriangleIcon size={16} className="text-red-500" />
+                            <AlertTriangleIcon size={14} className="text-red-500 sm:hidden" />
                           ) : (
-                            <InfoIcon size={16} className="text-blue-500" />
+                            <InfoIcon size={14} className="text-blue-500 sm:hidden" />
+                          )}
+                          {finding.kusur ? (
+                            <AlertTriangleIcon size={16} className="text-red-500 hidden sm:block" />
+                          ) : (
+                            <InfoIcon size={16} className="text-blue-500 hidden sm:block" />
                           )}
                         </div>
-                        <div>
+                        <div className="min-w-0 flex-1">
                           <p className="text-xs uppercase tracking-wider text-slate-500 mb-1">{typeof finding.category === 'string' ? finding.category : safeRenderValue(finding.category)}</p>
                           {finding.kusur && (
-                            <p className="text-sm font-medium text-red-700 mb-1">{typeof finding.kusur === 'string' ? finding.kusur : safeRenderValue(finding.kusur)}</p>
+                            <p className="text-xs sm:text-sm font-medium text-red-700 mb-1">{typeof finding.kusur === 'string' ? finding.kusur : safeRenderValue(finding.kusur)}</p>
                           )}
                           {explanation && (
-                            <p className="text-sm text-slate-700 mb-1">{typeof explanation === 'string' ? explanation : safeRenderValue(explanation)}</p>
+                            <p className="text-xs sm:text-sm text-slate-700 mb-1">{typeof explanation === 'string' ? explanation : safeRenderValue(explanation)}</p>
                           )}
                           {importance && (
                             <p className="text-xs text-slate-500 italic">{typeof importance === 'string' ? importance : safeRenderValue(importance)}</p>
@@ -227,19 +233,19 @@ export function ELI5Report({ data }: Props) {
           {/* Simplified Metrics */}
           {simplifiedMetrics && simplifiedMetrics.length > 0 && (
             <div>
-              <h4 className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-3">
+              <h4 className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-700 mb-2 sm:mb-3">
                 <TargetIcon size={16} className="text-primary-500" />
                 {locale === 'tr' ? 'Metrik Yorumları' : 'Metric Interpretations'}
               </h4>
-              <div className="grid gap-3 md:grid-cols-2">
+              <div className="grid gap-2 sm:gap-3 grid-cols-1 sm:grid-cols-2">
                 {simplifiedMetrics.map((metric, idx) => (
-                  <div key={idx} className="rounded-xl border border-slate-200 bg-white p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-slate-900">{metric.name}</span>
-                      <span className={`text-sm font-bold ${getVerdictColor(metric.verdict)}`}>{metric.value}</span>
+                  <div key={idx} className="rounded-lg sm:rounded-xl border border-slate-200 bg-white p-3 sm:p-4">
+                    <div className="flex items-center justify-between mb-1 sm:mb-2">
+                      <span className="text-xs sm:text-sm font-medium text-slate-900 truncate mr-2">{metric.name}</span>
+                      <span className={`text-xs sm:text-sm font-bold flex-shrink-0 ${getVerdictColor(metric.verdict)}`}>{metric.value}</span>
                     </div>
                     <p className="text-xs text-slate-600">{metric.explanation}</p>
-                    <span className={`mt-2 inline-flex items-center rounded-full px-2 py-0.5 text-xs ${getVerdictColor(metric.verdict)} bg-slate-100`}>
+                    <span className={`mt-1.5 sm:mt-2 inline-flex items-center rounded-full px-2 py-0.5 text-xs ${getVerdictColor(metric.verdict)} bg-slate-100`}>
                       {metric.verdict}
                     </span>
                   </div>
@@ -251,28 +257,28 @@ export function ELI5Report({ data }: Props) {
           {/* Rewritten Hooks */}
           {rewrittenHooks && rewrittenHooks.length > 0 && (
             <div>
-              <h4 className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-3">
+              <h4 className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-700 mb-2 sm:mb-3">
                 <LightbulbIcon size={16} className="text-yellow-500" />
                 {locale === 'tr' ? 'İyileştirilmiş Hook\'lar' : 'Improved Hooks'}
               </h4>
-              <div className="space-y-3">
+              <div className="space-y-2 sm:space-y-3">
                 {rewrittenHooks.map((hook, idx) => {
                   // Normalize hook data to handle both LLM format and sanitized format
                   const normalizedHook = normalizeHook(hook);
                   // Skip if both original and rewritten are empty
                   if (!normalizedHook.original && !normalizedHook.rewritten) return null;
                   return (
-                    <div key={idx} className="rounded-xl border border-slate-200 bg-gradient-to-r from-green-50 to-emerald-50 p-4">
+                    <div key={idx} className="rounded-lg sm:rounded-xl border border-slate-200 bg-gradient-to-r from-green-50 to-emerald-50 p-3 sm:p-4">
                       {normalizedHook.original && (
                         <div className="mb-2">
                           <p className="text-xs uppercase tracking-wider text-slate-500 mb-1">{locale === 'tr' ? 'Orijinal' : 'Original'}</p>
-                          <p className="text-sm text-slate-600 line-through">{normalizedHook.original}</p>
+                          <p className="text-xs sm:text-sm text-slate-600 line-through">{normalizedHook.original}</p>
                         </div>
                       )}
                       {normalizedHook.rewritten && (
                         <div className="mb-2">
                           <p className="text-xs uppercase tracking-wider text-green-600 mb-1">{locale === 'tr' ? 'İyileştirilmiş' : 'Improved'}</p>
-                          <p className="text-sm font-medium text-slate-900">{normalizedHook.rewritten}</p>
+                          <p className="text-xs sm:text-sm font-medium text-slate-900">{normalizedHook.rewritten}</p>
                         </div>
                       )}
                       {normalizedHook.reason && (
@@ -287,23 +293,23 @@ export function ELI5Report({ data }: Props) {
 
           {/* What Happens If Nothing */}
           {whatHappensIfNothing && (
-            <div className="rounded-xl border border-red-200 bg-red-50 p-4">
-              <h4 className="flex items-center gap-2 text-sm font-semibold text-red-700 mb-2">
+            <div className="rounded-lg sm:rounded-xl border border-red-200 bg-red-50 p-3 sm:p-4">
+              <h4 className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-red-700 mb-2">
                 <AlertTriangleIcon size={16} />
                 {locale === 'tr' ? 'Hiçbir Şey Yapmazsan Ne Olur?' : 'What Happens If You Do Nothing?'}
               </h4>
-              <p className="text-sm text-red-700">{whatHappensIfNothing}</p>
+              <p className="text-xs sm:text-sm text-red-700">{whatHappensIfNothing}</p>
             </div>
           )}
 
           {/* Motivational Kick */}
           {motivationalKick && (
-            <div className="rounded-xl border border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 p-4">
-              <h4 className="flex items-center gap-2 text-sm font-semibold text-green-700 mb-2">
+            <div className="rounded-lg sm:rounded-xl border border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 p-3 sm:p-4">
+              <h4 className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-green-700 mb-2">
                 <StarIcon size={16} />
                 {locale === 'tr' ? 'Motivasyon' : 'Motivation'}
               </h4>
-              <p className="text-sm text-green-800 font-medium">{motivationalKick}</p>
+              <p className="text-xs sm:text-sm text-green-800 font-medium">{motivationalKick}</p>
             </div>
           )}
         </div>
