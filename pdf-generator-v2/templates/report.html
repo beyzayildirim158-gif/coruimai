@@ -260,6 +260,159 @@
 </div>
 
 {# ============================================================
+   PAGE 2.5: AUDIENCE X-RAY (Takipçi Röntgeni)
+   ============================================================ #}
+{% set community = agents.communityLoyalty if agents else None %}
+{% if community and community.metrics %}
+<div class="page">
+    <div class="page-header">
+        <span class="page-number">Sayfa 2.5</span>
+        <span class="page-title">Takipçi Röntgeni</span>
+    </div>
+    
+    <section class="section">
+        <div class="section-header">
+            <div class="section-icon cyan">👥</div>
+            <div>
+                <h2 class="section-title">Takipçi Röntgeni</h2>
+                <p class="section-subtitle">Takipçi kitlenizin gerçek kalitesi ve dağılımı</p>
+            </div>
+        </div>
+        
+        {# Audience Segmentation Bar #}
+        {% set metrics = community.metrics %}
+        {% set superfan = (metrics.superfanPercentage or 0) * 100 if metrics.superfanPercentage and metrics.superfanPercentage < 1 else (metrics.superfanPercentage or 0) %}
+        {% set active = (metrics.activeEngagersRatio or 0) * 100 if metrics.activeEngagersRatio and metrics.activeEngagersRatio < 1 else (metrics.activeEngagersRatio or 0) %}
+        {% set passive = (metrics.passiveFollowersRatio or 0) * 100 if metrics.passiveFollowersRatio and metrics.passiveFollowersRatio < 1 else (metrics.passiveFollowersRatio or 0) %}
+        {% set ghost = (metrics.ghostFollowersRatio or 0) * 100 if metrics.ghostFollowersRatio and metrics.ghostFollowersRatio < 1 else (metrics.ghostFollowersRatio or 0) %}
+        
+        {# Normalize to 100% #}
+        {% set total = superfan + active + passive + ghost %}
+        {% if total > 0 %}
+            {% set superfan = (superfan / total * 100) | round(1) %}
+            {% set active = (active / total * 100) | round(1) %}
+            {% set passive = (passive / total * 100) | round(1) %}
+            {% set ghost = (100 - superfan - active - passive) | round(1) %}
+        {% endif %}
+        
+        <div class="audience-container">
+            {# Segmented Progress Bar #}
+            <div class="audience-bar">
+                <div class="audience-segment superfan" style="width: {{ superfan }}%"></div>
+                <div class="audience-segment active" style="width: {{ active }}%"></div>
+                <div class="audience-segment passive" style="width: {{ passive }}%"></div>
+                <div class="audience-segment ghost" style="width: {{ ghost }}%"></div>
+            </div>
+            
+            {# Legend #}
+            <div class="audience-legend">
+                <div class="legend-item">
+                    <span class="legend-color superfan"></span>
+                    <span class="legend-label">Süper Hayran</span>
+                    <span class="legend-value">{{ superfan }}%</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color active"></span>
+                    <span class="legend-label">Aktif Takipçi</span>
+                    <span class="legend-value">{{ active }}%</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color passive"></span>
+                    <span class="legend-label">Pasif Takipçi</span>
+                    <span class="legend-value">{{ passive }}%</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color ghost"></span>
+                    <span class="legend-label">Hayalet Takipçi</span>
+                    <span class="legend-value">{{ ghost }}%</span>
+                </div>
+            </div>
+            
+            {# Segment Descriptions #}
+            <div class="audience-descriptions">
+                <div class="desc-card superfan">
+                    <div class="desc-icon">🌟</div>
+                    <div class="desc-content">
+                        <div class="desc-title">Süper Hayranlar ({{ superfan }}%)</div>
+                        <div class="desc-text">Tüm içeriklerinizle aktif olarak etkileşime giren sadık takipçiler. Markanızın en değerli varlıkları.</div>
+                    </div>
+                </div>
+                <div class="desc-card active">
+                    <div class="desc-icon">👍</div>
+                    <div class="desc-content">
+                        <div class="desc-title">Aktif Takipçiler ({{ active }}%)</div>
+                        <div class="desc-text">Düzenli olarak içeriklerinizi gören ve ara sıra etkileşim kuran takipçiler.</div>
+                    </div>
+                </div>
+                <div class="desc-card passive">
+                    <div class="desc-icon">👻</div>
+                    <div class="desc-content">
+                        <div class="desc-title">Pasif Takipçiler ({{ passive }}%)</div>
+                        <div class="desc-text">Sizi takip eden ama nadiren etkileşim kuran takipçiler. Yeniden aktive edilebilir.</div>
+                    </div>
+                </div>
+                <div class="desc-card ghost">
+                    <div class="desc-icon">💀</div>
+                    <div class="desc-content">
+                        <div class="desc-title">Hayalet Takipçiler ({{ ghost }}%)</div>
+                        <div class="desc-text">İnaktif veya bot hesaplar. Etkileşim sağlamıyor ve algoritmanızı olumsuz etkiliyor.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        {# Community Health Metrics #}
+        {% if metrics.communityHealthScore or metrics.loyaltyIndex %}
+        <div class="community-metrics">
+            <h4 class="metrics-title">📊 Topluluk Sağlık Metrikleri</h4>
+            <div class="stats-grid stats-4">
+                {% if metrics.communityHealthScore %}
+                <div class="stat-card">
+                    <div class="stat-label">Topluluk Sağlığı</div>
+                    <div class="stat-value" style="color: {{ metrics.communityHealthScore | get_score_color }}">{{ metrics.communityHealthScore | round(0) }}</div>
+                </div>
+                {% endif %}
+                {% if metrics.loyaltyIndex %}
+                <div class="stat-card">
+                    <div class="stat-label">Sadakat İndeksi</div>
+                    <div class="stat-value" style="color: {{ metrics.loyaltyIndex | get_score_color }}">{{ metrics.loyaltyIndex | round(0) }}</div>
+                </div>
+                {% endif %}
+                {% if metrics.engagementQualityScore %}
+                <div class="stat-card">
+                    <div class="stat-label">Etkileşim Kalitesi</div>
+                    <div class="stat-value" style="color: {{ metrics.engagementQualityScore | get_score_color }}">{{ metrics.engagementQualityScore | round(0) }}</div>
+                </div>
+                {% endif %}
+                {% if metrics.retentionPrediction %}
+                <div class="stat-card">
+                    <div class="stat-label">Tutma Tahmini</div>
+                    <div class="stat-value" style="color: {{ metrics.retentionPrediction | get_score_color }}">{{ metrics.retentionPrediction | round(0) }}%</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+        
+        {# Warning for High Ghost Ratio #}
+        {% if ghost > 30 %}
+        <div class="warning-box">
+            <div class="warning-icon">⚠️</div>
+            <div class="warning-content">
+                <div class="warning-title">Yüksek Hayalet Takipçi Oranı!</div>
+                <div class="warning-text">Takipçilerinizin %{{ ghost | round(0) }}'u hayalet/inaktif. Bu durum algoritma performansınızı ciddi şekilde düşürüyor. Takipçi temizliği yapmanızı öneriyoruz.</div>
+            </div>
+        </div>
+        {% endif %}
+    </section>
+    
+    <footer class="page-footer">
+        Instagram AI Raporu - Takipçi Röntgeni - {{ report_id }}
+    </footer>
+</div>
+{% endif %}
+
+{# ============================================================
    PAGE 3: SWOT ANALYSIS (Premium Feature)
    ============================================================ #}
 {% if eli5 and eli5.swotAnalysis and is_tier_allowed(tier, 'standard') %}
