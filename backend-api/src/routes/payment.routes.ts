@@ -9,16 +9,16 @@ import { BadRequestError, NotFoundError } from '../utils/errors.js';
 import { logger } from '../utils/logger.js';
 
 const router = Router();
-const stripe = new Stripe(config.stripe.secretKey, {
+const stripe = new Stripe(config.stripe.secretKey || '', {
   apiVersion: '2023-10-16',
 });
 
 // Price IDs mapping
 const priceIds: Record<string, string> = {
-  STARTER: config.stripe.prices.starter,
-  PROFESSIONAL: config.stripe.prices.professional,
-  PREMIUM: config.stripe.prices.premium,
-  ENTERPRISE: config.stripe.prices.enterprise,
+  STARTER: config.stripe.prices.starter || '',
+  PROFESSIONAL: config.stripe.prices.professional || '',
+  PREMIUM: config.stripe.prices.premium || '',
+  ENTERPRISE: config.stripe.prices.enterprise || '',
 };
 
 /**

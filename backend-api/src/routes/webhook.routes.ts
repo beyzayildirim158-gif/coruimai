@@ -7,7 +7,7 @@ import { logger } from '../utils/logger.js';
 import { broadcastAnalysisUpdate } from '../websocket/index.js';
 
 const router = Router();
-const stripe = new Stripe(config.stripe.secretKey, {
+const stripe = new Stripe(config.stripe.secretKey || '', {
   apiVersion: '2023-10-16',
 });
 
@@ -23,7 +23,7 @@ router.post('/stripe', async (req, res) => {
     event = stripe.webhooks.constructEvent(
       req.body,
       sig,
-      config.stripe.webhookSecret
+      config.stripe.webhookSecret || ''
     );
   } catch (err: any) {
     logger.error('Stripe webhook signature verification failed:', err.message);

@@ -53,6 +53,12 @@ export const tierRateLimiter = async (
     const limits = tierLimits[tier];
     const key = `ratelimit:${req.user.id}:${getCurrentHour()}`;
 
+    // Skip rate limiting if Redis is not available
+    if (!redis) {
+      next();
+      return;
+    }
+
     // Get current request count
     const currentCount = await redis.incr(key);
     

@@ -150,16 +150,20 @@ class AuthService {
       });
     }
 
-    // Add token to blacklist
-    await redis.setex(`blacklist:${refreshToken}`, this.REFRESH_TOKEN_EXPIRY_SECONDS, '1');
+    // Add token to blacklist (only if Redis is available)
+    if (redis) {
+      await redis.setex(`blacklist:${refreshToken}`, this.REFRESH_TOKEN_EXPIRY_SECONDS, '1');
+    }
   }
 
   // Refresh access token
   async refreshAccessToken(refreshToken: string): Promise<AuthTokens> {
-    // Check blacklist
-    const isBlacklisted = await redis.get(`blacklist:${refreshToken}`);
-    if (isBlacklisted) {
-      throw new UnauthorizedError('Token has been revoked');
+    // Check blacklist (only if Redis is available)
+    if (redis) {
+      const isBlacklisted = await redis.get(`blacklist:${refreshToken}`);
+      if (isBlacklisted) {
+        throw new UnauthorizedError('Token has been revoked');
+      }
     }
 
     // Verify refresh token
