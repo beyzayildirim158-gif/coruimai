@@ -22,6 +22,8 @@ import {
   ColorSwatch,
 } from '../components/analysis/HighImpactDashboard';
 
+import { normalizePercentages } from './formatters';
+
 // Safe accessor helper
 function safeGet<T>(obj: any, path: string, defaultValue: T): T {
   try {
@@ -90,7 +92,22 @@ function extractAudienceSegments(agentResults: any, totalFollowers: number): Aud
     ghostPct *= 100;
   }
 
-  // Calculate counts from percentages if not provided
+  // 🎯 CRITICAL: Normalize percentages to exactly 100% using Largest Remainder Method
+  // This prevents math bugs where LLM-generated percentages don't sum to 100%
+  const normalizedPcts = normalizePercentages({
+    superfan: superfanPct,
+    active: activePct,
+    passive: passivePct,
+    ghost: ghostPct,
+  });
+
+  // Use normalized percentages
+  superfanPct = normalizedPcts.superfan;
+  activePct = normalizedPcts.active;
+  passivePct = normalizedPcts.passive;
+  ghostPct = normalizedPcts.ghost;
+
+  // Calculate counts from normalized percentages
   const superfanCount = totalFollowers > 0 ? Math.round((superfanPct / 100) * totalFollowers) : superfans;
   const activeCount = totalFollowers > 0 ? Math.round((activePct / 100) * totalFollowers) : activeEngagers;
   const passiveCount = totalFollowers > 0 ? Math.round((passivePct / 100) * totalFollowers) : passiveFollowers;

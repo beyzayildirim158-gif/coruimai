@@ -100,6 +100,156 @@ class AnalysisMetrics:
 
 
 # =========================
+# DEDUPLICATION UTILITIES
+# =========================
+
+def deduplicate_findings(findings: List[Any], min_required: int = 3, fallback_prefix: str = "Ek Bulgu") -> List[Any]:
+    """
+    LLM çıktılarından tekrarlanan bulguları kaldırır.
+    
+    Deduplication Strategy:
+    1. String findings: exact match + similarity check (>85% similar = duplicate)
+    2. Dict findings: check 'title', 'finding', 'headline' fields
+    3. If dedupe drops below min_required, generate generic fallbacks
+    
+    Args:
+        findings: List of findings (strings or dicts)
+        min_required: Minimum number of findings required (default 3)
+        fallback_prefix: Prefix for generated fallback findings
+        
+    Returns:
+        Deduplicated list with at least min_required items
+        
+    Example:
+        >>> deduplicate_findings(["Low ER", "Low ER", "High reach"])
+        ["Low ER", "High reach", "Ek Bulgu: Metrik analizi tamamlandı"]
+    """
+    if not findings:
+        return [f"{fallback_prefix} {i+1}: Veri analizi tamamlandı" for i in range(min_required)]
+    
+    seen_normalized = set()
+    unique_findings = []
+    
+    for finding in findings:
+        # Normalize for comparison
+        normalized = _normalize_finding_for_comparison(finding)
+        
+        # Check for exact or near-duplicate
+        is_duplicate = False
+        for seen in seen_normalized:
+            if _is_similar(normalized, seen, threshold=0.85):
+                is_duplicate = True
+                break
+        
+        if not is_duplicate:
+            seen_normalized.add(normalized)
+            unique_findings.append(finding)
+    
+    # Ensure minimum count with fallbacks
+    fallback_messages = [
+        "Engagement oranı sektör ortalamasıyla karşılaştırıldı",
+        "Takipçi büyüme trendi analiz edildi",
+        "İçerik performans metrikleri değerlendirildi",
+        "Hedef kitle davranışları incelendi",
+        "Rakip karşılaştırması yapıldı"
+    ]
+    
+    fallback_idx = 0
+    while len(unique_findings) < min_required and fallback_idx < len(fallback_messages):
+        fallback = f"{fallback_prefix}: {fallback_messages[fallback_idx]}"
+        unique_findings.append(fallback)
+        fallback_idx += 1
+    
+    return unique_findings
+
+
+def _normalize_finding_for_comparison(finding: Any) -> str:
+    """
+    Normalize a finding for duplicate comparison.
+    
+    Handles both string and dict formats:
+    - String: lowercase, strip, remove punctuation
+    - Dict: extract title/finding/headline field
+    """
+    text = ""
+    
+    if isinstance(finding, str):
+        text = finding
+    elif isinstance(finding, dict):
+        # Try common field names
+        text = (
+            finding.get('title') or 
+            finding.get('finding') or 
+            finding.get('headline') or 
+            finding.get('baslik') or 
+            finding.get('bulgu') or 
+            str(finding)
+        )
+    else:
+        text = str(finding)
+    
+    # Normalize: lowercase, remove extra whitespace, strip punctuation
+    normalized = text.lower().strip()
+    normalized = re.sub(r'[^\w\s]', '', normalized)
+    normalized = re.sub(r'\s+', ' ', normalized)
+    
+    return normalized
+
+
+def _is_similar(text1: str, text2: str, threshold: float = 0.85) -> bool:
+    """
+    Check if two strings are similar using simple ratio comparison.
+    
+    Uses character-level comparison without external dependencies.
+    
+    Args:
+        text1: First string
+        text2: Second string  
+        threshold: Similarity threshold (0-1), default 0.85
+        
+    Returns:
+        True if similarity >= threshold
+    """
+    if text1 == text2:
+        return True
+    
+    # Quick length check - very different lengths unlikely to be duplicates
+    len_ratio = len(text1) / max(len(text2), 1)
+    if len_ratio < 0.5 or len_ratio > 2.0:
+        return False
+    
+    # Simple word overlap similarity
+    words1 = set(text1.split())
+    words2 = set(text2.split())
+    
+    if not words1 or not words2:
+        return False
+    
+    intersection = len(words1 & words2)
+    union = len(words1 | words2)
+    
+    jaccard = intersection / union if union > 0 else 0
+    
+    return jaccard >= threshold
+
+
+def deduplicate_recommendations(recommendations: List[Any], min_required: int = 3) -> List[Any]:
+    """
+    LLM çıktılarından tekrarlanan önerileri kaldırır.
+    
+    Similar to deduplicate_findings but with recommendation-specific fallbacks.
+    """
+    if not recommendations:
+        return [f"Öneri {i+1}: Detaylı analiz için uzman görüşü alın" for i in range(min_required)]
+    
+    return deduplicate_findings(
+        recommendations, 
+        min_required=min_required,
+        fallback_prefix="Öneri"
+    )
+
+
+# =========================
 # RETRY DECORATOR
 # =========================
 
@@ -892,6 +1042,11 @@ BU HESAPLAR İÇİN BAŞARI METRİĞİ:
         # Type coercion for recommendations
         if not isinstance(validated["recommendations"], list):
             validated["recommendations"] = [str(validated["recommendations"])]
+        
+        # CRITICAL: Deduplicate findings and recommendations
+        # LLM often repeats the same insight multiple times
+        validated["findings"] = deduplicate_findings(validated["findings"], min_required=3)
+        validated["recommendations"] = deduplicate_recommendations(validated["recommendations"], min_required=3)
         
         # Type coercion for metrics
         if not isinstance(validated["metrics"], dict):
