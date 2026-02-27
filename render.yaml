@@ -1,0 +1,80 @@
+# Render.com Blueprint - Instagram AI System
+# Deploy: https://render.com/deploy
+
+services:
+  # Backend API (Node.js/Express)
+  - type: web
+    name: instagram-ai-backend
+    runtime: docker
+    dockerfilePath: ./backend-api/Dockerfile
+    dockerContext: ./backend-api
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "3001"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: instagram-ai-db
+          property: connectionString
+      - key: REDIS_URL
+        sync: false  # Set manually from Upstash
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: AGENT_ORCHESTRATOR_URL
+        fromService:
+          name: instagram-ai-agents
+          type: web
+          property: host
+      - key: PDF_GENERATOR_URL
+        fromService:
+          name: instagram-ai-pdf
+          type: web
+          property: host
+      - key: CORS_ORIGINS
+        value: "https://coruimai.vercel.app,https://*.vercel.app"
+
+  # Agent Orchestrator (Python/FastAPI)
+  - type: web
+    name: instagram-ai-agents
+    runtime: docker
+    dockerfilePath: ./agent-orchestrator/Dockerfile
+    dockerContext: ./agent-orchestrator
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false  # Set manually
+      - key: DEEPSEEK_API_KEY
+        sync: false  # Set manually
+      - key: APIFY_API_TOKEN
+        sync: false  # Set manually
+      - key: BACKEND_WEBHOOK_URL
+        fromService:
+          name: instagram-ai-backend
+          type: web
+          envVarKey: RENDER_EXTERNAL_URL
+
+  # PDF Generator (Node.js)
+  - type: web
+    name: instagram-ai-pdf
+    runtime: docker
+    dockerfilePath: ./pdf-generator/Dockerfile
+    dockerContext: ./pdf-generator
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "3002"
+
+databases:
+  - name: instagram-ai-db
+    plan: free
+    databaseName: instagram_ai
+    user: instagram_ai_user

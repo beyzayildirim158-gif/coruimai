@@ -74,13 +74,13 @@ app.use(cookieParser());
 app.get('/health', async (req, res) => {
   try {
     await prisma.$queryRaw`SELECT 1`;
-    await redis.ping();
+    const redisStatus = redis ? await redis.ping() : 'memory-fallback';
     res.json({
       status: 'healthy',
       timestamp: new Date().toISOString(),
       services: {
         database: 'connected',
-        redis: 'connected',
+        redis: redis ? 'connected' : 'memory-fallback',
       },
     });
   } catch (error) {

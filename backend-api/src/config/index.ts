@@ -12,8 +12,8 @@ const configSchema = z.object({
   // Database
   databaseUrl: z.string().url(),
   
-  // Redis
-  redisUrl: z.string(),
+  // Redis (optional for development)
+  redisUrl: z.string().optional(),
   
   // JWT
   jwt: z.object({
@@ -22,15 +22,15 @@ const configSchema = z.object({
     refreshExpiry: z.string().default('7d'),
   }),
   
-  // Stripe
+  // Stripe (optional - disabled if not set)
   stripe: z.object({
-    secretKey: z.string(),
-    webhookSecret: z.string(),
+    secretKey: z.string().optional(),
+    webhookSecret: z.string().optional(),
     prices: z.object({
-      starter: z.string(),
-      professional: z.string(),
-      premium: z.string(),
-      enterprise: z.string(),
+      starter: z.string().optional(),
+      professional: z.string().optional(),
+      premium: z.string().optional(),
+      enterprise: z.string().optional(),
     }),
   }),
   
