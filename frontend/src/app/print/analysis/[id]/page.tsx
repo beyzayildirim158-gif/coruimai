@@ -19,8 +19,10 @@ import {
   SanitizationReport,
   ComprehensiveMetricsDashboard,
   JargonGlossary,
+  HighImpactDashboard,
 } from '@/components/analysis';
 import { PrintableAdvancedIntelligence } from '@/components/analysis/PrintableAdvancedIntelligence';
+import { extractHighImpactData } from '@/lib/extractHighImpactData';
 import { formatNumber, formatDateTime } from '@/lib/formatters';
 import { LoaderIcon, UsersIcon, UserIcon, BarChart3Icon, SparkIcon } from '@/components/icons';
 import type { AgentResult } from '@/store/analysisStore';
@@ -291,6 +293,34 @@ export default function PrintAnalysisPage() {
             page-break-inside: avoid !important;
           }
 
+          /* 🎯 HIGH IMPACT DASHBOARD - PDF için özel stiller */
+          .high-impact-dashboard {
+            overflow: visible !important;
+            display: block !important;
+            visibility: visible !important;
+          }
+          .high-impact-dashboard .avoid-break {
+            page-break-inside: avoid !important;
+            break-inside: avoid-page !important;
+          }
+          /* Renk swatchları için print color koruması */
+          .high-impact-dashboard [style*="background-color"],
+          .high-impact-dashboard .w-12.h-12,
+          .high-impact-dashboard .w-3.h-3 {
+            print-color-adjust: exact !important;
+            -webkit-print-color-adjust: exact !important;
+          }
+          /* Progress bar segment renkleri */
+          .high-impact-dashboard .h-8 > div {
+            print-color-adjust: exact !important;
+            -webkit-print-color-adjust: exact !important;
+          }
+          /* Circular gauge SVG */
+          .high-impact-dashboard svg circle {
+            print-color-adjust: exact !important;
+            -webkit-print-color-adjust: exact !important;
+          }
+
           /* Grafik ve medya elemanları bölünmesin */
           img,
           table,
@@ -406,6 +436,20 @@ export default function PrintAnalysisPage() {
         {showSection('executiveSummary') && (
           <div className="print-section">
             <ExecutiveSummary {...generateExecutiveSummary(analysis)} />
+          </div>
+        )}
+
+        {/* 🎯 HIGH IMPACT DASHBOARD - Vurucu Gerçekler */}
+        {showSection('highImpactDashboard') && (
+          <div className="print-section page-break">
+            <HighImpactDashboard 
+              data={extractHighImpactData({
+                agentResults: analysis.agentResults,
+                profile: analysis.account,
+                username: analysis.account?.username,
+              })} 
+              locale={locale === 'tr' ? 'tr' : 'en'} 
+            />
           </div>
         )}
 

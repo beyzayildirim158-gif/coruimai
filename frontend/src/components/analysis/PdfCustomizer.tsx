@@ -57,6 +57,14 @@ const pdfSections: PdfSection[] = [
     defaultEnabled: true,
   },
   {
+    id: 'highImpactDashboard',
+    nameKey: 'Vurucu Gerçekler',
+    descriptionKey: 'Takipçi röntgeni, benchmark, dikkat metrikleri',
+    icon: <SparkIcon size={18} className="text-purple-500" />,
+    category: 'core',
+    defaultEnabled: true,
+  },
+  {
     id: 'scoreExplainer',
     nameKey: 'Skor Açıklaması',
     descriptionKey: 'Puan detayları ve karşılaştırma',

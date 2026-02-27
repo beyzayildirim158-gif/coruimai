@@ -24,7 +24,9 @@ import {
   PdfCustomizer,
   AdvancedIntelligenceDashboard,
   DataQualityBadge,
+  HighImpactDashboard,
 } from '@/components/analysis';
+import { extractHighImpactData } from '@/lib/extractHighImpactData';
 import { gradeColor, formatNumber, formatPercentage, formatDateTime } from '@/lib/formatters';
 import { LoaderIcon, DownloadCloudIcon, FileTextIcon, SparkIcon, CheckCircleIcon, UsersIcon, UserPlusIcon, Grid3X3Icon, LinkIcon, UserIcon, CalendarIcon, BarChart3Icon } from '@/components/icons';
 import type { AgentResult } from '@/store/analysisStore';
@@ -260,6 +262,16 @@ export default function AnalysisDetailPage() {
         <>
           {/* Executive Summary - Quick overview at the top */}
           <ExecutiveSummary {...generateExecutiveSummary(analysis)} />
+
+          {/* 🎯 HIGH IMPACT DASHBOARD - Vurucu Gerçekler */}
+          <HighImpactDashboard 
+            data={extractHighImpactData({
+              agentResults: analysis.agentResults,
+              profile: analysis.account,
+              username: analysis.account?.username,
+            })} 
+            locale={locale === 'tr' ? 'tr' : 'en'} 
+          />
 
           {/* Advanced Analysis Section - 11 Module Deep Analysis (if available) */}
           {advancedAnalysis && (

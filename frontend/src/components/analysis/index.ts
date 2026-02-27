@@ -39,6 +39,18 @@ export {
 } from './ChartPdfWrapper';
 export { PrintableAdvancedIntelligence } from './PrintableAdvancedIntelligence';
 
+// High Impact Dashboard (Vurucu Gerçekler)
+export { HighImpactDashboard } from './HighImpactDashboard';
+export type {
+  HighImpactData,
+  AudienceSegment,
+  BenchmarkComparison as HighImpactBenchmark,
+  AttentionMetrics,
+  HookRewrite,
+  BrandPalette,
+  ColorSwatch,
+} from './HighImpactDashboard';
+
 // Data Quality
 export { DataQualityBadge } from './DataQualityBadge';
 
