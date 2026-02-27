@@ -10,9 +10,11 @@ import {
   CreditCardIcon,
   SettingsIcon,
   MagicWandIcon,
+  UsersIcon,
 } from '@/components/icons';
 import clsx from 'clsx';
 import { useTranslation } from '@/i18n/TranslationProvider';
+import { useAuthStore } from '@/store/authStore';
 
 interface SidebarProps {
   isMobile?: boolean;
@@ -22,6 +24,7 @@ interface SidebarProps {
 export function Sidebar({ isMobile, onClose }: SidebarProps) {
   const pathname = usePathname();
   const { t } = useTranslation();
+  const { user } = useAuthStore();
 
   const navItems = [
     { href: '/dashboard', label: t('nav.dashboard'), icon: HomeIcon },
@@ -31,6 +34,11 @@ export function Sidebar({ isMobile, onClose }: SidebarProps) {
     { href: '/billing', label: t('nav.billing'), icon: CreditCardIcon },
     { href: '/settings', label: t('nav.settings'), icon: SettingsIcon },
   ];
+
+  // Admin link - only visible to admin users
+  if (user?.isAdmin) {
+    navItems.push({ href: '/admin', label: 'Admin Panel', icon: UsersIcon });
+  }
 
   const handleNavClick = () => {
     if (isMobile && onClose) {

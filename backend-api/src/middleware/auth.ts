@@ -18,6 +18,7 @@ declare global {
         name: string;
         subscriptionTier: SubscriptionTier;
         subscriptionStatus: string;
+        isAdmin: boolean;
       };
     }
   }
@@ -67,6 +68,7 @@ export const authenticate = async (
         subscriptionTier: true,
         subscriptionStatus: true,
         emailVerified: true,
+        isAdmin: true,
       },
     });
 
@@ -86,6 +88,7 @@ export const authenticate = async (
       name: user.name,
       subscriptionTier: user.subscriptionTier,
       subscriptionStatus: user.subscriptionStatus,
+      isAdmin: user.isAdmin,
     };
 
     next();
@@ -144,6 +147,7 @@ export const optionalAuth = async (
         name: true,
         subscriptionTier: true,
         subscriptionStatus: true,
+        isAdmin: true,
       },
     });
 
@@ -154,6 +158,7 @@ export const optionalAuth = async (
         name: user.name,
         subscriptionTier: user.subscriptionTier,
         subscriptionStatus: user.subscriptionStatus,
+        isAdmin: user.isAdmin,
       };
     }
 

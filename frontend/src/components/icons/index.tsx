@@ -537,6 +537,18 @@ export const LockIcon = forwardRef<SVGSVGElement, IconProps>(({ className, size 
 ));
 LockIcon.displayName = 'LockIcon';
 
+// ===== ADMIN ICONS =====
+
+export const PlusIcon = forwardRef<SVGSVGElement, IconProps>(({ className, size = 24, ...props }, ref) => (
+  <Icon icon="solar:add-circle-bold" className={className} width={size} height={size} {...props} />
+));
+PlusIcon.displayName = 'PlusIcon';
+
+export const EditIcon = forwardRef<SVGSVGElement, IconProps>(({ className, size = 24, ...props }, ref) => (
+  <Icon icon="solar:pen-bold" className={className} width={size} height={size} {...props} />
+));
+EditIcon.displayName = 'EditIcon';
+
 // ===== BRAND/LOGO ICON - Custom for App =====
 
 export const AppLogoIcon = forwardRef<SVGSVGElement, IconProps>(({ className, size = 24, ...props }, ref) => (

@@ -7,7 +7,9 @@ interface User {
   id: string;
   email: string;
   name: string;
+  phone?: string | null;
   avatarUrl?: string | null;
+  isAdmin?: boolean;
   emailVerified: boolean;
   subscriptionTier: SubscriptionTier;
   subscriptionStatus: SubscriptionStatus;

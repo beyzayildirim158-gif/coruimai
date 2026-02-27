@@ -25,6 +25,7 @@ import paymentRoutes from './routes/payment.routes.js';
 import usageRoutes from './routes/usage.routes.js';
 import webhookRoutes from './routes/webhook.routes.js';
 import proxyRoutes from './routes/proxy.routes.js';
+import adminRoutes from './routes/admin.routes.js';
 
 // WebSocket handler
 import { setupWebSocket } from './websocket/index.js';
@@ -125,6 +126,7 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/usage', usageRoutes);
 app.use('/api/webhooks', webhookRoutes);
 app.use('/api/proxy', proxyRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Error handlers
 app.use(notFoundHandler);
