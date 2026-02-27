@@ -30,6 +30,9 @@ interface ELI5Finding {
   kusur?: string;
   realite?: string;
   neden_onemli?: string;
+  // Alternative field names from agent output
+  aksiyon?: string;
+  aptalaCevap?: string;
 }
 
 interface SimplifiedMetric {
@@ -186,31 +189,37 @@ export function ELI5Report({ data }: Props) {
                 {locale === 'tr' ? 'Temel Bulgular' : 'Key Findings'}
               </h4>
               <div className="space-y-3">
-                {findings.map((finding, idx) => (
-                  <div key={idx} className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                    <div className="flex items-start gap-3">
-                      <div className="flex-shrink-0 mt-0.5">
-                        {finding.kusur ? (
-                          <AlertTriangleIcon size={16} className="text-red-500" />
-                        ) : (
-                          <InfoIcon size={16} className="text-blue-500" />
-                        )}
-                      </div>
-                      <div>
-                        <p className="text-xs uppercase tracking-wider text-slate-500 mb-1">{typeof finding.category === 'string' ? finding.category : safeRenderValue(finding.category)}</p>
-                        {finding.kusur && (
-                          <p className="text-sm font-medium text-red-700 mb-1">{typeof finding.kusur === 'string' ? finding.kusur : safeRenderValue(finding.kusur)}</p>
-                        )}
-                        {finding.realite && (
-                          <p className="text-sm text-slate-700 mb-1">{typeof finding.realite === 'string' ? finding.realite : safeRenderValue(finding.realite)}</p>
-                        )}
-                        {finding.neden_onemli && (
-                          <p className="text-xs text-slate-500 italic">{typeof finding.neden_onemli === 'string' ? finding.neden_onemli : safeRenderValue(finding.neden_onemli)}</p>
-                        )}
+                {findings.map((finding, idx) => {
+                  // Support both field naming conventions
+                  const explanation = finding.realite || finding.aptalaCevap;
+                  const importance = finding.neden_onemli || finding.aksiyon;
+                  
+                  return (
+                    <div key={idx} className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                      <div className="flex items-start gap-3">
+                        <div className="flex-shrink-0 mt-0.5">
+                          {finding.kusur ? (
+                            <AlertTriangleIcon size={16} className="text-red-500" />
+                          ) : (
+                            <InfoIcon size={16} className="text-blue-500" />
+                          )}
+                        </div>
+                        <div>
+                          <p className="text-xs uppercase tracking-wider text-slate-500 mb-1">{typeof finding.category === 'string' ? finding.category : safeRenderValue(finding.category)}</p>
+                          {finding.kusur && (
+                            <p className="text-sm font-medium text-red-700 mb-1">{typeof finding.kusur === 'string' ? finding.kusur : safeRenderValue(finding.kusur)}</p>
+                          )}
+                          {explanation && (
+                            <p className="text-sm text-slate-700 mb-1">{typeof explanation === 'string' ? explanation : safeRenderValue(explanation)}</p>
+                          )}
+                          {importance && (
+                            <p className="text-xs text-slate-500 italic">{typeof importance === 'string' ? importance : safeRenderValue(importance)}</p>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
