@@ -20,6 +20,7 @@ import {
   ComprehensiveMetricsDashboard,
   JargonGlossary,
 } from '@/components/analysis';
+import { PrintableAdvancedIntelligence } from '@/components/analysis/PrintableAdvancedIntelligence';
 import { formatNumber, formatDateTime } from '@/lib/formatters';
 import { LoaderIcon, UsersIcon, UserIcon, BarChart3Icon, SparkIcon } from '@/components/icons';
 import type { AgentResult } from '@/store/analysisStore';
@@ -147,15 +148,35 @@ export default function PrintAnalysisPage() {
   }, [analysisId, apiUrl]);
 
   // Sayfa yüklendikten sonra print-ready sinyali ver
+  // Chart'ların tam render olmasını bekler
   useEffect(() => {
     if (analysis && !loading) {
-      // Chartların render olması için bekle
+      // Chart'ların render olması için bekle
+      // 1. İlk render: 1500ms
+      // 2. Chart SVG to Image conversion: 1000ms
+      // 3. Final stabilization: 500ms
+      const CHART_RENDER_WAIT = 4000; // Total: 4 seconds for charts
+      
+      const checkChartsReady = () => {
+        // Tüm chart'ların rendered olup olmadığını kontrol et
+        const chartContainers = document.querySelectorAll('[data-chart-id]');
+        const renderedCharts = document.querySelectorAll('[data-chart-id][data-status="rendered"]');
+        
+        console.log(`🖨️ Charts: ${renderedCharts.length}/${chartContainers.length} rendered`);
+        
+        return chartContainers.length === 0 || renderedCharts.length >= chartContainers.length;
+      };
+
       const timer = setTimeout(() => {
+        // Chart durumunu log'la
+        const chartsReady = checkChartsReady();
+        
         setIsReady(true);
         // Puppeteer'ın okuyacağı global değişken
         (window as any).__PRINT_READY__ = true;
-        console.log('🖨️ Print ready signal sent');
-      }, 3000);
+        console.log('🖨️ Print ready signal sent', { chartsReady });
+      }, CHART_RENDER_WAIT);
+      
       return () => clearTimeout(timer);
     }
   }, [analysis, loading]);
@@ -186,7 +207,7 @@ export default function PrintAnalysisPage() {
     );
   }
 
-  const { eli5Report, finalVerdict, businessIdentity, advancedAnalysis, sanitizationReport: sanitizationFromAgents, hardValidation: hardValidationFromAgents, ...otherAgentResults } = analysis.agentResults || {};
+  const { eli5Report, finalVerdict, businessIdentity, advancedAnalysis, systemGovernor, sanitizationReport: sanitizationFromAgents, hardValidation: hardValidationFromAgents, ...otherAgentResults } = analysis.agentResults || {};
   const agentEntries = Object.entries(otherAgentResults || {});
   const filteredAgentEntries = agentEntries.filter(([agentKey]) => showAgentSection(agentKey));
   const sanitizationReport = sanitizationFromAgents || analysis.sanitizationReport;
@@ -226,9 +247,51 @@ export default function PrintAnalysisPage() {
             break-inside: avoid-page;
           }
 
-          /* Grafik ve medya elemanları bölünmesin */
+          /* ============================================
+             🎯 CHART & SVG FIX FOR PDF
+             ============================================ */
+          
+          /* SVG ve Canvas görünürlüğü - KRITIK */
           canvas,
-          svg,
+          svg {
+            page-break-inside: avoid !important;
+            break-inside: avoid-page !important;
+            overflow: visible !important;
+            display: block !important;
+            visibility: visible !important;
+          }
+
+          /* Recharts wrapper'lar için overflow fix */
+          .recharts-wrapper,
+          .recharts-surface,
+          .recharts-responsive-container {
+            overflow: visible !important;
+            display: block !important;
+            visibility: visible !important;
+          }
+
+          /* Chart container'lar için görünürlük garantisi */
+          .chart-container,
+          [data-chart-id],
+          .chart-pdf-wrapper {
+            overflow: visible !important;
+            page-break-inside: avoid !important;
+            break-inside: avoid-page !important;
+            display: block !important;
+            visibility: visible !important;
+            min-height: auto !important;
+          }
+
+          /* Advanced Intelligence Dashboard özel fix */
+          .printable-advanced-intelligence,
+          [data-section="advanced-intelligence"] {
+            overflow: visible !important;
+            display: block !important;
+            visibility: visible !important;
+            page-break-inside: avoid !important;
+          }
+
+          /* Grafik ve medya elemanları bölünmesin */
           img,
           table,
           tr,
@@ -244,6 +307,18 @@ export default function PrintAnalysisPage() {
           .flex {
             break-inside: auto;
           }
+
+          /* Word Cloud fallback için */
+          .word-cloud-fallback {
+            page-break-inside: avoid !important;
+            break-inside: avoid-page !important;
+          }
+
+          /* Recharts animasyonlarını devre dışı bırak */
+          .recharts-animation-wrapper {
+            animation: none !important;
+            transition: none !important;
+          }
         }
         @page {
           size: A4;
@@ -254,12 +329,19 @@ export default function PrintAnalysisPage() {
           page-break-inside: auto;
           break-inside: auto;
           margin-bottom: 20px;
+          overflow: visible !important;
         }
 
         /* Bölüm içindeki çocuklar mümkünse tek parça kalsın */
         .print-section > * {
           break-inside: avoid-page;
         }
+
+        /* Chart'lar için global overflow fix */
+        .recharts-wrapper {
+          overflow: visible !important;
+        }
+
         /* Tailwind primary color fix for print */
         .from-primary-400 { --tw-gradient-from: #60a5fa; }
         .to-primary-600 { --tw-gradient-to: #2563eb; }
@@ -331,6 +413,17 @@ export default function PrintAnalysisPage() {
         {showAnySection('swotAnalysis', 'riskAssessment', 'contentStrategy') && advancedAnalysis && (
           <div className="print-section page-break">
             <AdvancedAnalysisSection data={advancedAnalysis} />
+          </div>
+        )}
+
+        {/* Advanced Intelligence Dashboard - Charts: Polarity, Chronobiology, Sentiment, Benchmark, Trend */}
+        {showAnySection('advancedIntelligence', 'swotAnalysis', 'riskAssessment', 'contentStrategy') && systemGovernor && (
+          <div className="print-section page-break">
+            <PrintableAdvancedIntelligence
+              systemGovernor={systemGovernor}
+              locale={locale === 'tr' ? 'tr' : 'en'}
+              convertChartsToImages={true}
+            />
           </div>
         )}
 

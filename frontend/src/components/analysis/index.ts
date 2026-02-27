@@ -28,6 +28,17 @@ export { SanitizationReport } from './SanitizationReport';
 export { ComprehensiveMetricsDashboard } from './ComprehensiveMetricsDashboard';
 export { AdvancedIntelligenceDashboard } from './AdvancedIntelligenceDashboard';
 
+// PDF Export Components & Utilities
+export { 
+  ChartPdfWrapper, 
+  useChartPdfReady, 
+  preparePdfExport, 
+  cleanupPdfExport,
+  setPdfExportMode,
+  isPdfExportMode 
+} from './ChartPdfWrapper';
+export { PrintableAdvancedIntelligence } from './PrintableAdvancedIntelligence';
+
 // Data Quality
 export { DataQualityBadge } from './DataQualityBadge';
 
