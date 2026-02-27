@@ -40,9 +40,25 @@ interface SimplifiedMetric {
 }
 
 interface RewrittenHook {
-  original: string;
-  rewritten: string;
-  reason: string;
+  // Support both formats: LLM output format and sanitized format
+  original?: string;
+  rewritten?: string;
+  reason?: string;
+  // LLM output format
+  badHook?: string;
+  newHook?: string;
+  whyItWorks?: string;
+  originalCaption?: string;
+  triggerUsed?: string;
+}
+
+// Helper function to normalize hook data from either format
+function normalizeHook(hook: RewrittenHook): { original: string; rewritten: string; reason: string } {
+  return {
+    original: hook.original || hook.badHook || hook.originalCaption || '',
+    rewritten: hook.rewritten || hook.newHook || '',
+    reason: hook.reason || hook.whyItWorks || (hook.triggerUsed ? `Tetikleyici: ${hook.triggerUsed}` : ''),
+  };
 }
 
 interface ELI5ReportData {
@@ -231,19 +247,31 @@ export function ELI5Report({ data }: Props) {
                 {locale === 'tr' ? 'İyileştirilmiş Hook\'lar' : 'Improved Hooks'}
               </h4>
               <div className="space-y-3">
-                {rewrittenHooks.map((hook, idx) => (
-                  <div key={idx} className="rounded-xl border border-slate-200 bg-gradient-to-r from-green-50 to-emerald-50 p-4">
-                    <div className="mb-2">
-                      <p className="text-xs uppercase tracking-wider text-slate-500 mb-1">{locale === 'tr' ? 'Orijinal' : 'Original'}</p>
-                      <p className="text-sm text-slate-600 line-through">{hook.original}</p>
+                {rewrittenHooks.map((hook, idx) => {
+                  // Normalize hook data to handle both LLM format and sanitized format
+                  const normalizedHook = normalizeHook(hook);
+                  // Skip if both original and rewritten are empty
+                  if (!normalizedHook.original && !normalizedHook.rewritten) return null;
+                  return (
+                    <div key={idx} className="rounded-xl border border-slate-200 bg-gradient-to-r from-green-50 to-emerald-50 p-4">
+                      {normalizedHook.original && (
+                        <div className="mb-2">
+                          <p className="text-xs uppercase tracking-wider text-slate-500 mb-1">{locale === 'tr' ? 'Orijinal' : 'Original'}</p>
+                          <p className="text-sm text-slate-600 line-through">{normalizedHook.original}</p>
+                        </div>
+                      )}
+                      {normalizedHook.rewritten && (
+                        <div className="mb-2">
+                          <p className="text-xs uppercase tracking-wider text-green-600 mb-1">{locale === 'tr' ? 'İyileştirilmiş' : 'Improved'}</p>
+                          <p className="text-sm font-medium text-slate-900">{normalizedHook.rewritten}</p>
+                        </div>
+                      )}
+                      {normalizedHook.reason && (
+                        <p className="text-xs text-slate-500 italic">{normalizedHook.reason}</p>
+                      )}
                     </div>
-                    <div className="mb-2">
-                      <p className="text-xs uppercase tracking-wider text-green-600 mb-1">{locale === 'tr' ? 'İyileştirilmiş' : 'Improved'}</p>
-                      <p className="text-sm font-medium text-slate-900">{hook.rewritten}</p>
-                    </div>
-                    <p className="text-xs text-slate-500 italic">{hook.reason}</p>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}

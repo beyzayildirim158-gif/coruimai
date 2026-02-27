@@ -520,7 +520,8 @@ class MetricSanityGates:
 
         engagement_rate = None
         if followers and followers > 0:
-            engagement_rate = ((avg_likes + avg_comments) / followers) * 100
+            # Clamp engagement rate to valid range [0, 100]
+            engagement_rate = max(0.0, min(100.0, ((avg_likes + avg_comments) / followers) * 100))
 
         # Write canonical outputs to systemGovernor metrics for downstream consistency
         if "systemGovernor" in results and not results["systemGovernor"].get("error_flag"):
@@ -1343,7 +1344,8 @@ class MetricSanityGates:
             avg_likes = self._to_number(account_data.get("avgLikes")) or 0.0
             avg_comments = self._to_number(account_data.get("avgComments")) or 0.0
             if followers and followers > 0:
-                engagement_rate = ((avg_likes + avg_comments) / followers) * 100
+                # Clamp engagement rate to valid range [0, 100]
+                engagement_rate = max(0.0, min(100.0, ((avg_likes + avg_comments) / followers) * 100))
 
         high_engagement = (
             engagement_rate is not None

@@ -251,6 +251,29 @@ class BaseAgent(ABC):
 ❌ YANLIŞ: "impact": "High - will improve algorithm ranking"
 ✅ DOĞRU: "impact": "Yüksek - algoritma sıralamasını iyileştirecek"
 
+🚫 TEKRAR ETMEME KURALI - BENZERSİZLİK ZORUNLU 🚫
+- Her finding FARKLI bir konuyu ele almalı
+- Aynı metriği birden fazla finding'de analiz etme
+- Her recommendation BENZERSİZ bir aksiyon önermelidir
+- "Implement 'Comment Magnet' Strategy" gibi şablon action'ları TEKRARLAMA
+- Aynı soruna farklı kelimelerle değinme YASAK
+- Şu metriklerin her biri SADECE 1 KERE ele alınabilir:
+  * Etkileşim oranı (1 finding max)
+  * Büyüme oranı (1 finding max)
+  * Bot skoru (1 finding max)
+  * Grid kalitesi (1 finding max)
+  * Renk tutarlılığı (1 finding max)
+
+❌ YANLIŞ (tekrar):
+  - Finding 1: "Etkileşim oranı düşük"
+  - Finding 2: "Etkileşim yetersiz"
+  - Finding 3: "Takipçi etkileşimi zayıf"
+
+✅ DOĞRU (benzersiz konular):
+  - Finding 1: "Etkileşim oranı %0.73 - sektör ortalamasının %79 altında"
+  - Finding 2: "Grid yapısı tutarsız - marka kimliği oluşturulamamış"
+  - Finding 3: "Reels kullanımı yok - algoritma avantajından yararlanılmıyor"
+
 YASAKLI İFADELER (KULLANMA!):
 - "Potansiyel var/vadediyor" → YASAK
 - "Gelişmekte/Gelişme aşamasında" → YASAK  
@@ -866,8 +889,11 @@ BU HESAPLAR İÇİN BAŞARI METRİĞİ:
         Priority:
         1. Use existing overallScore if valid
         2. Extract scores from nested analysis objects
-        3. Calculate from available score metrics
+        3. Calculate from available score metrics (excluding zeros)
         4. Fall back to default (50.0)
+        
+        IMPORTANT: Zero scores are excluded from calculation to prevent
+        agents with missing data from reporting artificially low scores.
         
         Args:
             result: The parsed and validated response
@@ -891,27 +917,39 @@ BU HESAPLAR İÇİN BAŞARI METRİĞİ:
         # Also extract from flat metrics
         flat_scores = []
         flat_keys = []
+        zero_metrics = []  # Track metrics that are 0 for debugging
+        
         for key, value in metrics.items():
             if isinstance(value, (int, float)):
                 key_lower = key.lower()
                 # Look for score-like keys
                 if any(term in key_lower for term in ['score', 'rating', 'index', 'quality']):
                     if 0 <= value <= 100:
-                        flat_scores.append(float(value))
-                        flat_keys.append(key)
+                        if value > 0:  # CRITICAL: Exclude zeros from calculation
+                            flat_scores.append(float(value))
+                            flat_keys.append(key)
+                        else:
+                            zero_metrics.append(key)
         
-        # Combine all scores
-        all_scores = nested_scores + flat_scores
+        # Filter out zeros from nested scores too
+        nested_scores_filtered = [s for s in nested_scores if s > 0]
+        
+        # Combine all non-zero scores
+        all_scores = nested_scores_filtered + flat_scores
+        
+        # Track zero metrics for transparency
+        if zero_metrics:
+            metrics["_zeroMetrics"] = zero_metrics
         
         if all_scores:
-            # Calculate weighted average (simple average for now)
+            # Calculate weighted average from non-zero scores only
             calculated_score = sum(all_scores) / len(all_scores)
             metrics["overallScore"] = round(max(0, min(100, calculated_score)), 2)
-            logger.info(f"[{self.name}] Calculated overallScore={metrics['overallScore']:.2f} from {len(all_scores)} scores (nested: {len(nested_scores)}, flat: {len(flat_scores)})")
+            logger.info(f"[{self.name}] Calculated overallScore={metrics['overallScore']:.2f} from {len(all_scores)} non-zero scores (nested: {len(nested_scores_filtered)}, flat: {len(flat_scores)}, zeros excluded: {len(zero_metrics)})")
         else:
-            # No score metrics found, use default
+            # No valid score metrics found, use default
             metrics["overallScore"] = 50.0
-            logger.warning(f"[{self.name}] No score metrics found, using default overallScore=50.0")
+            logger.warning(f"[{self.name}] No non-zero score metrics found, using default overallScore=50.0")
         
         # Enrich metrics with extracted nested scores
         result = self._enrich_metrics_from_nested(result)
@@ -1534,6 +1572,7 @@ BU HESAPLAR İÇİN BAŞARI METRİĞİ:
         Calculate standard engagement rate
         
         Formula: ((likes + comments) / followers) × 100
+        Clamped to [0, 100] range to prevent impossible values.
         
         Args:
             likes: Total likes
@@ -1541,11 +1580,13 @@ BU HESAPLAR İÇİN BAŞARI METRİĞİ:
             followers: Follower count
             
         Returns:
-            Engagement rate percentage
+            Engagement rate percentage (0-100)
         """
         if followers == 0:
             return 0.0
-        return round(((likes + comments) / followers) * 100, 2)
+        # Clamp to valid range - engagement rate cannot be negative or exceed 100%
+        rate = ((likes + comments) / followers) * 100
+        return round(max(0.0, min(100.0, rate)), 2)
     
     def calculate_growth_rate(self, current: int, previous: int) -> float:
         """

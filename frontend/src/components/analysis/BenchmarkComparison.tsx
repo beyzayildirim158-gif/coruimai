@@ -44,7 +44,13 @@ function getVerdict(
     belowAverage: 'Ortalamanın altında',
   };
   
+  // Handle edge cases: if benchmarks are 0 or invalid
+  if (nicheAverage <= 0 || topPerformers <= 0) {
+    return { label: labels.average, emoji: '➡️', color: 'text-yellow-600' };
+  }
+  
   if (higherIsBetter) {
+    // Higher value = better (e.g., engagement rate, followers)
     if (value >= topPerformers * 0.9) {
       return { label: labels.topLevel, emoji: '⭐', color: 'text-green-600' };
     }
@@ -56,8 +62,9 @@ function getVerdict(
     }
     return { label: labels.belowAverage, emoji: '⚠️', color: 'text-red-600' };
   } else {
-    // Lower is better (e.g., bot score)
-    if (value <= topPerformers * 1.1) {
+    // Lower is better (e.g., bot score, churn rate)
+    // For bot score: lower = better, so if value < topPerformers (best case), it's great
+    if (value <= topPerformers) {
       return { label: labels.topLevel, emoji: '⭐', color: 'text-green-600' };
     }
     if (value <= nicheAverage) {

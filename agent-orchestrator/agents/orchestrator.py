@@ -1429,7 +1429,8 @@ class AgentOrchestrator:
                 avg_likes = sum(p.get("likes", 0) for p in posts) / len(posts)
                 avg_comments = sum(p.get("comments", 0) for p in posts) / len(posts)
                 followers = enriched.get("followers", 1) or 1
-                engagement_rate = ((avg_likes + avg_comments) / followers) * 100
+                # Clamp engagement rate to valid range [0, 100]
+                engagement_rate = max(0.0, min(100.0, ((avg_likes + avg_comments) / followers) * 100))
                 
                 enriched["avgLikes"] = avg_likes
                 enriched["avgComments"] = avg_comments
